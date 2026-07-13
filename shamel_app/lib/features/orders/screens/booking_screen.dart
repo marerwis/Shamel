@@ -1,0 +1,322 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../home/providers/services_provider.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../providers/orders_provider.dart';
+
+class BookingScreen extends ConsumerStatefulWidget {
+  final ServiceModel? service;
+
+  const BookingScreen({super.key, this.service});
+
+  @override
+  ConsumerState<BookingScreen> createState() => _BookingScreenState();
+}
+
+class _BookingScreenState extends ConsumerState<BookingScreen> {
+  int _selectedDateIndex = 0;
+  int _selectedTimeIndex = -1;
+  bool _isLoading = false;
+
+  final TextEditingController _addressController = TextEditingController(text: 'الرياض, حي العليا, شارع 15');
+  final TextEditingController _notesController = TextEditingController();
+
+  final List<String> _dates = ['اليوم', 'غداً', 'بعد غد'];
+  final List<String> _times = ['09:00 ص', '10:00 ص', '11:00 ص', '01:00 م', '03:00 م', '05:00 م'];
+
+  @override
+  void dispose() {
+    _addressController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submitOrder() async {
+    final user = ref.read(currentUserProvider);
+    if (user == null || widget.service == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('الرجاء تسجيل الدخول واختيار خدمة صحيحة')),
+      );
+      return;
+    }
+
+    if (_selectedTimeIndex == -1) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Calculate a dummy scheduledAt based on selection
+      DateTime now = DateTime.now();
+      DateTime scheduledDate = now.add(Duration(days: _selectedDateIndex));
+      // Parse hour from _times string
+      String timeStr = _times[_selectedTimeIndex];
+      int hour = int.parse(timeStr.split(':')[0]);
+      if (timeStr.contains('م') && hour != 12) hour += 12;
+      
+      DateTime finalScheduledAt = DateTime(scheduledDate.year, scheduledDate.month, scheduledDate.day, hour);
+
+      await ref.read(orderControllerProvider).createOrder(
+        customerId: user.id,
+        serviceId: widget.service!.id,
+        price: widget.service!.basePrice,
+        address: _addressController.text,
+        scheduledAt: finalScheduledAt,
+        notes: _notesController.text,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تم تأكيد الحجز بنجاح!'), backgroundColor: Colors.green),
+        );
+        context.go('/orders');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('خطأ أثناء الحجز: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.service == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('حجز الخدمة')),
+        body: const Center(child: Text('الرجاء اختيار خدمة أولاً')),
+      );
+    }
+
+    final srv = widget.service!;
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_forward),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            }
+          },
+          color: AppColors.primary,
+        ),
+        title: const Text('تفاصيل الحجز', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+        centerTitle: true,
+        backgroundColor: AppColors.surface,
+        elevation: 0,
+      ),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Service Info Snippet
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceContainerLowest,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.outlineVariant.withOpacity(0.5)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryContainer,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.home_repair_service, color: AppColors.onPrimaryContainer, size: 28),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(srv.name, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 4),
+                            Text(srv.category, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.onSurfaceVariant)),
+                          ],
+                        ),
+                      ),
+                      Text('SAR ${srv.basePrice}', style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                // Location
+                Text('موقع الخدمة', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _addressController,
+                  decoration: InputDecoration(
+                    hintText: 'أدخل تفاصيل العنوان...',
+                    prefixIcon: const Icon(Icons.location_on, color: AppColors.primary),
+                    filled: true,
+                    fillColor: AppColors.surface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: AppColors.outlineVariant),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: AppColors.outlineVariant),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                // Date Selection
+                Text('تاريخ الخدمة', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: List.generate(_dates.length, (index) {
+                      final isSelected = _selectedDateIndex == index;
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: ChoiceChip(
+                          label: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            child: Text(_dates[index]),
+                          ),
+                          selected: isSelected,
+                          onSelected: (selected) {
+                            setState(() {
+                              _selectedDateIndex = index;
+                              _selectedTimeIndex = -1; // Reset time
+                            });
+                          },
+                          selectedColor: AppColors.primary,
+                          backgroundColor: AppColors.surface,
+                          labelStyle: TextStyle(
+                            color: isSelected ? AppColors.onPrimary : AppColors.onSurfaceVariant,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Time Selection
+                Text('الوقت المتاح', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: List.generate(_times.length, (index) {
+                    final isSelected = _selectedTimeIndex == index;
+                    return InkWell(
+                      onTap: () {
+                        setState(() {
+                          _selectedTimeIndex = index;
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        width: (MediaQuery.of(context).size.width - 44) / 3, // 3 columns
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: isSelected ? AppColors.primaryContainer : AppColors.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: isSelected ? AppColors.primary : AppColors.outlineVariant),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          _times[index],
+                          style: TextStyle(
+                            color: isSelected ? AppColors.onPrimaryContainer : AppColors.onSurface,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 32),
+
+                // Problem Description
+                Text('وصف المشكلة والملاحظات (اختياري)', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _notesController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: 'اكتب تفاصيل المشكلة أو أي ملاحظات للمزود...',
+                    hintStyle: const TextStyle(color: AppColors.outline),
+                    filled: true,
+                    fillColor: AppColors.surface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: AppColors.outlineVariant),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: AppColors.outlineVariant),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: AppColors.primary),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 100), // Space for bottom bar
+              ],
+            ),
+          ),
+          
+          if (_isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.3),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+        ],
+      ),
+      bottomSheet: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -4)),
+          ],
+        ),
+        child: SafeArea(
+          child: ElevatedButton(
+            onPressed: (_selectedTimeIndex != -1 && !_isLoading) ? _submitOrder : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.onPrimary,
+              disabledBackgroundColor: AppColors.surfaceVariant,
+              disabledForegroundColor: AppColors.onSurfaceVariant,
+              minimumSize: const Size(double.infinity, 56),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
+            child: const Text('تأكيد الحجز', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          ),
+        ),
+      ),
+    );
+  }
+}
