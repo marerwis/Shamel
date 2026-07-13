@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Shamel - Profile &amp; Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-dim": "#dad9e1",
+                      "primary-container": "#1e3a8a",
+                      "tertiary-fixed": "#ffdbcb",
+                      "primary-fixed": "#dce1ff",
+                      "on-error-container": "#93000a",
+                      "outline": "#757682",
+                      "surface-bright": "#faf8ff",
+                      "on-error": "#ffffff",
+                      "secondary-fixed": "#89f5e7",
+                      "surface-container-highest": "#e3e1e9",
+                      "surface-container-low": "#f4f3fa",
+                      "error-container": "#ffdad6",
+                      "on-background": "#1a1b21",
+                      "on-surface-variant": "#444651",
+                      "secondary": "#006a61",
+                      "secondary-container": "#86f2e4",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "inverse-on-surface": "#f1f0f7",
+                      "surface": "#faf8ff",
+                      "inverse-primary": "#b6c4ff",
+                      "primary": "#00236f",
+                      "on-primary-fixed": "#00164e",
+                      "tertiary-container": "#6e2c00",
+                      "primary-fixed-dim": "#b6c4ff",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container": "#eeedf4",
+                      "surface-container-high": "#e9e7ef",
+                      "on-tertiary-fixed": "#341100",
+                      "on-secondary-fixed-variant": "#005049",
+                      "surface-variant": "#e3e1e9",
+                      "outline-variant": "#c5c5d3",
+                      "tertiary": "#4b1c00",
+                      "on-primary-container": "#90a8ff",
+                      "on-secondary-container": "#006f66",
+                      "on-surface": "#1a1b21",
+                      "on-tertiary-fixed-variant": "#773205",
+                      "on-primary": "#ffffff",
+                      "secondary-fixed-dim": "#6bd8cb",
+                      "error": "#ba1a1a",
+                      "on-primary-fixed-variant": "#264191",
+                      "tertiary-fixed-dim": "#ffb691",
+                      "on-secondary-fixed": "#00201d",
+                      "on-tertiary-container": "#f39461",
+                      "inverse-surface": "#2f3036",
+                      "surface-tint": "#4059aa",
+                      "background": "#faf8ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "40px",
+                      "stack-sm": "8px",
+                      "stack-md": "16px",
+                      "container-max": "1280px",
+                      "stack-lg": "32px",
+                      "margin-mobile": "16px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "label-sm": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "body-lg": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "headline-md": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "display-lg-mobile": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "display-lg": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "label-md": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "headline-lg": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "body-md": [
+                              "IBM Plex Sans Arabic"
+                      ]
+              },
+              "fontSize": {
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "60px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg": [
+                              "30px",
+                              {
+                                      "lineHeight": "38px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body { font-family: 'IBM Plex Sans Arabic', sans-serif; }
+      </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background pb-32">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-surface dark:bg-surface-dim shadow-sm z-40">
+<div class="flex items-center justify-between px-margin-mobile h-16 w-full">
+<button class="text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full p-2 active:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md-mobile text-primary dark:text-primary-fixed-dim font-bold tracking-tight">Shamel</h1>
+<button class="text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full p-2 active:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<main class="px-margin-mobile pt-stack-lg max-w-container-max mx-auto md:px-margin-desktop">
+<!-- Profile Header -->
+<section class="flex flex-col items-center justify-center bg-surface-container-lowest rounded-xl p-stack-lg shadow-sm mb-stack-lg border border-surface-variant">
+<div class="relative w-24 h-24 mb-4">
+<img class="w-full h-full object-cover rounded-full shadow-md border-4 border-surface-container-low" data-alt="A professional studio portrait photograph of a confident middle eastern man with short dark hair, wearing a clean modern casual shirt. The background is a soft, minimalist light grey, consistent with a clean corporate aesthetic. Soft even lighting highlights his face." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2Vj9SMDDV78Fg-CzzlQ2WB0xbGWBmrIKz0lMvOz44M-cuBW8z-pD9V8XAOqEvLsbfPaDRI_c_llu293MYmRZDKyRfvKNkxkpTWWcNedWoe25rKuEC0ZvkVzxBS7FlnPP4IegR6ZMl_IGwJ4TKLdeFuJFB71EPy2tioiCMHmLcnALvAbju_rw71Kb6IU5Eun3IFWntS46E52cP5IBRtBFw3pnlpp4Pt4ahg0o76FFwFEFRe9VI3kT4-Qn2v-zEpqTqpSOJF33mYZ_n"/>
+<button class="absolute bottom-0 left-0 bg-primary text-on-primary rounded-full p-1.5 shadow-sm hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="edit" style="font-variation-settings: 'FILL' 1;">edit</span>
+</button>
+</div>
+<h2 class="font-headline-lg text-headline-lg-mobile text-on-surface font-bold">محمد خالد</h2>
+<p class="font-body-md text-body-md text-outline mt-1" dir="ltr">+966 50 123 4567</p>
+</section>
+<!-- Settings List -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-surface-variant overflow-hidden mb-stack-lg">
+<div class="flex flex-col">
+<!-- Account Settings -->
+<div class="px-4 py-3 bg-surface-container-low border-b border-surface-variant">
+<h3 class="font-label-md text-label-md text-primary font-bold">إعدادات الحساب</h3>
+</div>
+<button class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors border-b border-surface-variant group">
+<div class="flex items-center gap-4">
+<div class="bg-primary-fixed/20 text-primary p-2 rounded-lg group-hover:bg-primary-fixed group-hover:text-primary-container transition-colors">
+<span class="material-symbols-outlined" data-icon="person_outline">person_outline</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface font-medium">تعديل البيانات الشخصية</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors transform rotate-180" data-icon="chevron_right">chevron_right</span>
+</button>
+<button class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors border-b border-surface-variant group">
+<div class="flex items-center gap-4">
+<div class="bg-secondary-fixed/20 text-secondary p-2 rounded-lg group-hover:bg-secondary-fixed group-hover:text-secondary-container transition-colors">
+<span class="material-symbols-outlined" data-icon="location_on">location_on</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface font-medium">عناويننا المحفوظة</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors transform rotate-180" data-icon="chevron_right">chevron_right</span>
+</button>
+<button class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors border-b border-surface-variant group">
+<div class="flex items-center gap-4">
+<div class="bg-tertiary-fixed/20 text-tertiary p-2 rounded-lg group-hover:bg-tertiary-fixed group-hover:text-tertiary-container transition-colors">
+<span class="material-symbols-outlined" data-icon="payment">payment</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface font-medium">طرق الدفع</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors transform rotate-180" data-icon="chevron_right">chevron_right</span>
+</button>
+<!-- Security & Preferences -->
+<div class="px-4 py-3 bg-surface-container-low border-b border-surface-variant border-t">
+<h3 class="font-label-md text-label-md text-primary font-bold">الأمان والتفضيلات</h3>
+</div>
+<button class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors border-b border-surface-variant group">
+<div class="flex items-center gap-4">
+<div class="bg-surface-variant text-on-surface-variant p-2 rounded-lg group-hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined" data-icon="shield_lock">shield_lock</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface font-medium">الأمان وتغيير كلمة المرور</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors transform rotate-180" data-icon="chevron_right">chevron_right</span>
+</button>
+<button class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors border-b border-surface-variant group">
+<div class="flex items-center gap-4">
+<div class="bg-surface-variant text-on-surface-variant p-2 rounded-lg group-hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications_active">notifications_active</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface font-medium">التنبيهات</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors transform rotate-180" data-icon="chevron_right">chevron_right</span>
+</button>
+<button class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors border-b border-surface-variant group">
+<div class="flex items-center gap-4">
+<div class="bg-surface-variant text-on-surface-variant p-2 rounded-lg group-hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined" data-icon="language">language</span>
+</div>
+<div class="flex flex-col items-start">
+<span class="font-body-md text-body-md text-on-surface font-medium">اللغة</span>
+<span class="font-label-sm text-label-sm text-outline">العربية</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors transform rotate-180" data-icon="chevron_right">chevron_right</span>
+</button>
+<!-- Support & Legal -->
+<div class="px-4 py-3 bg-surface-container-low border-b border-surface-variant border-t">
+<h3 class="font-label-md text-label-md text-primary font-bold">الدعم والسياسات</h3>
+</div>
+<button class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors border-b border-surface-variant group">
+<div class="flex items-center gap-4">
+<div class="bg-surface-variant text-on-surface-variant p-2 rounded-lg group-hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined" data-icon="help_center">help_center</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface font-medium">مركز المساعدة والدعم</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors transform rotate-180" data-icon="chevron_right">chevron_right</span>
+</button>
+<button class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-4">
+<div class="bg-surface-variant text-on-surface-variant p-2 rounded-lg group-hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface font-medium">الشروط والأحكام</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors transform rotate-180" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</section>
+<!-- Logout Button -->
+<button class="w-full flex items-center justify-center gap-2 bg-error-container/20 text-error border border-error-container hover:bg-error-container/40 transition-colors rounded-xl py-4 mb-stack-lg active:scale-[0.98] duration-150 font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+            تسجيل الخروج
+        </button>
+</main>
+<!-- BottomNavBar (Mobile only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 pb-6 bg-surface-container-lowest dark:bg-inverse-surface shadow-[0_-4px_15px_rgba(0,0,0,0.05)] z-50 rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline-variant hover:text-primary transition-all active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline-variant hover:text-primary transition-all active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="receipt_long">receipt_long</span>
+<span class="font-label-md text-label-md">Orders</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline-variant hover:text-primary transition-all active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-label-md text-label-md">Wallet</span>
+</a>
+<!-- Active Tab: Profile -->
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-on-secondary-fixed-variant text-on-secondary-container dark:text-secondary-fixed rounded-full px-5 py-1 hover:text-primary transition-all active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+</nav>
+</body></html>

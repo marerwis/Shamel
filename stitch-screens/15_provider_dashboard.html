@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Shamel Provider Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface": "#faf8ff",
+                      "on-tertiary": "#ffffff",
+                      "on-primary-fixed-variant": "#264191",
+                      "on-error-container": "#93000a",
+                      "outline": "#757682",
+                      "secondary-fixed-dim": "#6bd8cb",
+                      "secondary-container": "#86f2e4",
+                      "surface-tint": "#4059aa",
+                      "on-surface": "#1a1b21",
+                      "surface-variant": "#e3e1e9",
+                      "secondary": "#006a61",
+                      "tertiary-container": "#6e2c00",
+                      "surface-dim": "#dad9e1",
+                      "surface-container-highest": "#e3e1e9",
+                      "on-secondary": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "primary-container": "#1e3a8a",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-fixed": "#341100",
+                      "surface-container-low": "#f4f3fa",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed-dim": "#ffb691",
+                      "primary-fixed-dim": "#b6c4ff",
+                      "on-primary-container": "#90a8ff",
+                      "outline-variant": "#c5c5d3",
+                      "inverse-on-surface": "#f1f0f7",
+                      "on-surface-variant": "#444651",
+                      "error": "#ba1a1a",
+                      "on-tertiary-container": "#f39461",
+                      "tertiary-fixed": "#ffdbcb",
+                      "on-tertiary-fixed-variant": "#773205",
+                      "surface-container": "#eeedf4",
+                      "on-error": "#ffffff",
+                      "primary": "#00236f",
+                      "on-secondary-fixed-variant": "#005049",
+                      "surface-bright": "#faf8ff",
+                      "on-primary-fixed": "#00164e",
+                      "secondary-fixed": "#89f5e7",
+                      "on-background": "#1a1b21",
+                      "primary-fixed": "#dce1ff",
+                      "on-secondary-container": "#006f66",
+                      "on-secondary-fixed": "#00201d",
+                      "tertiary": "#4b1c00",
+                      "inverse-surface": "#2f3036",
+                      "surface-container-high": "#e9e7ef",
+                      "background": "#faf8ff",
+                      "inverse-primary": "#b6c4ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-max": "1280px",
+                      "stack-lg": "32px",
+                      "stack-md": "16px",
+                      "margin-mobile": "16px",
+                      "stack-sm": "8px",
+                      "gutter": "24px",
+                      "margin-desktop": "40px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "display-lg": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "label-sm": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "body-md": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "body-lg": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "label-md": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "display-lg-mobile": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "headline-md": [
+                              "IBM Plex Sans Arabic"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "30px",
+                              {
+                                      "lineHeight": "38px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "60px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body { font-family: 'IBM Plex Sans Arabic', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-24 pt-16">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-16 bg-surface dark:bg-surface-container-low shadow-sm dark:shadow-none text-primary dark:text-primary-fixed">
+<div class="flex items-center gap-4 cursor-pointer active:scale-95 transition-transform hover:bg-surface-container-high p-2 rounded-full">
+<span class="material-symbols-outlined">menu</span>
+</div>
+<div class="font-headline-md text-headline-md-mobile md:text-headline-md font-bold">
+            Shamel Dashboard
+        </div>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container cursor-pointer active:scale-95 transition-transform">
+<img alt="Provider profile picture" class="object-cover w-full h-full" data-alt="A professional headshot of an Arab male service provider, smiling confidently, in a modern, well-lit setting, wearing neat work attire. The lighting is bright and soft, creating a clean, high-quality, professional corporate aesthetic with light mode colors." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQilX-UoD7dvuyYpKCOl5YzzLEdC7qEnLketHImKl29LQM0Sm6469KvLN8ePjBgmQtFxiIdgFAPKab_7CLt-V5QlLIOQKhP2QvCuuopgM0stffI1g77JflCdAa5xr0rGtbu5I_Y7eNs9KdlfTvCVsY5BhXfCcpzSjDHfjep4NXQmzuKIsKhbEH5tI8ghbNxsFpXuAiKRleTlHwP-cfn_T7Yi8LpZ51TXThugIHRKz6sGwo967S_BSlTnyPCe0h63L5_I8B7CIwVVnf"/>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop mt-stack-md flex flex-col gap-stack-lg">
+<!-- Welcome Section -->
+<section class="flex justify-between items-center bg-surface-container-low p-6 rounded-xl shadow-[0_4px_15px_rgba(0,0,0,0.05)] border border-surface-variant">
+<div>
+<h1 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary">أهلاً أحمد،</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">إليك ملخص أداءك اليوم.</p>
+</div>
+<div class="bg-secondary-container text-on-secondary-container px-4 py-2 rounded-full font-label-md text-label-md flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">bolt</span>
+                متاح للعمل
+            </div>
+</section>
+<!-- Quick Stats Cards (Bento Grid Style) -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-stack-md">
+<!-- Total Earnings -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_4px_15px_rgba(0,0,0,0.05)] border border-surface-variant flex flex-col justify-between hover:bg-surface-container-low transition-colors group cursor-pointer relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary-container/5 rounded-bl-full -z-0 transition-transform group-hover:scale-110"></div>
+<div class="flex justify-between items-start z-10">
+<div class="w-12 h-12 rounded-lg bg-primary-container/10 flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<span class="text-secondary font-label-sm text-label-sm bg-secondary/10 px-2 py-1 rounded-md flex items-center gap-1">+12% <span class="material-symbols-outlined text-[10px]">trending_up</span></span>
+</div>
+<div class="z-10">
+<p class="font-body-md text-body-md text-on-surface-variant mb-1">إجمالي الأرباح</p>
+<p class="font-display-lg text-display-lg-mobile md:text-display-lg text-primary">2,450 <span class="font-body-md text-body-md text-on-surface-variant">ر.س</span></p>
+</div>
+</div>
+<!-- Active Orders -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_4px_15px_rgba(0,0,0,0.05)] border border-surface-variant flex flex-col justify-between hover:bg-surface-container-low transition-colors group cursor-pointer relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-bl-full -z-0 transition-transform group-hover:scale-110"></div>
+<div class="flex justify-between items-start z-10">
+<div class="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary mb-4">
+<span class="material-symbols-outlined">work_history</span>
+</div>
+</div>
+<div class="z-10">
+<p class="font-body-md text-body-md text-on-surface-variant mb-1">الطلبات النشطة</p>
+<p class="font-display-lg text-display-lg-mobile md:text-display-lg text-primary">3</p>
+</div>
+</div>
+<!-- Performance Rating -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_4px_15px_rgba(0,0,0,0.05)] border border-surface-variant flex flex-col justify-between hover:bg-surface-container-low transition-colors group cursor-pointer relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-tertiary-container/5 rounded-bl-full -z-0 transition-transform group-hover:scale-110"></div>
+<div class="flex justify-between items-start z-10">
+<div class="w-12 h-12 rounded-lg bg-tertiary-container/10 flex items-center justify-center text-tertiary-container mb-4">
+<span class="material-symbols-outlined">star</span>
+</div>
+<span class="text-on-surface-variant font-label-sm text-label-sm bg-surface-variant/50 px-2 py-1 rounded-md">من 150 تقييم</span>
+</div>
+<div class="z-10">
+<p class="font-body-md text-body-md text-on-surface-variant mb-1">تقييم الأداء</p>
+<p class="font-display-lg text-display-lg-mobile md:text-display-lg text-primary flex items-baseline gap-2">4.8 <span class="material-symbols-outlined text-tertiary-container text-2xl" style="font-variation-settings: 'FILL' 1;">star</span></p>
+</div>
+</div>
+</section>
+<!-- Current Orders -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0_4px_15px_rgba(0,0,0,0.05)] border border-surface-variant overflow-hidden">
+<div class="px-6 py-4 border-b border-surface-variant flex justify-between items-center bg-surface-container-low">
+<h2 class="font-headline-md text-headline-md-mobile md:text-headline-md text-primary">الطلبات الحالية</h2>
+<button class="text-secondary font-label-md text-label-md hover:underline">عرض الكل</button>
+</div>
+<div class="divide-y divide-surface-variant">
+<!-- Order Item 1 -->
+<div class="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">plumbing</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-lg font-semibold text-on-surface">صيانة سباكة - تسرب مياه</h3>
+<p class="font-body-sm text-sm text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[16px]">schedule</span> اليوم، 10:30 صباحاً
+                                <span class="mx-2">•</span>
+<span class="material-symbols-outlined text-[16px]">location_on</span> حي الملقا، الرياض
+                            </p>
+</div>
+</div>
+<div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full font-label-sm text-label-sm border border-primary/20">قيد التنفيذ</span>
+<button class="bg-surface-variant text-on-surface px-4 py-2 rounded-lg font-label-md text-label-md hover:bg-surface-dim transition-colors flex items-center gap-2">
+                            التفاصيل <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+</div>
+</div>
+<!-- Order Item 2 -->
+<div class="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-tertiary-container/20 flex items-center justify-center text-tertiary-container">
+<span class="material-symbols-outlined">electric_bolt</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-lg font-semibold text-on-surface">إصلاح كهرباء - شورت</h3>
+<p class="font-body-sm text-sm text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[16px]">schedule</span> اليوم، 02:00 مساءً
+                                <span class="mx-2">•</span>
+<span class="material-symbols-outlined text-[16px]">location_on</span> حي النرجس، الرياض
+                            </p>
+</div>
+</div>
+<div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
+<span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full font-label-sm text-label-sm border border-outline-variant">مجدول</span>
+<button class="bg-surface-variant text-on-surface px-4 py-2 rounded-lg font-label-md text-label-md hover:bg-surface-dim transition-colors flex items-center gap-2">
+                            التفاصيل <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Weekly Stats -->
+<section class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_4px_15px_rgba(0,0,0,0.05)] border border-surface-variant mb-stack-lg">
+<h2 class="font-headline-md text-headline-md-mobile md:text-headline-md text-primary mb-6">إحصائيات الأسبوع</h2>
+<div class="flex flex-col md:flex-row gap-8">
+<div class="flex-1 flex items-end justify-between h-48 pt-4 border-b border-surface-variant relative pb-2">
+<!-- Y-axis labels mock -->
+<div class="absolute right-0 top-0 h-full flex flex-col justify-between text-xs text-outline pr-2 pb-2">
+<span>1000</span>
+<span>500</span>
+<span>0</span>
+</div>
+<div class="w-full flex justify-around items-end h-full pl-8">
+<!-- Chart Bars -->
+<div class="w-8 md:w-12 bg-primary/20 rounded-t-md h-[40%] relative group cursor-pointer hover:bg-primary/30 transition-colors"><div class="absolute bottom-[-24px] w-full text-center text-xs text-on-surface-variant">الأحد</div></div>
+<div class="w-8 md:w-12 bg-primary/40 rounded-t-md h-[60%] relative group cursor-pointer hover:bg-primary/50 transition-colors"><div class="absolute bottom-[-24px] w-full text-center text-xs text-on-surface-variant">الإثنين</div></div>
+<div class="w-8 md:w-12 bg-primary rounded-t-md h-[90%] relative group cursor-pointer hover:bg-primary-container transition-colors"><div class="absolute bottom-[-24px] w-full text-center text-xs text-on-surface-variant font-bold text-primary">الثلاثاء</div></div>
+<div class="w-8 md:w-12 bg-primary/60 rounded-t-md h-[50%] relative group cursor-pointer hover:bg-primary/70 transition-colors"><div class="absolute bottom-[-24px] w-full text-center text-xs text-on-surface-variant">الأربعاء</div></div>
+<div class="w-8 md:w-12 bg-primary/30 rounded-t-md h-[70%] relative group cursor-pointer hover:bg-primary/40 transition-colors"><div class="absolute bottom-[-24px] w-full text-center text-xs text-on-surface-variant">الخميس</div></div>
+</div>
+</div>
+<div class="md:w-64 flex flex-col justify-center gap-4 bg-surface p-4 rounded-lg border border-surface-variant">
+<div>
+<p class="font-body-sm text-sm text-on-surface-variant mb-1">المهام المنجزة</p>
+<p class="font-headline-md text-headline-md text-primary font-bold">14 مهمة</p>
+</div>
+<div class="w-full h-px bg-surface-variant"></div>
+<div>
+<p class="font-body-sm text-sm text-on-surface-variant mb-1">معدل الإنجاز</p>
+<p class="font-headline-md text-headline-md text-secondary font-bold">92%</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-surface dark:bg-surface-container-highest shadow-[0_-4px_15px_rgba(0,0,0,0.05)] rounded-t-xl text-secondary dark:text-secondary-fixed-dim font-label-sm text-label-sm md:hidden">
+<div class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 active:scale-90 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span>Dashboard</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary active:scale-90 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">work</span>
+<span>Services</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary active:scale-90 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span>Wallet</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary active:scale-90 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">person</span>
+<span>Profile</span>
+</div>
+</nav>
+<!-- Desktop Sidebar mapping for structural integrity (Hidden on Mobile, flex on MD) -->
+<aside class="hidden md:flex fixed top-16 right-0 w-64 h-full bg-surface border-l border-surface-variant flex-col py-6 px-4 gap-2 z-40">
+<div class="flex items-center gap-4 bg-secondary-container text-on-secondary-container rounded-lg px-4 py-3 cursor-pointer font-label-md font-bold">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span>Dashboard</span>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-3 cursor-pointer font-label-md transition-colors">
+<span class="material-symbols-outlined">work</span>
+<span>Services</span>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-3 cursor-pointer font-label-md transition-colors">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span>Wallet</span>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-3 cursor-pointer font-label-md transition-colors">
+<span class="material-symbols-outlined">person</span>
+<span>Profile</span>
+</div>
+</aside>
+<!-- Adjust main content margin for desktop sidebar -->
+<style>
+        @media (min-width: 768px) {
+            main {
+                margin-right: 16rem; /* 64 * 0.25rem = 16rem */
+            }
+        }
+    </style>
+</body></html>

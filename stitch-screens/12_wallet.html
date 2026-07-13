@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+
+<html class="light" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Shamel - Wallet</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface": "#faf8ff",
+                      "on-tertiary": "#ffffff",
+                      "on-primary-fixed-variant": "#264191",
+                      "on-error-container": "#93000a",
+                      "outline": "#757682",
+                      "secondary-fixed-dim": "#6bd8cb",
+                      "surface-tint": "#4059aa",
+                      "secondary-container": "#86f2e4",
+                      "on-surface": "#1a1b21",
+                      "surface-variant": "#e3e1e9",
+                      "tertiary-container": "#6e2c00",
+                      "surface-dim": "#dad9e1",
+                      "surface-container-highest": "#e3e1e9",
+                      "secondary": "#006a61",
+                      "primary-container": "#1e3a8a",
+                      "on-secondary": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-fixed": "#341100",
+                      "surface-container-low": "#f4f3fa",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed-dim": "#ffb691",
+                      "primary-fixed-dim": "#b6c4ff",
+                      "outline-variant": "#c5c5d3",
+                      "inverse-on-surface": "#f1f0f7",
+                      "on-primary-container": "#90a8ff",
+                      "on-tertiary-container": "#f39461",
+                      "on-surface-variant": "#444651",
+                      "error": "#ba1a1a",
+                      "tertiary-fixed": "#ffdbcb",
+                      "surface-container": "#eeedf4",
+                      "on-error": "#ffffff",
+                      "on-tertiary-fixed-variant": "#773205",
+                      "primary": "#00236f",
+                      "on-secondary-fixed-variant": "#005049",
+                      "surface-bright": "#faf8ff",
+                      "on-primary-fixed": "#00164e",
+                      "primary-fixed": "#dce1ff",
+                      "secondary-fixed": "#89f5e7",
+                      "on-background": "#1a1b21",
+                      "on-secondary-fixed": "#00201d",
+                      "on-secondary-container": "#006f66",
+                      "inverse-surface": "#2f3036",
+                      "tertiary": "#4b1c00",
+                      "surface-container-high": "#e9e7ef",
+                      "inverse-primary": "#b6c4ff",
+                      "background": "#faf8ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-max": "1280px",
+                      "stack-lg": "32px",
+                      "stack-sm": "8px",
+                      "gutter": "24px",
+                      "stack-md": "16px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "40px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "display-lg": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "label-sm": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "body-md": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "body-lg": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "label-md": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "display-lg-mobile": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "headline-md": [
+                              "IBM Plex Sans Arabic"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "30px",
+                              {
+                                      "lineHeight": "38px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "60px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body { font-family: 'IBM Plex Sans Arabic', sans-serif; }
+        .glass-card {
+            background: rgba(250, 248, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(227, 225, 233, 0.5);
+        }
+        .balance-gradient {
+            background: linear-gradient(135deg, #00236f 0%, #1e3a8a 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-20 md:pb-0">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-40 bg-surface shadow-sm px-margin-mobile md:px-margin-desktop py-stack-sm w-full flex justify-between items-center transition-all duration-200">
+<button class="text-primary hover:bg-surface-container-high transition-colors active:scale-95 duration-150 p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">المحفظة</h1>
+<button class="text-primary hover:bg-surface-container-high transition-colors active:scale-95 duration-150 p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+</header>
+<main class="w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg space-y-stack-lg">
+<!-- Balance Card -->
+<section class="w-full rounded-xl balance-gradient text-on-primary p-6 shadow-lg relative overflow-hidden">
+<div class="absolute -right-10 -top-10 w-40 h-40 bg-white opacity-5 rounded-full blur-2xl pointer-events-none"></div>
+<div class="absolute -left-10 -bottom-10 w-32 h-32 bg-white opacity-5 rounded-full blur-xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-md text-label-md text-primary-fixed-dim opacity-90 mb-1">الرصيد المتاح</p>
+<h2 class="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg font-bold">1,250.50 <span class="font-body-md text-body-md font-normal opacity-80">ريال</span></h2>
+</div>
+<div class="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+</div>
+</div>
+<div class="flex gap-4 mt-4">
+<button class="flex-1 bg-secondary text-on-secondary py-3 px-4 rounded-lg font-label-md text-label-md flex items-center justify-center gap-2 hover:bg-secondary-container hover:text-on-secondary-container transition-colors shadow-sm active:scale-95">
+<span class="material-symbols-outlined text-sm">add</span>
+                        شحن الرصيد
+                    </button>
+<button class="flex-1 bg-transparent border border-outline-variant text-on-primary py-3 px-4 rounded-lg font-label-md text-label-md flex items-center justify-center gap-2 hover:bg-white/10 transition-colors active:scale-95">
+<span class="material-symbols-outlined text-sm">arrow_downward</span>
+                        سحب
+                    </button>
+</div>
+</div>
+</section>
+<!-- Quick Actions -->
+<section class="grid grid-cols-3 gap-4">
+<button class="glass-card flex flex-col items-center justify-center p-4 rounded-xl gap-2 hover:bg-surface-container-high transition-colors active:scale-95">
+<div class="bg-primary-container text-on-primary-container p-3 rounded-full">
+<span class="material-symbols-outlined">send</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface text-center">إرسال أموال</span>
+</button>
+<button class="glass-card flex flex-col items-center justify-center p-4 rounded-xl gap-2 hover:bg-surface-container-high transition-colors active:scale-95">
+<div class="bg-primary-container text-on-primary-container p-3 rounded-full">
+<span class="material-symbols-outlined">request_quote</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface text-center">طلب أموال</span>
+</button>
+<button class="glass-card flex flex-col items-center justify-center p-4 rounded-xl gap-2 hover:bg-surface-container-high transition-colors active:scale-95">
+<div class="bg-primary-container text-on-primary-container p-3 rounded-full">
+<span class="material-symbols-outlined">receipt</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface text-center">دفع فواتير</span>
+</button>
+</section>
+<!-- Transaction History -->
+<section class="space-y-4">
+<div class="flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-on-surface">المعاملات الأخيرة</h3>
+<button class="font-label-md text-label-md text-primary hover:underline">عرض الكل</button>
+</div>
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden">
+<ul class="divide-y divide-outline-variant/30">
+<!-- Transaction Item 1 -->
+<li class="p-4 flex items-center justify-between hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="bg-error-container text-on-error-container p-3 rounded-full group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">plumbing</span>
+</div>
+<div>
+<h4 class="font-body-md text-body-md font-medium text-on-surface">إصلاح تسريب مياه</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">اليوم، 10:30 صباحاً</p>
+</div>
+</div>
+<div class="text-left">
+<p class="font-body-md text-body-md font-bold text-error">- 150.00 ريال</p>
+<p class="font-label-sm text-label-sm text-outline">مدفوع</p>
+</div>
+</li>
+<!-- Transaction Item 2 -->
+<li class="p-4 flex items-center justify-between hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="bg-secondary-container text-on-secondary-container p-3 rounded-full group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">add_card</span>
+</div>
+<div>
+<h4 class="font-body-md text-body-md font-medium text-on-surface">شحن رصيد</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">أمس، 05:15 مساءً</p>
+</div>
+</div>
+<div class="text-left">
+<p class="font-body-md text-body-md font-bold text-secondary">+ 500.00 ريال</p>
+<p class="font-label-sm text-label-sm text-outline">مكتمل</p>
+</div>
+</li>
+<!-- Transaction Item 3 -->
+<li class="p-4 flex items-center justify-between hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="bg-surface-variant text-on-surface-variant p-3 rounded-full group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">electric_bolt</span>
+</div>
+<div>
+<h4 class="font-body-md text-body-md font-medium text-on-surface">فاتورة الكهرباء</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">12 مايو، 09:00 صباحاً</p>
+</div>
+</div>
+<div class="text-left">
+<p class="font-body-md text-body-md font-bold text-on-surface">- 220.50 ريال</p>
+<p class="font-label-sm text-label-sm text-outline">مدفوع</p>
+</div>
+</li>
+<!-- Transaction Item 4 -->
+<li class="p-4 flex items-center justify-between hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="bg-secondary-container text-on-secondary-container p-3 rounded-full group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">arrow_downward</span>
+</div>
+<div>
+<h4 class="font-body-md text-body-md font-medium text-on-surface">استرداد نقدي</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">10 مايو، 02:45 مساءً</p>
+</div>
+</div>
+<div class="text-left">
+<p class="font-body-md text-body-md font-bold text-secondary">+ 25.00 ريال</p>
+<p class="font-label-sm text-label-sm text-outline">مكتمل</p>
+</div>
+</li>
+</ul>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface border-t border-outline-variant shadow-lg md:hidden">
+<div class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 bg-surface">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="font-label-sm text-label-sm mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">receipt_long</span>
+<span class="font-label-sm text-label-sm mt-1">Orders</span>
+</a>
+<!-- Active State for Wallet -->
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 hover:bg-surface-container transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+<span class="font-label-sm text-label-sm mt-1 font-bold">Wallet</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="font-label-sm text-label-sm mt-1">Profile</span>
+</a>
+</div>
+</nav>
+<!-- Navigation Drawer (Desktop) - Hidden on Mobile to follow shell rules, assuming this is part of the global nav context -->
+<nav class="hidden md:flex flex-col p-stack-md gap-stack-sm h-screen w-72 left-0 top-0 sticky bg-surface-container shadow-md fixed right-0 z-30 pt-20">
+<div class="flex items-center gap-4 p-4 border-b border-outline-variant mb-4">
+<div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-xl">S</div>
+<div>
+<h2 class="font-label-md text-label-md font-bold text-on-surface">Shamel Admin</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">System Controller</p>
+</div>
+</div>
+<a class="flex items-center gap-3 p-3 rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-highest transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 p-3 rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-highest transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">category</span>
+<span class="font-label-md text-label-md">Service Management</span>
+</a>
+<a class="flex items-center gap-3 p-3 rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-highest transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md text-label-md">User Analytics</span>
+</a>
+<!-- Active State for Wallet in Sidebar context (Financial Audit closest match) -->
+<a class="flex items-center gap-3 p-3 rounded-lg bg-primary-container text-on-primary-container font-bold hover:bg-surface-container-highest transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">payments</span>
+<span class="font-label-md text-label-md">Financial Audit</span>
+</a>
+<a class="flex items-center gap-3 p-3 rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-highest transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">support_agent</span>
+<span class="font-label-md text-label-md">Support Tickets</span>
+</a>
+<a class="flex items-center gap-3 p-3 rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-highest transition-all duration-200 ease-in-out mt-auto" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+</body></html>

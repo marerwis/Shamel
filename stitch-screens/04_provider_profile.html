@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ملف مزود الخدمة - شامل</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container": "#eeedf4",
+                      "on-secondary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "on-primary-fixed-variant": "#264191",
+                      "surface-container-lowest": "#ffffff",
+                      "background": "#faf8ff",
+                      "inverse-on-surface": "#f1f0f7",
+                      "tertiary": "#4b1c00",
+                      "secondary": "#006a61",
+                      "primary-container": "#1e3a8a",
+                      "surface-container-high": "#e9e7ef",
+                      "tertiary-fixed": "#ffdbcb",
+                      "secondary-fixed": "#89f5e7",
+                      "on-tertiary-fixed": "#341100",
+                      "on-tertiary-container": "#f39461",
+                      "outline": "#757682",
+                      "surface-dim": "#dad9e1",
+                      "on-tertiary-fixed-variant": "#773205",
+                      "on-primary-container": "#90a8ff",
+                      "tertiary-fixed-dim": "#ffb691",
+                      "primary-fixed-dim": "#b6c4ff",
+                      "surface-variant": "#e3e1e9",
+                      "primary": "#00236f",
+                      "surface-container-highest": "#e3e1e9",
+                      "on-secondary-container": "#006f66",
+                      "on-primary": "#ffffff",
+                      "surface-tint": "#4059aa",
+                      "secondary-container": "#86f2e4",
+                      "on-background": "#1a1b21",
+                      "primary-fixed": "#dce1ff",
+                      "on-error-container": "#93000a",
+                      "surface-container-low": "#f4f3fa",
+                      "inverse-primary": "#b6c4ff",
+                      "error": "#ba1a1a",
+                      "surface": "#faf8ff",
+                      "on-secondary-fixed-variant": "#005049",
+                      "surface-bright": "#faf8ff",
+                      "outline-variant": "#c5c5d3",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-fixed": "#00201d",
+                      "on-surface": "#1a1b21",
+                      "on-primary-fixed": "#00164e",
+                      "inverse-surface": "#2f3036",
+                      "secondary-fixed-dim": "#6bd8cb",
+                      "tertiary-container": "#6e2c00",
+                      "on-surface-variant": "#444651",
+                      "error-container": "#ffdad6"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "40px",
+                      "gutter": "24px",
+                      "container-max": "1280px",
+                      "stack-sm": "8px",
+                      "stack-md": "16px",
+                      "margin-mobile": "16px",
+                      "stack-lg": "32px"
+              },
+              "fontFamily": {
+                      "headline-md": ["IBM Plex Sans Arabic"],
+                      "label-sm": ["IBM Plex Sans Arabic"],
+                      "label-md": ["IBM Plex Sans Arabic"],
+                      "body-lg": ["IBM Plex Sans Arabic"],
+                      "headline-lg": ["IBM Plex Sans Arabic"],
+                      "display-lg": ["IBM Plex Sans Arabic"],
+                      "display-lg-mobile": ["IBM Plex Sans Arabic"],
+                      "body-md": ["IBM Plex Sans Arabic"]
+              },
+              "fontSize": {
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "headline-lg": ["30px", {"lineHeight": "38px", "fontWeight": "600"}],
+                      "display-lg": ["48px", {"lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "display-lg-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        body { font-family: 'IBM Plex Sans Arabic', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background pb-28 min-h-screen flex flex-col">
+<!-- Top App Bar (Task-Focused Sub-page) -->
+<header class="bg-surface shadow-sm sticky top-0 z-40 w-full">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-4 h-16 max-w-container-max mx-auto w-full">
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container-high transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-primary truncate px-4">ملف مزود الخدمة</h1>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container-high transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</header>
+<main class="flex-1 max-w-container-max mx-auto w-full px-margin-mobile md:px-margin-desktop py-stack-md space-y-stack-lg">
+<!-- Hero Profile Section (Bento Style Card) -->
+<section class="bg-surface rounded-xl shadow-sm border border-outline-variant/30 p-6 flex flex-col sm:flex-row items-center sm:items-start gap-6 relative overflow-hidden">
+<!-- Subtle background accent -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary-container rounded-full blur-3xl opacity-30 -mr-10 -mt-10 pointer-events-none"></div>
+<div class="relative shrink-0">
+<img alt="Ahmed Profile" class="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-surface shadow-sm relative z-10" data-alt="A highly detailed, professional headshot of a Middle Eastern male plumber in his late 30s. He is wearing a clean, modern navy blue uniform with subtle teal accents. He has a warm, confident smile and a well-groomed short beard. The background is a brightly lit, out-of-focus modern home interior, creating a light-mode, trustworthy corporate aesthetic. High resolution, sharp focus, professional studio lighting emphasizing reliability and expertise in home services." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDW2KCZ-Ou9wRTF_N2RiS2UgSHbZ4F9KPNCLvOXplUWUHGLycN13mhk-Mq7uQKHYI2ZipnQ6ouIXAr9Q-V6QbDRDgsjuJjRX5t1rHEpHO8jKnnei-zCAgs0P7bG8gtW-6j2rjvt-Hb5opfw9UYihNaJjcmyDr4NeajiMCD3-Ccim7fl4SqTxMttr-LXV2aoRi4jgQ3LmTS9Cm-mrD8DtVsX69ucDVlvBfHYFirSKLVdCxxSRXMe8gGufVkuVx5E7HQGBc1p106YmKJU"/>
+<div class="absolute bottom-1 right-1 w-6 h-6 bg-secondary rounded-full border-2 border-surface flex items-center justify-center z-20" title="موثق">
+<span class="material-symbols-outlined text-on-secondary text-[14px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+</div>
+<div class="flex-1 text-center sm:text-right z-10 flex flex-col items-center sm:items-start">
+<div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-2">
+<h2 class="font-headline-lg text-headline-lg text-primary">أحمد عبدالله</h2>
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">plumbing</span>
+                        أخصائي سباكة
+                    </span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-label-md text-label-md mb-4">
+<span class="material-symbols-outlined text-[#F59E0B]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold text-on-surface">4.9</span>
+<span>(128 تقييم)</span>
+<span class="mx-2 text-outline-variant">•</span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+                        الرياض، السعودية
+                    </span>
+</div>
+</div>
+</section>
+<!-- Key Statistics (Glassmorphism inspired tonal layers) -->
+<section class="grid grid-cols-3 gap-3 sm:gap-4">
+<div class="bg-surface-container-low rounded-xl p-4 flex flex-col items-center justify-center text-center border border-outline-variant/20 hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-primary mb-2 text-3xl">task_alt</span>
+<span class="font-headline-md text-headline-md text-primary mb-1">450+</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">مهمة منجزة</span>
+</div>
+<div class="bg-surface-container-low rounded-xl p-4 flex flex-col items-center justify-center text-center border border-outline-variant/20 hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-secondary mb-2 text-3xl">workspace_premium</span>
+<span class="font-headline-md text-headline-md text-secondary mb-1">8</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">سنوات خبرة</span>
+</div>
+<div class="bg-surface-container-low rounded-xl p-4 flex flex-col items-center justify-center text-center border border-outline-variant/20 hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-tertiary mb-2 text-3xl">timer</span>
+<span class="font-headline-md text-headline-md text-tertiary mb-1">ساعة</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">متوسط الرد</span>
+</div>
+</section>
+<!-- About Section -->
+<section class="space-y-stack-sm">
+<h3 class="font-headline-md text-headline-md text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">person</span>
+                نبذة عني
+            </h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/20">
+                متخصص في كافة أعمال السباكة المنزلية والتجارية بخبرة تتجاوز 8 سنوات في مدينة الرياض. أقدم خدمات تأسيس شبكات المياه والصرف الصحي، الكشف عن التسربات بأحدث الأجهزة الإلكترونية دون تكسير، وصيانة وتركيب الأدوات الصحية بضمان الجودة والالتزام بالمواعيد.
+            </p>
+</section>
+<!-- Services Offered -->
+<section class="space-y-stack-sm">
+<div class="flex justify-between items-end mb-4">
+<h3 class="font-headline-md text-headline-md text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">handyman</span>
+                    الخدمات والأسعار
+                </h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Service Card 1 -->
+<div class="bg-surface border border-outline-variant/40 rounded-xl p-4 flex justify-between items-center hover:shadow-md hover:border-primary-container/30 transition-all duration-200 cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined">water_drop</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface font-bold">كشف تسربات المياه</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">فحص شامل بأجهزة إلكترونية</p>
+</div>
+</div>
+<div class="text-left rtl:text-right">
+<span class="block font-label-sm text-label-sm text-outline">يبدأ من</span>
+<span class="font-label-md text-label-md font-bold text-primary">150 ر.س</span>
+</div>
+</div>
+<!-- Service Card 2 -->
+<div class="bg-surface border border-outline-variant/40 rounded-xl p-4 flex justify-between items-center hover:shadow-md hover:border-primary-container/30 transition-all duration-200 cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined">bathtub</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface font-bold">تركيب أدوات صحية</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">مغاسل، مراحيض، خلاطات</p>
+</div>
+</div>
+<div class="text-left rtl:text-right">
+<span class="block font-label-sm text-label-sm text-outline">يبدأ من</span>
+<span class="font-label-md text-label-md font-bold text-primary">80 ر.س</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Portfolio Gallery -->
+<section class="space-y-stack-sm">
+<h3 class="font-headline-md text-headline-md text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">photo_library</span>
+                أعمال سابقة
+            </h3>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+<div class="aspect-square rounded-xl overflow-hidden relative group cursor-pointer">
+<img alt="عمل سابق 1" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" data-alt="A close-up, high-quality image showing a newly installed modern brushed nickel bathroom faucet on a pristine white marble sink. The lighting is bright and even, highlighting the clean, professional installation work. The background features slightly blurred, elegant geometric bathroom tiles in light grey tones, creating a premium, trustworthy aesthetic for a plumbing service portfolio." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA59xXxCPpdrXhAhxhRMAV_YBlm84NVgXkc7R6zwY0x6VNwnMCr6nOGF9mf9UcpjcnFJXj4rgM4QIYC_jb8eQwB2EbyJn9ALMRRaNjNGhkpHSVgpq74ET2nPlx8E4qmRDXzttvA6NlIUxtNnmBvkfeNBPunN3igEnvpZgPOdjlC5_StgZSOSbznK_G_4a4MQwafxkrWGm0XFfpBvSoa5F3bMa3KgLQwBb5aIQEOQOkKuzkkBukBBVb1Ik4Z541_ITC2hi6kpMOIOWxG"/>
+<div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white">zoom_in</span>
+</div>
+</div>
+<div class="aspect-square rounded-xl overflow-hidden relative group cursor-pointer">
+<img alt="عمل سابق 2" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" data-alt="A well-lit photograph showing complex but perfectly organized copper and PVC plumbing pipes under a modern kitchen sink. The pipes are aligned cleanly, demonstrating expert craftsmanship and attention to detail. The cabinet interior is clean and well-illuminated. The image conveys reliability, high technical skill, and a premium service standard suitable for a professional corporate app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjwfvmKL6fNRUPU1SG3pbvWIfKrTFRAKefXyn_PowMAVfOATp_0vhAJiU5dpvc8JgPZCNi5jNbA670ar0UTbDC-ACnyR5huNMB0ev-pSxj44igANUQWH60cxoJ7tbemhuq0JD9WH2uYAY1DwLpntL-OE9S-GnIa5sH3QHtJaI5ZxVDcK3m77zmF7UpzyzDzPqLbFQdsFyew4ahARlRCKIp15c1oNJPll5vuTTPc1WSMqBIXvx6-DdVOORQN-5ABmHi-V6D-kvSkEDQ"/>
+<div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white">zoom_in</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Fixed Bottom Action Bar -->
+<div class="fixed bottom-0 w-full bg-surface border-t border-outline-variant/30 shadow-[0_-4px_15px_rgba(0,0,0,0.05)] z-50 px-margin-mobile md:px-margin-desktop py-4 pb-6">
+<div class="max-w-container-max mx-auto flex items-center gap-4">
+<button class="flex-1 bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md h-12 rounded-xl flex items-center justify-center gap-2 transition-colors active:scale-[0.98]">
+<span class="material-symbols-outlined">calendar_month</span>
+                احجز موعداً الآن
+            </button>
+<button class="w-12 h-12 bg-surface-container hover:bg-surface-container-high text-primary border border-primary/20 rounded-xl flex items-center justify-center transition-colors active:scale-[0.98]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">chat</span>
+</button>
+</div>
+</div>
+</body></html>

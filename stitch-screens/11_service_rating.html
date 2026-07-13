@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<html class="light" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Shamel - Service Rating</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container": "#eeedf4",
+                      "outline-variant": "#c5c5d3",
+                      "on-secondary-container": "#006f66",
+                      "inverse-primary": "#b6c4ff",
+                      "surface-container-highest": "#e3e1e9",
+                      "surface-bright": "#faf8ff",
+                      "tertiary-fixed-dim": "#ffb691",
+                      "inverse-on-surface": "#f1f0f7",
+                      "tertiary-fixed": "#ffdbcb",
+                      "surface-container-low": "#f4f3fa",
+                      "secondary-container": "#86f2e4",
+                      "secondary-fixed-dim": "#6bd8cb",
+                      "primary": "#00236f",
+                      "on-primary-fixed-variant": "#264191",
+                      "on-tertiary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "on-background": "#1a1b21",
+                      "surface-dim": "#dad9e1",
+                      "secondary": "#006a61",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-fixed": "#341100",
+                      "surface": "#faf8ff",
+                      "on-tertiary-fixed-variant": "#773205",
+                      "on-secondary-fixed": "#00201d",
+                      "primary-fixed-dim": "#b6c4ff",
+                      "on-tertiary-container": "#f39461",
+                      "on-secondary-fixed-variant": "#005049",
+                      "on-error-container": "#93000a",
+                      "inverse-surface": "#2f3036",
+                      "on-surface-variant": "#444651",
+                      "outline": "#757682",
+                      "surface-tint": "#4059aa",
+                      "primary-container": "#1e3a8a",
+                      "tertiary-container": "#6e2c00",
+                      "on-primary-fixed": "#00164e",
+                      "on-primary-container": "#90a8ff",
+                      "on-primary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "tertiary": "#4b1c00",
+                      "on-secondary": "#ffffff",
+                      "error": "#ba1a1a",
+                      "on-surface": "#1a1b21",
+                      "background": "#faf8ff",
+                      "surface-variant": "#e3e1e9",
+                      "primary-fixed": "#dce1ff",
+                      "secondary-fixed": "#89f5e7",
+                      "surface-container-high": "#e9e7ef"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px",
+                      "2xl": "1rem"
+              },
+              "spacing": {
+                      "stack-md": "16px",
+                      "container-max": "1280px",
+                      "stack-sm": "8px",
+                      "margin-desktop": "40px",
+                      "gutter": "24px",
+                      "margin-mobile": "16px",
+                      "stack-lg": "32px"
+              },
+              "fontFamily": {
+                      "label-sm": ["IBM Plex Sans Arabic", "sans-serif"],
+                      "display-lg-mobile": ["IBM Plex Sans Arabic", "sans-serif"],
+                      "headline-lg": ["IBM Plex Sans Arabic", "sans-serif"],
+                      "label-md": ["IBM Plex Sans Arabic", "sans-serif"],
+                      "body-lg": ["IBM Plex Sans Arabic", "sans-serif"],
+                      "headline-md": ["IBM Plex Sans Arabic", "sans-serif"],
+                      "display-lg": ["IBM Plex Sans Arabic", "sans-serif"],
+                      "body-md": ["IBM Plex Sans Arabic", "sans-serif"]
+              },
+              "fontSize": {
+                      "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                      "display-lg-mobile": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                      "headline-lg": ["30px", { "lineHeight": "38px", "fontWeight": "600" }],
+                      "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                      "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                      "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                      "display-lg": ["48px", { "lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                      "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        body { font-family: 'IBM Plex Sans Arabic', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.fill-icon { font-variation-settings: 'FILL' 1; }
+        .star-rating .star { cursor: pointer; transition: color 0.2s; }
+        .star-rating .star:hover, .star-rating .star.active { color: #f59e0b; font-variation-settings: 'FILL' 1; }
+        
+        /* Custom Checkbox styles for chips */
+        input[type="checkbox"]:checked + label {
+            background-color: #dce1ff; /* primary-fixed */
+            color: #00164e; /* on-primary-fixed */
+            border-color: #00236f; /* primary */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-[100px]">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-50 bg-surface shadow-sm">
+<div class="flex items-center justify-between px-margin-mobile h-16 w-full max-w-container-max mx-auto">
+<button aria-label="العودة" class="text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full p-2">
+<span class="material-symbols-outlined text-2xl">arrow_forward</span>
+</button>
+<h1 class="font-headline-md text-headline-md-mobile text-primary font-bold tracking-tight">تقييم الخدمة</h1>
+<div class="w-10"></div> <!-- Spacer to center title -->
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-margin-mobile py-stack-lg md:px-margin-desktop space-y-stack-lg">
+<!-- Provider Summary -->
+<section class="bg-surface-container-lowest rounded-2xl shadow-sm p-6 flex flex-col md:flex-row items-center gap-6 border border-outline-variant/30">
+<img class="w-24 h-24 rounded-full object-cover shadow-sm" data-alt="A professional headshot of a middle-eastern maintenance worker wearing a clean uniform, smiling slightly in a well-lit modern home interior setting. High-quality corporate photography style, bright lighting, soft blurred background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6BT4B_S5EpupMCTlLxy-SVuBRERirw9c7ITusKZLo8kZcXv7ywOdFb4Agc42SlvhyGVMiqdOFzHDPsKE96gjP9xEtoCWMxO6iHRDpF2n-BxrAfb0TOwPzajR79yXE3tGbm5OqaudgSenUja0v81Tc3nw7RrOrIzi7QdN_5P0q8mai-tfUljFXF6TuZlGCQEzeEihP_gQAJTQweElxcm_c9LswFSHrdhHTRzySCHd0rd-hVQiewyY6rdX4PnYszAVWC-lAYWd9r9lg"/>
+<div class="text-center md:text-right">
+<h2 class="font-headline-lg text-headline-lg-mobile text-on-surface mb-1">أحمد محمود</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">صيانة تكييف (سبليت)</p>
+<div class="mt-2 inline-flex items-center gap-1 bg-surface-container-low px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-[16px] text-outline">calendar_today</span>
+<span class="font-label-md text-label-md text-outline">12 مايو 2024</span>
+</div>
+</div>
+</section>
+<!-- Star Rating -->
+<section class="flex flex-col items-center gap-4 py-4">
+<h3 class="font-headline-md text-headline-md-mobile text-on-surface">كيف كانت تجربتك؟</h3>
+<div class="flex gap-2 flex-row-reverse star-rating" dir="ltr">
+<span class="material-symbols-outlined text-[48px] star text-outline-variant" data-value="5">star</span>
+<span class="material-symbols-outlined text-[48px] star text-outline-variant" data-value="4">star</span>
+<span class="material-symbols-outlined text-[48px] star text-outline-variant" data-value="3">star</span>
+<span class="material-symbols-outlined text-[48px] star text-outline-variant" data-value="2">star</span>
+<span class="material-symbols-outlined text-[48px] star text-outline-variant" data-value="1">star</span>
+</div>
+<p class="font-label-md text-label-md text-primary mt-2" id="rating-text">ممتاز</p>
+</section>
+<!-- Rating Categories -->
+<section class="space-y-stack-sm">
+<h4 class="font-body-lg text-body-lg text-on-surface font-semibold">بم تميزت الخدمة؟ (اختياري)</h4>
+<div class="flex flex-wrap gap-3">
+<div class="relative">
+<input class="sr-only" id="chip-1" type="checkbox"/>
+<label class="cursor-pointer inline-flex items-center px-4 py-2 rounded-full border border-outline-variant text-on-surface-variant bg-surface hover:bg-surface-container transition-colors font-label-md text-label-md" for="chip-1">
+                        احترافية
+                    </label>
+</div>
+<div class="relative">
+<input class="sr-only" id="chip-2" type="checkbox"/>
+<label class="cursor-pointer inline-flex items-center px-4 py-2 rounded-full border border-outline-variant text-on-surface-variant bg-surface hover:bg-surface-container transition-colors font-label-md text-label-md" for="chip-2">
+                        التزام بالوقت
+                    </label>
+</div>
+<div class="relative">
+<input class="sr-only" id="chip-3" type="checkbox"/>
+<label class="cursor-pointer inline-flex items-center px-4 py-2 rounded-full border border-outline-variant text-on-surface-variant bg-surface hover:bg-surface-container transition-colors font-label-md text-label-md" for="chip-3">
+                        جودة العمل
+                    </label>
+</div>
+<div class="relative">
+<input class="sr-only" id="chip-4" type="checkbox"/>
+<label class="cursor-pointer inline-flex items-center px-4 py-2 rounded-full border border-outline-variant text-on-surface-variant bg-surface hover:bg-surface-container transition-colors font-label-md text-label-md" for="chip-4">
+                        نظافة المكان
+                    </label>
+</div>
+</div>
+</section>
+<!-- Comment Field -->
+<section class="space-y-stack-sm">
+<label class="block font-body-lg text-body-lg text-on-surface font-semibold" for="comment">ملاحظات إضافية</label>
+<textarea class="w-full rounded-xl border border-outline-variant bg-surface p-4 text-on-surface placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow resize-none font-body-md text-body-md" id="comment" placeholder="اكتب رأيك عن الخدمة هنا..." rows="4"></textarea>
+</section>
+<!-- Photo Upload -->
+<section class="space-y-stack-sm">
+<h4 class="font-body-lg text-body-lg text-on-surface font-semibold">أضف صور (اختياري)</h4>
+<div class="flex gap-4 overflow-x-auto pb-2">
+<button class="min-w-[100px] h-[100px] rounded-xl border-2 border-dashed border-primary-container bg-surface-container-low flex flex-col items-center justify-center text-primary hover:bg-primary-fixed transition-colors">
+<span class="material-symbols-outlined mb-1">add_a_photo</span>
+<span class="font-label-sm text-label-sm">إضافة صورة</span>
+</button>
+</div>
+</section>
+<!-- Submit Button -->
+<section class="pt-6">
+<button class="w-full bg-primary text-on-primary font-headline-md text-headline-md h-14 rounded-xl flex items-center justify-center gap-2 hover:bg-primary-container active:scale-[0.98] transition-all shadow-md">
+<span>إرسال التقييم</span>
+<span class="material-symbols-outlined text-[20px]">send</span>
+</button>
+</section>
+</main>
+<script>
+        // Simple star rating logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const stars = document.querySelectorAll('.star-rating .star');
+            const ratingText = document.getElementById('rating-text');
+            const ratingLabels = ['سيء', 'مقبول', 'جيد', 'جيد جداً', 'ممتاز'];
+
+            // Initialize to 5 stars
+            updateStars(5);
+
+            stars.forEach(star => {
+                star.addEventListener('click', (e) => {
+                    const value = parseInt(e.target.getAttribute('data-value'));
+                    updateStars(value);
+                });
+            });
+
+            function updateStars(value) {
+                stars.forEach(s => {
+                    const starValue = parseInt(s.getAttribute('data-value'));
+                    if (starValue <= value) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+                ratingText.textContent = ratingLabels[value - 1];
+            }
+        });
+    </script>
+</body></html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>إدارة العروض الترويجية</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#ffb691",
+                        "surface-dim": "#dad9e1",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#1e3a8a",
+                        "surface-container": "#eeedf4",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#e9e7ef",
+                        "outline": "#757682",
+                        "surface-tint": "#4059aa",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#ffdbcb",
+                        "on-secondary-container": "#006f66",
+                        "error-container": "#ffdad6",
+                        "tertiary-container": "#6e2c00",
+                        "secondary-fixed-dim": "#6bd8cb",
+                        "inverse-primary": "#b6c4ff",
+                        "on-surface": "#1a1b21",
+                        "tertiary": "#4b1c00",
+                        "secondary": "#006a61",
+                        "on-primary-fixed": "#00164e",
+                        "on-primary-fixed-variant": "#264191",
+                        "on-tertiary-container": "#f39461",
+                        "surface-container-low": "#f4f3fa",
+                        "secondary-container": "#86f2e4",
+                        "surface": "#faf8ff",
+                        "primary-fixed": "#dce1ff",
+                        "surface-bright": "#faf8ff",
+                        "on-tertiary-fixed": "#341100",
+                        "on-surface-variant": "#444651",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "on-error-container": "#93000a",
+                        "background": "#faf8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed-variant": "#005049",
+                        "on-primary-container": "#90a8ff",
+                        "surface-container-highest": "#e3e1e9",
+                        "inverse-on-surface": "#f1f0f7",
+                        "surface-variant": "#e3e1e9",
+                        "secondary-fixed": "#89f5e7",
+                        "outline-variant": "#c5c5d3",
+                        "primary": "#00236f",
+                        "on-secondary-fixed": "#00201d",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#1a1b21",
+                        "inverse-surface": "#2f3036",
+                        "on-tertiary-fixed-variant": "#773205"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "margin-mobile": "16px",
+                        "stack-md": "16px",
+                        "margin-desktop": "40px",
+                        "stack-lg": "32px",
+                        "gutter": "24px",
+                        "stack-sm": "8px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["IBM Plex Sans Arabic"],
+                        "label-md": ["IBM Plex Sans Arabic"],
+                        "headline-lg": ["IBM Plex Sans Arabic"],
+                        "headline-md": ["IBM Plex Sans Arabic"],
+                        "display-lg-mobile": ["IBM Plex Sans Arabic"],
+                        "body-md": ["IBM Plex Sans Arabic"],
+                        "display-lg": ["IBM Plex Sans Arabic"],
+                        "body-lg": ["IBM Plex Sans Arabic"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "headline-lg": ["30px", { "lineHeight": "38px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "display-lg-mobile": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'IBM Plex Sans Arabic', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background flex h-screen overflow-hidden">
+<!-- Navigation Drawer -->
+<nav class="hidden md:flex flex-col p-stack-md gap-stack-sm h-screen w-72 left-0 top-0 sticky bg-surface-container dark:bg-surface-dim shadow-md">
+<!-- Header -->
+<div class="flex items-center gap-4 mb-8">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-variant flex-shrink-0">
+<img alt="Admin User" class="w-full h-full object-cover" data-alt="A professional headshot of an administrator in a modern office setting. The lighting is bright and clear, conveying authority and trust. The overall tone is corporate and polished." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuqh7SK8zdznL1vM73beu-UxzvLkqSFwwpoGYY7HBvdR5OrYIpO0iHsAY7skT5jIBf5vmZK6vtdTpLfcTWCPwsXT-cI7dZl3wFCLLHeysvr9geHUhXPJGyruvJiDDOawCjoUUNca-_6JKkLUhmj86D9cBX1Vfsi7NldKqhyarZdTOdk_sRtRiKJgb7xT0VAFIX0KHDplt-j9Fju6Qk5FgHccBMVxKDgkCN4IGBYz52NtASFYwCiBGErDTpWW7oOLOJgsfmETUuVcg2"/>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim">Shamel Admin</h2>
+<p class="font-label-md text-label-md text-on-surface-variant">System Controller</p>
+<span class="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full mt-1 inline-block">Super User</span>
+</div>
+</div>
+<!-- Links -->
+<div class="flex flex-col gap-2 flex-grow">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant font-medium hover:bg-surface-container-highest dark:hover:bg-surface-container-high transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary-container dark:bg-primary-fixed-dim text-on-primary-container dark:text-on-primary-fixed font-bold hover:bg-surface-container-highest dark:hover:bg-surface-container-high transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">category</span>
+                Service Management
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant font-medium hover:bg-surface-container-highest dark:hover:bg-surface-container-high transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                User Analytics
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant font-medium hover:bg-surface-container-highest dark:hover:bg-surface-container-high transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">payments</span>
+                Financial Audit
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant font-medium hover:bg-surface-container-highest dark:hover:bg-surface-container-high transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">support_agent</span>
+                Support Tickets
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant font-medium hover:bg-surface-container-highest dark:hover:bg-surface-container-high transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col h-screen overflow-y-auto bg-surface-container-low">
+<!-- TopAppBar (Mobile Only) -->
+<header class="md:hidden flex justify-between items-center px-margin-mobile py-stack-sm w-full sticky top-0 z-40 bg-surface dark:bg-inverse-surface shadow-sm text-primary dark:text-primary-fixed-dim font-headline-md text-headline-md">
+<button class="p-2 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors rounded-full active:scale-95 duration-150 text-primary dark:text-primary-fixed-dim">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">Shamel</h1>
+<button class="p-2 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors rounded-full active:scale-95 duration-150 text-primary dark:text-primary-fixed-dim">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<!-- Page Content -->
+<div class="p-margin-mobile md:p-margin-desktop flex flex-col gap-stack-lg max-w-container-max mx-auto w-full pb-32 md:pb-margin-desktop">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-background mb-2">إدارة العروض الترويجية</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">إدارة وتتبع القسائم والخصومات النشطة والمنتهية.</p>
+</div>
+<button class="bg-secondary text-on-secondary px-6 py-3 rounded-full font-label-md text-label-md flex items-center gap-2 hover:bg-secondary/90 transition-colors shadow-sm self-start md:self-auto">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+                    إضافة عرض جديد
+                </button>
+</div>
+<!-- Stats Overview -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<div class="bg-surface rounded-xl p-6 shadow-[0_4px_15px_rgba(26,27,33,0.1)] border border-outline-variant/30 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-2xl">local_offer</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">إجمالي العروض النشطة</p>
+<p class="font-headline-md text-headline-md text-on-surface">24</p>
+</div>
+</div>
+<div class="bg-surface rounded-xl p-6 shadow-[0_4px_15px_rgba(26,27,33,0.1)] border border-outline-variant/30 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary-container/30 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl">receipt_long</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">إجمالي المرات المستخدمة</p>
+<p class="font-headline-md text-headline-md text-on-surface">1,432</p>
+</div>
+</div>
+</div>
+<!-- Promotions List -->
+<div class="bg-surface rounded-xl shadow-[0_4px_15px_rgba(26,27,33,0.1)] overflow-hidden">
+<!-- Filters/Search -->
+<div class="p-4 border-b border-outline-variant/30 flex flex-col md:flex-row gap-4 justify-between items-center bg-surface-container-lowest">
+<div class="relative w-full md:w-96">
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-4 pr-10 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-surface font-body-md text-body-md" placeholder="البحث عن عرض..." type="text"/>
+</div>
+<div class="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+<button class="px-4 py-1.5 rounded-full bg-secondary-container text-on-secondary-container font-label-md text-label-md whitespace-nowrap">الكل</button>
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:bg-surface-variant font-label-md text-label-md whitespace-nowrap">نشط</button>
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant hover:bg-surface-variant font-label-md text-label-md whitespace-nowrap">منتهي</button>
+</div>
+</div>
+<!-- List Items -->
+<div class="divide-y divide-outline-variant/30">
+<!-- Item 1 -->
+<div class="p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-surface-container-low transition-colors">
+<div class="flex items-start gap-4 flex-grow">
+<div class="w-10 h-10 rounded-full bg-error-container text-on-error-container flex items-center justify-center flex-shrink-0 mt-1">
+<span class="font-headline-md text-headline-md text-sm">%</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface text-lg">خصم الصيف - 20%</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-1">صالح لجميع خدمات التنظيف العميق.</p>
+<div class="flex items-center gap-4 mt-2">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                                        ينتهي في: 30 أكتوبر 2023
+                                    </span>
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">group</span>
+                                        الاستخدامات: 450
+                                    </span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4 self-end md:self-auto w-full md:w-auto justify-between md:justify-end">
+<span class="px-3 py-1 rounded-full bg-secondary/10 text-secondary font-label-sm text-label-sm border border-secondary/20">نشط</span>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-surface-container-low transition-colors">
+<div class="flex items-start gap-4 flex-grow">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center flex-shrink-0 mt-1">
+<span class="font-headline-md text-headline-md text-sm">$</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface text-lg">خصم ثابت 50 ريال</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-1">للعملاء الجدد فقط عند أول طلب.</p>
+<div class="flex items-center gap-4 mt-2">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                                        ينتهي في: 15 نوفمبر 2023
+                                    </span>
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">group</span>
+                                        الاستخدامات: 120
+                                    </span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4 self-end md:self-auto w-full md:w-auto justify-between md:justify-end">
+<span class="px-3 py-1 rounded-full bg-secondary/10 text-secondary font-label-sm text-label-sm border border-secondary/20">نشط</span>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-surface-container/30 opacity-75">
+<div class="flex items-start gap-4 flex-grow">
+<div class="w-10 h-10 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center flex-shrink-0 mt-1">
+<span class="font-headline-md text-headline-md text-sm">%</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface text-lg line-through decoration-outline-variant">عرض العودة للمدارس - 15%</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mt-1">انتهت صلاحية هذا العرض.</p>
+<div class="flex items-center gap-4 mt-2">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                                        انتهى: 1 سبتمبر 2023
+                                    </span>
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">group</span>
+                                        الاستخدامات: 890
+                                    </span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4 self-end md:self-auto w-full md:w-auto justify-between md:justify-end">
+<span class="px-3 py-1 rounded-full bg-surface-variant text-on-surface-variant font-label-sm text-label-sm border border-outline-variant/30">منتهي</span>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 bg-surface dark:bg-inverse-surface border-t border-outline-variant dark:border-outline shadow-lg rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:bg-surface-container dark:hover:bg-surface-container-low transition-transform active:scale-90 font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+            Home
+        </a>
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full px-4 py-1 transition-transform active:scale-90 font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined mb-1">receipt_long</span>
+            Orders
+        </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:bg-surface-container dark:hover:bg-surface-container-low transition-transform active:scale-90 font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined mb-1">account_balance_wallet</span>
+            Wallet
+        </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:bg-surface-container dark:hover:bg-surface-container-low transition-transform active:scale-90 font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+            Profile
+        </a>
+</nav>
+</body></html>

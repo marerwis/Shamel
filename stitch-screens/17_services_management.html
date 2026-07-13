@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>إدارة الخدمات - Shamel Super Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-primary-fixed-variant": "#264191",
+                      "surface-container-low": "#f4f3fa",
+                      "surface-dim": "#dad9e1",
+                      "on-tertiary-container": "#f39461",
+                      "on-tertiary-fixed": "#341100",
+                      "on-primary-container": "#90a8ff",
+                      "error": "#ba1a1a",
+                      "on-tertiary-fixed-variant": "#773205",
+                      "on-primary": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-container": "#1e3a8a",
+                      "on-background": "#1a1b21",
+                      "surface": "#faf8ff",
+                      "on-tertiary": "#ffffff",
+                      "secondary-container": "#86f2e4",
+                      "surface-tint": "#4059aa",
+                      "inverse-primary": "#b6c4ff",
+                      "outline-variant": "#c5c5d3",
+                      "background": "#faf8ff",
+                      "secondary-fixed-dim": "#6bd8cb",
+                      "outline": "#757682",
+                      "error-container": "#ffdad6",
+                      "surface-container": "#eeedf4",
+                      "tertiary": "#4b1c00",
+                      "tertiary-fixed-dim": "#ffb691",
+                      "secondary-fixed": "#89f5e7",
+                      "primary-fixed-dim": "#b6c4ff",
+                      "on-surface-variant": "#444651",
+                      "tertiary-container": "#6e2c00",
+                      "surface-variant": "#e3e1e9",
+                      "on-secondary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "tertiary-fixed": "#ffdbcb",
+                      "surface-bright": "#faf8ff",
+                      "on-secondary-fixed-variant": "#005049",
+                      "on-secondary-container": "#006f66",
+                      "surface-container-high": "#e9e7ef",
+                      "inverse-surface": "#2f3036",
+                      "inverse-on-surface": "#f1f0f7",
+                      "surface-container-highest": "#e3e1e9",
+                      "secondary": "#006a61",
+                      "primary-fixed": "#dce1ff",
+                      "on-error-container": "#93000a",
+                      "primary": "#00236f",
+                      "on-secondary-fixed": "#00201d",
+                      "on-surface": "#1a1b21",
+                      "on-primary-fixed": "#00164e"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-lg": "32px",
+                      "margin-mobile": "16px",
+                      "gutter": "24px",
+                      "stack-md": "16px",
+                      "stack-sm": "8px",
+                      "margin-desktop": "40px",
+                      "container-max": "1280px"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "headline-md": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "body-lg": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "display-lg-mobile": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "display-lg": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "label-md": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "headline-lg": [
+                              "IBM Plex Sans Arabic"
+                      ],
+                      "label-sm": [
+                              "IBM Plex Sans Arabic"
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "60px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg": [
+                              "30px",
+                              {
+                                      "lineHeight": "38px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body { font-family: 'IBM Plex Sans Arabic', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background flex min-h-screen">
+<!-- Sidebar Navigation Drawer -->
+<aside class="hidden md:flex flex-col p-stack-md gap-stack-sm h-screen w-72 right-0 top-0 sticky bg-surface-container shadow-md">
+<!-- Header -->
+<div class="flex items-center gap-3 mb-8">
+<div class="w-12 h-12 rounded-full overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a corporate administrator in a modern office setting, bright lighting, high contrast, clean white background, Shamel brand aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsqObPxRwMBWSYyysMxWTq2uUEV00BjBMagngl0X4KrQm1JX7lj9H2fFhDn_IoMJNLZjsba2fD-2Z864F0HIiVnkTJHPgsBqOzuVCQnGCUjR4ddFb4uYwewwTlFAaFkan3asMYQtL2MMBSJoQbD04mHpaBfR7Q_WfBcjOU7IOuBxEv67TA34KhkbNWKWUUovG34NyGELOylVHpQG1UvEfoe2p_msaRIryj7ZypoUS1LXJGkiFSDw2Lce8VZldqozegzo17yKAHRqDV"/>
+</div>
+<div>
+<h2 class="font-label-md text-label-md text-primary font-bold">Shamel Admin</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">System Controller</p>
+<span class="font-label-sm text-label-sm text-secondary">Super User</span>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-highest transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary-container font-bold rounded-lg duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="category">category</span>
+<span class="font-label-md text-label-md">Service Management</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-highest transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-md text-label-md">User Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-highest transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-label-md text-label-md">Financial Audit</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-highest transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="support_agent">support_agent</span>
+<span class="font-label-md text-label-md">Support Tickets</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-highest transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col">
+<!-- Top App Bar -->
+<header class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-stack-sm w-full bg-surface shadow-sm top-0 sticky z-10">
+<div class="flex items-center gap-4">
+<button class="md:hidden p-2 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-full active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary hidden md:block">Shamel</h1>
+</div>
+<div class="flex-1 max-w-xl mx-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-xl py-2 pr-10 pl-4 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body-md text-body-md text-on-surface" placeholder="بحث في الخدمات..." type="text"/>
+</div>
+</div>
+<div class="flex items-center">
+<button class="p-2 text-primary hover:bg-surface-container-high transition-colors rounded-full active:scale-95 duration-150 relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+</div>
+</header>
+<!-- Canvas Content -->
+<div class="flex-1 p-margin-mobile md:p-margin-desktop overflow-y-auto">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-stack-lg gap-4">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">إدارة الخدمات</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">نظرة عامة على فئات الخدمات والطلبات المعلقة.</p>
+</div>
+<button class="bg-secondary text-on-secondary px-6 py-3 rounded-lg font-label-md text-label-md flex items-center gap-2 hover:bg-on-secondary-container transition-colors shadow-sm">
+<span class="material-symbols-outlined">add</span>
+                    إضافة فئة جديدة
+                </button>
+</div>
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-gutter mb-stack-lg">
+<!-- Service Categories Section (Takes up 2 columns on extra large screens) -->
+<section class="xl:col-span-2">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-stack-md">فئات الخدمات</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Category Card 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_4px_15px_rgba(26,27,33,0.1)] border border-surface-variant flex flex-col justify-between">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">handyman</span>
+</div>
+<div class="flex gap-2">
+<button class="text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">edit</span></button>
+<button class="text-outline hover:text-error transition-colors"><span class="material-symbols-outlined text-[20px]">delete</span></button>
+</div>
+</div>
+<div>
+<h3 class="font-label-md text-label-md font-bold text-on-surface">الصيانة والإصلاح</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">خدمات السباكة، الكهرباء، والتكييف.</p>
+</div>
+<div class="mt-4 pt-4 border-t border-surface-variant flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant">الخدمات النشطة: 45</span>
+<span class="px-2 py-1 bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm">نشط</span>
+</div>
+</div>
+<!-- Category Card 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_4px_15px_rgba(26,27,33,0.1)] border border-surface-variant flex flex-col justify-between">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-tertiary-container text-on-tertiary-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">cleaning_services</span>
+</div>
+<div class="flex gap-2">
+<button class="text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">edit</span></button>
+<button class="text-outline hover:text-error transition-colors"><span class="material-symbols-outlined text-[20px]">delete</span></button>
+</div>
+</div>
+<div>
+<h3 class="font-label-md text-label-md font-bold text-on-surface">خدمات التنظيف</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">تنظيف المنازل والمكاتب.</p>
+</div>
+<div class="mt-4 pt-4 border-t border-surface-variant flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant">الخدمات النشطة: 32</span>
+<span class="px-2 py-1 bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm">نشط</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Summary or Quick Stats could go here, omitting for simplicity and focus on requested items -->
+</div>
+<!-- Pending Approvals Section -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0_4px_15px_rgba(26,27,33,0.1)] overflow-hidden">
+<div class="p-6 border-b border-surface-variant">
+<h2 class="font-headline-md text-headline-md text-on-surface">طلبات الخدمات المعلقة</h2>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-right">
+<thead class="bg-surface-container-low text-on-surface-variant font-label-md text-label-md border-b border-surface-variant">
+<tr>
+<th class="px-6 py-4">اسم الخدمة</th>
+<th class="px-6 py-4">مزود الخدمة</th>
+<th class="px-6 py-4">الفئة</th>
+<th class="px-6 py-4">تاريخ التقديم</th>
+<th class="px-6 py-4 text-center">الإجراءات</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-variant font-body-md text-body-md text-on-surface">
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="px-6 py-4 font-medium">تركيب كاميرات مراقبة</td>
+<td class="px-6 py-4">مؤسسة الأمان التقني</td>
+<td class="px-6 py-4"><span class="px-2 py-1 bg-surface-variant text-on-surface-variant rounded-md font-label-sm text-label-sm">تقنية وأمن</span></td>
+<td class="px-6 py-4 text-on-surface-variant">12 أكتوبر 2023</td>
+<td class="px-6 py-4 flex justify-center gap-2">
+<button class="p-2 bg-secondary-container text-on-secondary-container rounded-lg hover:bg-secondary hover:text-on-secondary transition-colors" title="موافقة">
+<span class="material-symbols-outlined text-[20px]">check</span>
+</button>
+<button class="p-2 bg-error-container text-on-error-container rounded-lg hover:bg-error hover:text-on-error transition-colors" title="رفض">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</td>
+</tr>
+<!-- More rows as needed -->
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</main>
+</body></html>
