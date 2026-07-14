@@ -80,8 +80,8 @@ class OrdersNotifier extends AsyncNotifier<List<OrderModel>> {
         .select('''
           *,
           services(id, title, price, image_url),
-          customer:profiles!orders_customer_id_fkey(id, full_name, avatar_url, phone),
-          provider:profiles!orders_provider_id_fkey(id, full_name, avatar_url, phone)
+          customer:profiles!customer_id(id, full_name, avatar_url, phone),
+          provider:profiles!provider_id(id, full_name, avatar_url, phone)
         ''')
         .eq(isProvider ? 'provider_id' : 'customer_id', user.id)
         .order('created_at', ascending: false);

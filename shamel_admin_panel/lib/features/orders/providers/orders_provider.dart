@@ -48,7 +48,7 @@ class OrderModel {
 final ordersProvider = FutureProvider<List<OrderModel>>((ref) async {
   final response = await Supabase.instance.client
       .from('orders')
-      .select('*, customer:profiles!orders_customer_id_fkey(full_name), provider:profiles!orders_provider_id_fkey(full_name)')
+      .select('*, customer:profiles!customer_id(full_name), provider:profiles!provider_id(full_name)')
       .order('created_at', ascending: false);
       
   return (response as List).map((data) => OrderModel.fromJson(data)).toList();
