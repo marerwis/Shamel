@@ -1,12 +1,75 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../providers/orders_provider.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../../chat/providers/chat_provider.dart';
 
-class OrderDetailsScreen extends StatelessWidget {
-  const OrderDetailsScreen({super.key});
+class OrderDetailsScreen extends ConsumerWidget {
+  final OrderModel? order;
+
+  const OrderDetailsScreen({super.key, this.order});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (order == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('تفاصيل الطلب')),
+        body: const Center(child: Text('الطلب غير موجود')),
+      );
+    }
+
+    final user = ref.watch(currentUserProvider);
+    final isProvider = user?.role == 'provider';
+
+    String statusAr = order!.status;
+    Color statusColor = AppColors.onSurfaceVariant;
+    Color statusBg = AppColors.surfaceVariant;
+    IconData statusIcon = Icons.schedule;
+
+    switch (order!.status) {
+      case 'pending':
+        statusAr = 'قيد الانتظار';
+        statusColor = Colors.orange;
+        statusBg = Colors.orange.withOpacity(0.1);
+        statusIcon = Icons.hourglass_empty;
+        break;
+      case 'accepted':
+        statusAr = 'تم القبول';
+        statusColor = Colors.blue;
+        statusBg = Colors.blue.withOpacity(0.1);
+        statusIcon = Icons.thumb_up;
+        break;
+      case 'in_progress':
+        statusAr = 'قيد التنفيذ';
+        statusColor = AppColors.primary;
+        statusBg = AppColors.primaryContainer.withOpacity(0.1);
+        statusIcon = Icons.sync;
+        break;
+      case 'completed':
+        statusAr = 'مكتمل';
+        statusColor = Colors.green;
+        statusBg = Colors.green.withOpacity(0.1);
+        statusIcon = Icons.check_circle;
+        break;
+      case 'cancelled':
+        statusAr = 'ملغى';
+        statusColor = Colors.red;
+        statusBg = Colors.red.withOpacity(0.1);
+        statusIcon = Icons.cancel;
+        break;
+    }
+
+    final serviceName = order!.service?['name'] ?? 'خدمة عامة';
+    final otherParty = isProvider ? order!.customer : order!.provider;
+    final otherPartyName = otherParty != null ? otherParty['full_name'] : 'غير معروف';
+    final otherPartyAvatar = otherParty != null ? otherParty['avatar_url'] : null;
+
+    final dateStr = order!.scheduledAt != null 
+        ? '${order!.scheduledAt!.year}-${order!.scheduledAt!.month.toString().padLeft(2, '0')}-${order!.scheduledAt!.day.toString().padLeft(2, '0')} ${order!.scheduledAt!.hour}:00'
+        : 'غير محدد';
+
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
@@ -46,21 +109,21 @@ class OrderDetailsScreen extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('طلب رقم', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.onSurfaceVariant)),
-                      Text('#SH-9824', style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                      Text('رقم الطلب', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.onSurfaceVariant)),
+                      Text('#${order!.id.substring(0, 8).toUpperCase()}', style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
                     ],
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: AppColors.secondaryContainer,
+                      color: statusBg,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.sync, color: AppColors.onSecondaryContainer, size: 16),
+                        Icon(statusIcon, color: statusColor, size: 16),
                         const SizedBox(width: 8),
-                        const Text('الخدمة قيد التنفيذ', style: TextStyle(color: AppColors.onSecondaryContainer, fontWeight: FontWeight.bold)),
+                        Text(statusAr, style: TextStyle(color: statusColor, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
@@ -69,61 +132,41 @@ class OrderDetailsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // Tracking Stepper
+            // Provider/Customer Info
             _buildSectionContainer(
               context,
-              title: 'حالة الطلب',
-              child: Column(
+              title: isProvider ? 'العميل' : 'مزود الخدمة',
+              child: Row(
                 children: [
-                  _buildStep(context, title: 'تم استلام الطلب', subtitle: '12 أكتوبر 2023, 09:00 ص', isActive: false, isCompleted: true),
-                  _buildStep(context, title: 'مزود الخدمة في الطريق', subtitle: '12 أكتوبر 2023, 09:45 ص', isActive: false, isCompleted: true),
-                  _buildStep(context, title: 'الخدمة قيد التنفيذ', subtitle: 'بدأ العمل: 10:15 ص', isActive: true, isCompleted: false),
-                  _buildStep(context, title: 'المراجعة والدفع', subtitle: 'في انتظار انتهاء الخدمة', isActive: false, isCompleted: false, isLast: true),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Provider Info
-            _buildSectionContainer(
-              context,
-              title: 'مزود الخدمة',
-              child: InkWell(
-                onTap: () {
-                  context.push('/provider/1');
-                },
-                child: Row(
-                  children: [
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.surfaceVariant, width: 2),
-                      image: const DecorationImage(
-                        image: NetworkImage('https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop'),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundImage: otherPartyAvatar != null ? NetworkImage(otherPartyAvatar) : null,
+                    child: otherPartyAvatar == null ? const Icon(Icons.person) : null,
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('أحمد محمود', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 4),
-                        Text('فني صيانة عامة • تقييم 4.9', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.onSurfaceVariant)),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: List.generate(5, (index) => Icon(Icons.star, color: index < 4 ? Colors.amber : Colors.amber.withOpacity(0.5), size: 16)),
-                        ),
+                        Text(otherPartyName, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
                   IconButton(
-                    onPressed: () {
-                      context.push('/live_chat');
+                    onPressed: () async {
+                      if (otherParty != null) {
+                        final chatId = await ref.read(chatsListProvider.notifier).createOrGetChat(
+                          otherUserId: otherParty['id'],
+                          orderId: order!.id,
+                        );
+                        if (chatId != null && context.mounted) {
+                          context.push('/live_chat/$chatId');
+                        } else if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('فشل في فتح المحادثة')),
+                          );
+                        }
+                      }
                     },
                     icon: const Icon(Icons.chat),
                     color: AppColors.primary,
@@ -132,8 +175,7 @@ class OrderDetailsScreen extends StatelessWidget {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
-                  ],
-                ),
+                ],
               ),
             ),
             const SizedBox(height: 24),
@@ -144,11 +186,15 @@ class OrderDetailsScreen extends StatelessWidget {
               title: 'تفاصيل الخدمة',
               child: Column(
                 children: [
-                  _buildDetailRow(context, Icons.home_repair_service, 'نوع الخدمة', 'صيانة أجهزة تكييف'),
+                  _buildDetailRow(context, Icons.home_repair_service, 'نوع الخدمة', serviceName),
                   const SizedBox(height: 16),
-                  _buildDetailRow(context, Icons.calendar_month, 'الموعد', '12 أكتوبر 2023, 10:00 ص'),
+                  _buildDetailRow(context, Icons.calendar_month, 'الموعد', dateStr),
                   const SizedBox(height: 16),
-                  _buildDetailRow(context, Icons.location_on, 'الموقع', 'فيلا 45، شارع العليا، الرياض'),
+                  _buildDetailRow(context, Icons.location_on, 'الموقع', order!.address),
+                  if (order!.notes != null && order!.notes!.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    _buildDetailRow(context, Icons.note, 'الملاحظات', order!.notes!),
+                  ]
                 ],
               ),
             ),
@@ -160,11 +206,7 @@ class OrderDetailsScreen extends StatelessWidget {
               title: 'ملخص الطلب',
               child: Column(
                 children: [
-                  _buildSummaryRow(context, 'تكلفة الخدمة (تقديرية)', '150 ر.س'),
-                  const SizedBox(height: 12),
-                  _buildSummaryRow(context, 'رسوم الزيارة', '50 ر.س'),
-                  const SizedBox(height: 12),
-                  _buildSummaryRow(context, 'الضريبة (15%)', '30 ر.س'),
+                  _buildSummaryRow(context, 'تكلفة الخدمة', '${order!.price ?? 0} ر.س'),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),
                     child: Divider(color: AppColors.outlineVariant),
@@ -173,51 +215,105 @@ class OrderDetailsScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('الإجمالي', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
-                      Text('230 ر.س', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                      Text('${order!.price ?? 0} ر.س', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
                     ],
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(Icons.info, color: AppColors.secondary, size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'التكلفة النهائية قد تتغير بناءً على قطع الغيار أو العمل الإضافي المطلوب بعد التقييم النهائي.',
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.onSurfaceVariant),
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
 
-            // Cancel Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.cancel),
-                label: const Text('إلغاء الطلب'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.errorContainer,
-                  foregroundColor: AppColors.onErrorContainer,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 0,
+            // Action Buttons
+            if (isProvider && order!.status == 'pending') ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await ref.read(ordersProvider.notifier).updateOrderStatus(order!.id, 'accepted');
+                        if (context.mounted) context.pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: const Text('قبول الطلب'),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await ref.read(ordersProvider.notifier).updateOrderStatus(order!.id, 'rejected');
+                        if (context.mounted) context.pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: const Text('رفض الطلب'),
+                    ),
+                  ),
+                ],
+              ),
+            ] else if (isProvider && order!.status == 'accepted') ...[
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await ref.read(ordersProvider.notifier).updateOrderStatus(order!.id, 'in_progress');
+                    if (context.mounted) context.pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('بدء التنفيذ'),
                 ),
               ),
-            ),
+            ] else if (isProvider && order!.status == 'in_progress') ...[
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await ref.read(ordersProvider.notifier).updateOrderStatus(order!.id, 'completed');
+                    if (context.mounted) context.pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('إكمال الخدمة'),
+                ),
+              ),
+            ] else if (!isProvider && (order!.status == 'pending' || order!.status == 'accepted')) ...[
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    await ref.read(ordersProvider.notifier).updateOrderStatus(order!.id, 'cancelled');
+                    if (context.mounted) context.pop();
+                  },
+                  icon: const Icon(Icons.cancel),
+                  label: const Text('إلغاء الطلب'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.errorContainer,
+                    foregroundColor: AppColors.onErrorContainer,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(height: 40),
           ],
         ),
@@ -242,61 +338,6 @@ class OrderDetailsScreen extends StatelessWidget {
           Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
           child,
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStep(BuildContext context, {required String title, required String subtitle, required bool isActive, required bool isCompleted, bool isLast = false}) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Column(
-            children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isCompleted ? AppColors.secondary : (isActive ? AppColors.primary : AppColors.surface),
-                  border: isCompleted || isActive ? null : Border.all(color: AppColors.outlineVariant, width: 2),
-                  boxShadow: isActive ? [BoxShadow(color: AppColors.primary.withOpacity(0.3), blurRadius: 8, spreadRadius: 2)] : null,
-                ),
-                child: isCompleted
-                    ? const Icon(Icons.check, size: 14, color: AppColors.onSecondary)
-                    : (isActive ? Center(child: Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppColors.onPrimary, shape: BoxShape.circle))) : null),
-              ),
-              if (!isLast)
-                Expanded(
-                  child: Container(
-                    width: 2,
-                    color: AppColors.outlineVariant,
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: isActive ? AppColors.primary : (isCompleted ? AppColors.onSurface : AppColors.onSurfaceVariant),
-                          fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                        ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(subtitle, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.onSurfaceVariant)),
-                ],
-              ),
-            ),
-          ),
         ],
       ),
     );

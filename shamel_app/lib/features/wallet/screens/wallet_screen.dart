@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_drawer.dart';
+import '../providers/wallet_provider.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
-class WalletScreen extends StatelessWidget {
+class WalletScreen extends ConsumerWidget {
   const WalletScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final walletAsync = ref.watch(walletProvider);
+
     return Scaffold(
       backgroundColor: AppColors.surface,
       drawer: const AppDrawer(),
@@ -38,211 +43,203 @@ class WalletScreen extends StatelessWidget {
         backgroundColor: AppColors.surface,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Balance Card
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppColors.primary, AppColors.primaryContainer],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(color: AppColors.primary.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8)),
-                ],
-              ),
+      body: walletAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(child: Text('خطأ: $err')),
+        data: (wallet) {
+          return RefreshIndicator(
+            onRefresh: () async => ref.refresh(walletProvider.future),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              physics: const AlwaysScrollableScrollPhysics(),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('الرصيد المتاح', style: Theme.of(context).textTheme.labelLarge?.copyWith(color: AppColors.onPrimary.withOpacity(0.8))),
-                          const SizedBox(height: 8),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text('1,250.50', style: Theme.of(context).textTheme.displaySmall?.copyWith(color: AppColors.onPrimary, fontWeight: FontWeight.bold)),
-                              const SizedBox(width: 8),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 6),
-                                child: Text('ريال', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.onPrimary.withOpacity(0.8))),
+                  // Balance Card
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [AppColors.primary, AppColors.primaryContainer],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(color: AppColors.primary.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8)),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('الرصيد المتاح', style: Theme.of(context).textTheme.labelLarge?.copyWith(color: AppColors.onPrimary.withOpacity(0.8))),
+                                const SizedBox(height: 8),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text('${wallet.balance}', style: Theme.of(context).textTheme.displaySmall?.copyWith(color: AppColors.onPrimary, fontWeight: FontWeight.bold)),
+                                    const SizedBox(width: 8),
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 6),
+                                      child: Text('ر.س', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.onPrimary.withOpacity(0.8))),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
+                              child: const Icon(Icons.account_balance_wallet, color: AppColors.onPrimary),
+                            ),
+                          ],
                         ),
-                        child: const Icon(Icons.account_balance_wallet, color: AppColors.onPrimary),
-                      ),
-                    ],
+                        const SizedBox(height: 24),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  // TODO: Add funds
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('شحن الرصيد غير مفعل حالياً')));
+                                },
+                                icon: const Icon(Icons.add, size: 20),
+                                label: const Text('شحن الرصيد'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.secondary,
+                                  foregroundColor: AppColors.onSecondary,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  elevation: 0,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: () {
+                                  context.push('/withdraw');
+                                },
+                                icon: const Icon(Icons.arrow_downward, size: 20),
+                                label: const Text('سحب'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppColors.onPrimary,
+                                  side: const BorderSide(color: AppColors.onPrimary),
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 24),
+
+                  // Quick Actions
                   Row(
                     children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {},
-                          icon: const Icon(Icons.add, size: 20),
-                          label: const Text('شحن الرصيد'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.secondary,
-                            foregroundColor: AppColors.onSecondary,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            elevation: 0,
-                          ),
-                        ),
-                      ),
+                      Expanded(child: _buildQuickActionCard(context, Icons.send, 'إرسال أموال')),
                       const SizedBox(width: 16),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            context.push('/withdraw');
-                          },
-                          icon: const Icon(Icons.arrow_downward, size: 20),
-                          label: const Text('سحب'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.onPrimary,
-                            side: const BorderSide(color: AppColors.onPrimary),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                        ),
-                      ),
+                      Expanded(child: _buildQuickActionCard(context, Icons.request_quote, 'طلب أموال')),
+                      const SizedBox(width: 16),
+                      Expanded(child: _buildQuickActionCard(context, Icons.receipt, 'دفع فواتير')),
                     ],
                   ),
+                  const SizedBox(height: 32),
+
+                  // Transaction History
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('المعاملات الأخيرة', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.onSurface, fontWeight: FontWeight.bold)),
+                      if (wallet.transactions.length > 5)
+                        TextButton(
+                          onPressed: () {},
+                          child: const Text('عرض الكل', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  if (wallet.transactions.isEmpty)
+                    const Center(child: Padding(padding: EdgeInsets.all(32), child: Text('لا توجد معاملات بعد', style: TextStyle(color: AppColors.onSurfaceVariant))))
+                  else
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceContainerLowest,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.outlineVariant.withOpacity(0.3)),
+                      ),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.zero,
+                        itemCount: wallet.transactions.take(5).length,
+                        separatorBuilder: (context, index) => const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final tx = wallet.transactions[index];
+                          final isCredit = tx.type == 'credit';
+                          return _buildTransactionItem(
+                            context,
+                            title: tx.description,
+                            date: timeago.format(tx.createdAt, locale: 'ar'),
+                            amount: '${isCredit ? '+' : '-'} ${tx.amount} ر.س',
+                            isPositive: isCredit,
+                            status: 'مكتمل',
+                            icon: isCredit ? Icons.add_card : Icons.payment,
+                            iconBg: isCredit ? AppColors.secondaryContainer : AppColors.errorContainer,
+                            iconColor: isCredit ? AppColors.onSecondaryContainer : AppColors.onErrorContainer,
+                          );
+                        },
+                      ),
+                    ),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
-
-            // Quick Actions
-            Row(
-              children: [
-                Expanded(child: _buildQuickActionCard(context, Icons.send, 'إرسال أموال')),
-                const SizedBox(width: 16),
-                Expanded(child: _buildQuickActionCard(context, Icons.request_quote, 'طلب أموال')),
-                const SizedBox(width: 16),
-                Expanded(child: _buildQuickActionCard(context, Icons.receipt, 'دفع فواتير')),
-              ],
-            ),
-            const SizedBox(height: 32),
-
-            // Transaction History
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('المعاملات الأخيرة', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.onSurface, fontWeight: FontWeight.bold)),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('عرض الكل', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.surfaceContainerLowest,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.outlineVariant.withOpacity(0.3)),
-              ),
-              child: ListView(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: EdgeInsets.zero,
-                children: [
-                  _buildTransactionItem(
-                    context,
-                    title: 'إصلاح تسريب مياه',
-                    date: 'اليوم، 10:30 صباحاً',
-                    amount: '- 150.00 ريال',
-                    isPositive: false,
-                    status: 'مدفوع',
-                    icon: Icons.plumbing,
-                    iconBg: AppColors.errorContainer,
-                    iconColor: AppColors.onErrorContainer,
-                  ),
-                  const Divider(height: 1),
-                  _buildTransactionItem(
-                    context,
-                    title: 'شحن رصيد',
-                    date: 'أمس، 05:15 مساءً',
-                    amount: '+ 500.00 ريال',
-                    isPositive: true,
-                    status: 'مكتمل',
-                    icon: Icons.add_card,
-                    iconBg: AppColors.secondaryContainer,
-                    iconColor: AppColors.onSecondaryContainer,
-                  ),
-                  const Divider(height: 1),
-                  _buildTransactionItem(
-                    context,
-                    title: 'فاتورة الكهرباء',
-                    date: '12 مايو، 09:00 صباحاً',
-                    amount: '- 220.50 ريال',
-                    isPositive: false,
-                    status: 'مدفوع',
-                    icon: Icons.electric_bolt,
-                    iconBg: AppColors.surfaceVariant,
-                    iconColor: AppColors.onSurfaceVariant,
-                  ),
-                  const Divider(height: 1),
-                  _buildTransactionItem(
-                    context,
-                    title: 'استرداد نقدي',
-                    date: '10 مايو، 02:45 مساءً',
-                    amount: '+ 25.00 ريال',
-                    isPositive: true,
-                    status: 'مكتمل',
-                    icon: Icons.arrow_downward,
-                    iconBg: AppColors.secondaryContainer,
-                    iconColor: AppColors.onSecondaryContainer,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
   Widget _buildQuickActionCard(BuildContext context, IconData icon, String title) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-      decoration: BoxDecoration(
-        color: AppColors.surface.withOpacity(0.8),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.outlineVariant.withOpacity(0.5)),
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: const BoxDecoration(
-              color: AppColors.primaryContainer,
-              shape: BoxShape.circle,
+    return InkWell(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('قريباً')));
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        decoration: BoxDecoration(
+          color: AppColors.surface.withOpacity(0.8),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.outlineVariant.withOpacity(0.5)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: const BoxDecoration(
+                color: AppColors.primaryContainer,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: AppColors.onPrimaryContainer),
             ),
-            child: Icon(icon, color: AppColors.onPrimaryContainer),
-          ),
-          const SizedBox(height: 12),
-          Text(title, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.onSurface, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-        ],
+            const SizedBox(height: 12),
+            Text(title, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.onSurface, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+          ],
+        ),
       ),
     );
   }

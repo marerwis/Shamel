@@ -1,12 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../providers/chat_provider.dart';
+import '../../auth/providers/auth_provider.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
-class MessagesListScreen extends StatelessWidget {
+class MessagesListScreen extends ConsumerStatefulWidget {
   const MessagesListScreen({super.key});
 
   @override
+  ConsumerState<MessagesListScreen> createState() => _MessagesListScreenState();
+}
+
+class _MessagesListScreenState extends ConsumerState<MessagesListScreen> {
+  String _searchQuery = '';
+
+  @override
   Widget build(BuildContext context) {
+    final chatsAsync = ref.watch(chatsListProvider);
+    final user = ref.watch(currentUserProvider);
+    final isProvider = user?.role == 'provider';
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -30,6 +45,11 @@ class MessagesListScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
+              onChanged: (val) {
+                setState(() {
+                  _searchQuery = val.toLowerCase();
+                });
+              },
               decoration: InputDecoration(
                 hintText: 'البحث في الرسائل...',
                 hintStyle: const TextStyle(color: AppColors.onSurfaceVariant),
@@ -54,42 +74,50 @@ class MessagesListScreen extends StatelessWidget {
           
           // Messages List
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              children: [
-                _buildChatItem(
-                  context,
-                  name: 'أحمد للصيانة',
-                  time: 'الآن',
-                  serviceType: 'صيانة منزلية',
-                  message: 'مرحباً، سأكون عندك خلال 15 دقيقة.',
-                  unreadCount: 1,
-                  avatarUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
-                  isUnread: true,
-                ),
-                const SizedBox(height: 12),
-                _buildChatItem(
-                  context,
-                  name: 'مؤسسة النور للتنظيف',
-                  time: '10:30 ص',
-                  serviceType: 'تنظيف شامل',
-                  message: 'تم استلام الدفعة، شكراً لك.',
-                  unreadCount: 0,
-                  avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop',
-                  isReadReceipt: true,
-                ),
-                const SizedBox(height: 12),
-                _buildChatItem(
-                  context,
-                  name: 'سعيد للكهرباء',
-                  time: 'أمس',
-                  serviceType: 'أعمال كهرباء',
-                  message: 'هل يمكنك إرسال صورة للمشكلة؟',
-                  unreadCount: 0,
-                  avatarUrl: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?q=80&w=200&auto=format&fit=crop',
-                ),
-                const SizedBox(height: 24),
-              ],
+            child: chatsAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => Center(child: Text('خطأ: $err')),
+              data: (chats) {
+                final filteredChats = chats.where((chat) {
+                  final otherParty = isProvider ? chat.customer : chat.provider;
+                  final otherName = otherParty != null ? otherParty['full_name'].toString().toLowerCase() : '';
+                  return otherName.contains(_searchQuery);
+                }).toList();
+
+                if (filteredChats.isEmpty) {
+                  return const Center(child: Text('لا توجد محادثات'));
+                }
+
+                return ListView.separated(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  itemCount: filteredChats.length,
+                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final chat = filteredChats[index];
+                    final otherParty = isProvider ? chat.customer : chat.provider;
+                    final otherName = otherParty != null ? otherParty['full_name'] : 'مستخدم';
+                    final otherAvatar = otherParty != null ? otherParty['avatar_url'] : null;
+                    
+                    final lastMsg = chat.recentMessages.isNotEmpty ? chat.recentMessages.first : null;
+                    final msgContent = lastMsg?.content ?? 'لا توجد رسائل';
+                    final msgTime = lastMsg != null ? timeago.format(lastMsg.createdAt, locale: 'ar') : '';
+                    final isUnread = lastMsg != null && !lastMsg.isRead && lastMsg.senderId != user?.id;
+
+                    return _buildChatItem(
+                      context,
+                      chatId: chat.id,
+                      name: otherName,
+                      time: msgTime,
+                      serviceType: chat.orderId != null ? 'طلب #${chat.orderId!.substring(0,6)}' : 'دردشة عامة',
+                      message: msgContent,
+                      unreadCount: isUnread ? 1 : 0, // Simplified for now
+                      avatarUrl: otherAvatar,
+                      isUnread: isUnread,
+                      isReadReceipt: lastMsg != null && lastMsg.isRead && lastMsg.senderId == user?.id,
+                    );
+                  },
+                );
+              },
             ),
           ),
         ],
@@ -99,18 +127,19 @@ class MessagesListScreen extends StatelessWidget {
 
   Widget _buildChatItem(
     BuildContext context, {
+    required String chatId,
     required String name,
     required String time,
     required String serviceType,
     required String message,
     required int unreadCount,
-    required String avatarUrl,
+    String? avatarUrl,
     bool isUnread = false,
     bool isReadReceipt = false,
   }) {
     return InkWell(
       onTap: () {
-        context.push('/live_chat');
+        context.push('/live_chat/$chatId');
       },
       borderRadius: BorderRadius.circular(12),
       child: Container(
@@ -130,17 +159,10 @@ class MessagesListScreen extends StatelessWidget {
             // Avatar
             Stack(
               children: [
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.surface, width: 2),
-                    image: DecorationImage(
-                      image: NetworkImage(avatarUrl),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                CircleAvatar(
+                  radius: 28,
+                  backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                  child: avatarUrl == null ? const Icon(Icons.person) : null,
                 ),
                 if (isUnread)
                   Positioned(

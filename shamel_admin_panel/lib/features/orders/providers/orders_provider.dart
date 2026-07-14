@@ -11,6 +11,8 @@ class OrderModel {
   final String address;
   final DateTime scheduledAt;
   final String? notes;
+  final String? customerName;
+  final String? providerName;
 
   OrderModel({
     required this.id,
@@ -22,6 +24,8 @@ class OrderModel {
     required this.address,
     required this.scheduledAt,
     this.notes,
+    this.customerName,
+    this.providerName,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -35,6 +39,8 @@ class OrderModel {
       address: json['address'],
       scheduledAt: DateTime.parse(json['scheduled_at']),
       notes: json['notes'],
+      customerName: json['customer'] != null ? json['customer']['full_name'] : null,
+      providerName: json['provider'] != null ? json['provider']['full_name'] : null,
     );
   }
 }
@@ -42,7 +48,7 @@ class OrderModel {
 final ordersProvider = FutureProvider<List<OrderModel>>((ref) async {
   final response = await Supabase.instance.client
       .from('orders')
-      .select()
+      .select('*, customer:profiles!orders_customer_id_fkey(full_name), provider:profiles!orders_provider_id_fkey(full_name)')
       .order('created_at', ascending: false);
       
   return (response as List).map((data) => OrderModel.fromJson(data)).toList();

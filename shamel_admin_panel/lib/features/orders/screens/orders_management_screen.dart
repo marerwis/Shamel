@@ -102,6 +102,7 @@ class OrdersManagementScreen extends ConsumerWidget {
           dataRowMaxHeight: 70,
           columns: const [
             DataColumn(label: Text('رقم الطلب', style: TextStyle(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text('الأطراف', style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(label: Text('الموعد المجدول', style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(label: Text('السعر', style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(label: Text('الحالة', style: TextStyle(fontWeight: FontWeight.bold))),
@@ -122,6 +123,14 @@ class OrdersManagementScreen extends ConsumerWidget {
             return DataRow(
               cells: [
                 DataCell(Text('#${order.id.substring(0, 8).toUpperCase()}')),
+                DataCell(Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('العميل: ${order.customerName ?? "غير معروف"}', style: const TextStyle(fontSize: 12)),
+                    Text('المزود: ${order.providerName ?? "غير معين"}', style: const TextStyle(fontSize: 12)),
+                  ],
+                )),
                 DataCell(Text(order.scheduledAt.toString().substring(0, 16))),
                 DataCell(Text(order.price != null ? 'SAR ${order.price}' : 'غير محدد')),
                 DataCell(Container(

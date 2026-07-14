@@ -156,3 +156,89 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
 
+-- 4. Orders Table
+drop table if exists public.orders cascade;
+create table public.orders (
+  id uuid default uuid_generate_v4() primary key,
+  customer_id uuid references public.profiles(id) on delete cascade not null,
+  provider_id uuid references public.profiles(id) on delete cascade not null,
+  service_id uuid references public.services(id) on delete set null,
+  status text default 'pending' check (status in ('pending', 'accepted', 'rejected', 'in_progress', 'completed', 'cancelled', 'disputed')),
+  price numeric not null default 0,
+  address text,
+  scheduled_at timestamp with time zone,
+  notes text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.orders enable row level security;
+create policy "Users can view own orders." on orders for select using (auth.uid() = customer_id or auth.uid() = provider_id or exists (select 1 from profiles where id = auth.uid() and role = 'admin'));
+create policy "Customers can insert orders." on orders for insert with check (auth.uid() = customer_id);
+create policy "Users can update own orders." on orders for update using (auth.uid() = customer_id or auth.uid() = provider_id or exists (select 1 from profiles where id = auth.uid() and role = 'admin'));
+
+-- 5. Chats and Messages
+drop table if exists public.chats cascade;
+create table public.chats (
+  id uuid default uuid_generate_v4() primary key,
+  order_id uuid references public.orders(id) on delete cascade,
+  customer_id uuid references public.profiles(id) on delete cascade not null,
+  provider_id uuid references public.profiles(id) on delete cascade not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.chats enable row level security;
+create policy "Users can view own chats." on chats for select using (auth.uid() = customer_id or auth.uid() = provider_id or exists (select 1 from profiles where id = auth.uid() and role = 'admin'));
+create policy "Users can create chats." on chats for insert with check (auth.uid() = customer_id or auth.uid() = provider_id);
+
+drop table if exists public.messages cascade;
+create table public.messages (
+  id uuid default uuid_generate_v4() primary key,
+  chat_id uuid references public.chats(id) on delete cascade not null,
+  sender_id uuid references public.profiles(id) on delete cascade not null,
+  content text not null,
+  is_read boolean default false,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.messages enable row level security;
+create policy "Users can view messages of their chats." on messages for select using (
+  exists (select 1 from chats where chats.id = messages.chat_id and (chats.customer_id = auth.uid() or chats.provider_id = auth.uid()))
+  or exists (select 1 from profiles where id = auth.uid() and role = 'admin')
+);
+create policy "Users can insert messages to their chats." on messages for insert with check (
+  auth.uid() = sender_id and exists (select 1 from chats where chats.id = messages.chat_id and (chats.customer_id = auth.uid() or chats.provider_id = auth.uid()))
+);
+create policy "Users can update messages of their chats (mark read)." on messages for update using (
+  exists (select 1 from chats where chats.id = messages.chat_id and (chats.customer_id = auth.uid() or chats.provider_id = auth.uid()))
+);
+
+-- 6. Wallet and Transactions
+drop table if exists public.wallet_transactions cascade;
+create table public.wallet_transactions (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  amount numeric not null,
+  type text check (type in ('credit', 'debit')),
+  description text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.wallet_transactions enable row level security;
+create policy "Users can view own transactions." on wallet_transactions for select using (auth.uid() = user_id or exists (select 1 from profiles where id = auth.uid() and role = 'admin'));
+-- Only system (via functions or admin) should insert transactions in a real app, but for this MVP:
+create policy "System can insert transactions." on wallet_transactions for insert with check (true);
+
+drop table if exists public.withdrawal_requests cascade;
+create table public.withdrawal_requests (
+  id uuid default uuid_generate_v4() primary key,
+  provider_id uuid references public.profiles(id) on delete cascade not null,
+  amount numeric not null,
+  status text default 'pending' check (status in ('pending', 'approved', 'rejected')),
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.withdrawal_requests enable row level security;
+create policy "Providers can view own requests." on withdrawal_requests for select using (auth.uid() = provider_id or exists (select 1 from profiles where id = auth.uid() and role = 'admin'));
+create policy "Providers can insert requests." on withdrawal_requests for insert with check (auth.uid() = provider_id);
+create policy "Admins can update requests." on withdrawal_requests for update using (exists (select 1 from profiles where id = auth.uid() and role = 'admin'));
+

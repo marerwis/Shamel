@@ -8,8 +8,9 @@ import '../providers/orders_provider.dart';
 
 class BookingScreen extends ConsumerStatefulWidget {
   final ServiceModel? service;
+  final Map<String, dynamic>? provider;
 
-  const BookingScreen({super.key, this.service});
+  const BookingScreen({super.key, this.service, this.provider});
 
   @override
   ConsumerState<BookingScreen> createState() => _BookingScreenState();
@@ -35,9 +36,17 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
   Future<void> _submitOrder() async {
     final user = ref.read(currentUserProvider);
-    if (user == null || widget.service == null) {
+    if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('الرجاء تسجيل الدخول واختيار خدمة صحيحة')),
+        const SnackBar(content: Text('الرجاء تسجيل الدخول أولاً')),
+      );
+      return;
+    }
+
+    final providerId = widget.provider?['id'] ?? widget.service?.providerId;
+    if (providerId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('بيانات مزود الخدمة مفقودة')),
       );
       return;
     }
@@ -59,10 +68,10 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       
       DateTime finalScheduledAt = DateTime(scheduledDate.year, scheduledDate.month, scheduledDate.day, hour);
 
-      await ref.read(orderControllerProvider).createOrder(
-        customerId: user.id,
-        serviceId: widget.service!.id,
-        price: widget.service!.basePrice,
+      await ref.read(ordersProvider.notifier).createOrder(
+        providerId: providerId,
+        serviceId: widget.service?.id,
+        price: widget.service?.basePrice ?? 50.0, // Default price if no specific service selected
         address: _addressController.text,
         scheduledAt: finalScheduledAt,
         notes: _notesController.text,
@@ -91,14 +100,19 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.service == null) {
+    if (widget.service == null && widget.provider == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('حجز الخدمة')),
-        body: const Center(child: Text('الرجاء اختيار خدمة أولاً')),
+        body: const Center(child: Text('الرجاء اختيار خدمة أو مزود أولاً')),
       );
     }
 
-    final srv = widget.service!;
+    final srv = widget.service;
+    final prov = widget.provider;
+
+    final displayName = srv?.name ?? prov?['first_name'] ?? 'طلب خدمة';
+    final displayCategory = srv?.category ?? prov?['provider_details']?[0]?['title'] ?? 'عام';
+    final displayPrice = srv?.basePrice.toString() ?? 'حسب الاتفاق';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -124,7 +138,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Service Info Snippet
+                // Service/Provider Info Snippet
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -141,20 +155,20 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                           color: AppColors.primaryContainer,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.home_repair_service, color: AppColors.onPrimaryContainer, size: 28),
+                        child: Icon(srv != null ? Icons.home_repair_service : Icons.person, color: AppColors.onPrimaryContainer, size: 28),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(srv.name, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                            Text(displayName, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                             const SizedBox(height: 4),
-                            Text(srv.category, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.onSurfaceVariant)),
+                            Text(displayCategory, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.onSurfaceVariant)),
                           ],
                         ),
                       ),
-                      Text('SAR ${srv.basePrice}', style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                      Text(srv != null ? 'SAR $displayPrice' : displayPrice, style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),

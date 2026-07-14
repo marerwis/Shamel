@@ -108,8 +108,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/booking',
         name: 'booking',
         builder: (context, state) {
-          final service = state.extra as ServiceModel?;
-          return BookingScreen(service: service);
+          final extra = state.extra as Map<String, dynamic>?;
+          return BookingScreen(
+            service: extra?['service'] as ServiceModel?,
+            provider: extra?['provider'] as Map<String, dynamic>?,
+          );
         },
       ),
       GoRoute(
@@ -134,7 +137,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/order_details/:id',
         name: 'order_details',
-        builder: (context, state) => const OrderDetailsScreen(),
+        builder: (context, state) {
+          final order = state.extra as OrderModel?;
+          return OrderDetailsScreen(order: order);
+        },
       ),
       GoRoute(
         path: '/order_edit/:id',
@@ -152,9 +158,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const WithdrawalRequestScreen(),
       ),
       GoRoute(
-        path: '/live_chat',
+        path: '/live_chat/:id',
         name: 'live_chat',
-        builder: (context, state) => const LiveChatScreen(),
+        builder: (context, state) {
+          final chatId = state.pathParameters['id']!;
+          return LiveChatScreen(chatId: chatId);
+        },
       ),
       GoRoute(
         path: '/chat_quote',

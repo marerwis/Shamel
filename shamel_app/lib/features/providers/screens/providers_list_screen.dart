@@ -136,7 +136,7 @@ class _ProvidersListScreenState extends ConsumerState<ProvidersListScreen> {
           ElevatedButton(
             onPressed: () {
               // TODO: Navigate to provider profile / booking
-              context.push('/booking');
+              context.push('/booking', extra: {'provider': provider});
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,

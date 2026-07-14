@@ -1,17 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../providers/wallet_provider.dart';
 
-class WithdrawalRequestScreen extends StatefulWidget {
+class WithdrawalRequestScreen extends ConsumerStatefulWidget {
   const WithdrawalRequestScreen({super.key});
 
   @override
-  State<WithdrawalRequestScreen> createState() => _WithdrawalRequestScreenState();
+  ConsumerState<WithdrawalRequestScreen> createState() => _WithdrawalRequestScreenState();
 }
 
-class _WithdrawalRequestScreenState extends State<WithdrawalRequestScreen> {
+class _WithdrawalRequestScreenState extends ConsumerState<WithdrawalRequestScreen> {
   String _selectedMethod = 'bank';
-  final TextEditingController _amountController = TextEditingController(text: '500');
+  final TextEditingController _amountController = TextEditingController(text: '');
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _amountController.addListener(() {
+      setState(() {});
+    });
+  }
 
   @override
   void dispose() {
@@ -19,8 +30,60 @@ class _WithdrawalRequestScreenState extends State<WithdrawalRequestScreen> {
     super.dispose();
   }
 
+  Future<void> _submitWithdrawal() async {
+    final amountText = _amountController.text.trim();
+    if (amountText.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('الرجاء إدخال المبلغ')));
+      return;
+    }
+
+    final amount = double.tryParse(amountText);
+    if (amount == null || amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('المبلغ غير صالح')));
+      return;
+    }
+
+    final wallet = ref.read(walletProvider).value;
+    if (wallet == null || wallet.balance < amount) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('الرصيد غير كاف')));
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final success = await ref.read(walletProvider.notifier).requestWithdrawal(
+      amount,
+      _selectedMethod == 'bank' ? 'مصرف الراجحي' : 'STC Pay',
+      _selectedMethod == 'bank' ? 'SA1234567890' : '0551234567',
+    );
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (success) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تم استلام طلب السحب الخاص بك بنجاح!'), backgroundColor: Colors.green),
+        );
+        context.pop();
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('حدث خطأ أثناء إرسال الطلب')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final walletAsync = ref.watch(walletProvider);
+    final balance = walletAsync.value?.balance ?? 0;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -62,7 +125,7 @@ class _WithdrawalRequestScreenState extends State<WithdrawalRequestScreen> {
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
                     children: [
-                      Text('12,450.00', style: Theme.of(context).textTheme.displaySmall?.copyWith(color: AppColors.onPrimary, fontWeight: FontWeight.bold)),
+                      Text('$balance', style: Theme.of(context).textTheme.displaySmall?.copyWith(color: AppColors.onPrimary, fontWeight: FontWeight.bold)),
                       const SizedBox(width: 8),
                       Text('ر.س', style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.primaryFixedDim)),
                     ],
@@ -145,14 +208,14 @@ class _WithdrawalRequestScreenState extends State<WithdrawalRequestScreen> {
                 children: [
                   Text('ملخص العملية', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
-                  _buildSummaryRow('المبلغ المسحوب', '${_amountController.text.isEmpty ? "0.00" : _amountController.text}.00 ر.س', false),
+                  _buildSummaryRow('المبلغ المسحوب', '${_amountController.text.isEmpty ? "0.00" : _amountController.text} ر.س', false),
                   const SizedBox(height: 12),
                   _buildSummaryRow('رسوم التحويل', '0.00 ر.س', false),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),
                     child: Divider(color: AppColors.outlineVariant),
                   ),
-                  _buildSummaryRow('إجمالي المبلغ المستلم', '${_amountController.text.isEmpty ? "0.00" : _amountController.text}.00 ر.س', true),
+                  _buildSummaryRow('إجمالي المبلغ المستلم', '${_amountController.text.isEmpty ? "0.00" : _amountController.text} ر.س', true),
                 ],
               ),
             ),
@@ -185,13 +248,8 @@ class _WithdrawalRequestScreenState extends State<WithdrawalRequestScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('تم استلام طلب السحب الخاص بك بنجاح!'), backgroundColor: Colors.green),
-                  );
-                  context.pop();
-                },
-                icon: const Icon(Icons.arrow_back),
+                onPressed: _isLoading ? null : _submitWithdrawal,
+                icon: _isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.arrow_back),
                 label: const Text('تأكيد السحب', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,

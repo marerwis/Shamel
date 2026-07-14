@@ -18,7 +18,7 @@ class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ordersAsync = ref.watch(userOrdersProvider);
+    final ordersAsync = ref.watch(ordersProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -103,7 +103,7 @@ class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
 
                 return RefreshIndicator(
                   onRefresh: () async {
-                    return ref.refresh(userOrdersProvider.future);
+                    return ref.refresh(ordersProvider.future);
                   },
                   child: ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -253,7 +253,7 @@ class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
               ),
               TextButton(
                 onPressed: () {
-                  context.push('/order_details/${order.id}');
+                  context.push('/order_details/${order.id}', extra: order);
                 },
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.secondary,

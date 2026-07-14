@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../members/providers/members_provider.dart';
+import '../providers/finance_provider.dart';
 
 class FinanceManagementScreen extends ConsumerWidget {
   const FinanceManagementScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final providersAsync = ref.watch(providersListProvider);
+    final requestsAsync = ref.watch(financeRequestsProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -17,16 +17,16 @@ class FinanceManagementScreen extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'المعاملات المالية',
+              'المعاملات المالية وطلبات السحب',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AppColors.onSurface,
                   ),
             ),
             OutlinedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.download),
-              label: const Text('تصدير التقرير'),
+              onPressed: () => ref.refresh(financeRequestsProvider),
+              icon: const Icon(Icons.refresh),
+              label: const Text('تحديث'),
             ),
           ],
         ),
@@ -45,18 +45,18 @@ class FinanceManagementScreen extends ConsumerWidget {
         const SizedBox(height: 32),
         
         Text(
-          'محافظ المزودين',
+          'طلبات السحب',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
 
         Expanded(
-          child: providersAsync.when(
+          child: requestsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (err, stack) => Center(child: Text('حدث خطأ: $err')),
-            data: (providers) {
-              if (providers.isEmpty) {
-                return const Center(child: Text('لا يوجد مزودين متاحين بعد'));
+            data: (requests) {
+              if (requests.isEmpty) {
+                return const Center(child: Text('لا توجد طلبات سحب حالياً'));
               }
               return Container(
                 width: double.infinity,
@@ -65,51 +65,68 @@ class FinanceManagementScreen extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.surfaceVariant),
                 ),
-                child: DataTable(
-                  headingRowColor: WidgetStateProperty.all(AppColors.surfaceContainerLow),
-                  columns: const [
-                    DataColumn(label: Text('المزود', style: TextStyle(fontWeight: FontWeight.bold))),
-                    DataColumn(label: Text('الرصيد الكلي', style: TextStyle(fontWeight: FontWeight.bold))),
-                    DataColumn(label: Text('الرصيد المتاح للسحب', style: TextStyle(fontWeight: FontWeight.bold))),
-                    DataColumn(label: Text('حالة الحساب', style: TextStyle(fontWeight: FontWeight.bold))),
-                    DataColumn(label: Text('إجراءات', style: TextStyle(fontWeight: FontWeight.bold))),
-                  ],
-                  rows: providers.map((provider) {
-                    // Status UI
-                    Color statusColor = Colors.grey;
-                    String statusText = provider.status;
-                    if (provider.status == 'active') {
-                      statusColor = Colors.green;
-                      statusText = 'نشط';
-                    } else if (provider.status == 'pending') {
-                      statusColor = Colors.orange;
-                      statusText = 'قيد الانتظار';
-                    } else if (provider.status == 'suspended') {
-                      statusColor = Colors.red;
-                      statusText = 'موقوف';
-                    }
+                child: SingleChildScrollView(
+                  child: DataTable(
+                    headingRowColor: WidgetStateProperty.all(AppColors.surfaceContainerLow),
+                    columns: const [
+                      DataColumn(label: Text('رقم الطلب', style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(label: Text('المزود', style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(label: Text('المبلغ', style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(label: Text('البنك / الحساب', style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(label: Text('الحالة', style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(label: Text('إجراءات', style: TextStyle(fontWeight: FontWeight.bold))),
+                    ],
+                    rows: requests.map((request) {
+                      Color statusColor;
+                      String statusText;
+                      switch(request.status) {
+                        case 'pending': statusColor = Colors.orange; statusText = 'قيد الانتظار'; break;
+                        case 'approved': statusColor = Colors.green; statusText = 'مقبول'; break;
+                        case 'rejected': statusColor = Colors.red; statusText = 'مرفوض'; break;
+                        case 'completed': statusColor = Colors.blue; statusText = 'مكتمل'; break;
+                        default: statusColor = Colors.grey; statusText = request.status;
+                      }
 
-                    return DataRow(
-                      cells: [
-                        DataCell(Text(provider.fullName ?? 'بدون اسم')),
-                        const DataCell(Text('SAR 0.00')),
-                        const DataCell(Text('SAR 0.00')),
-                        DataCell(Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: statusColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(statusText, style: TextStyle(color: statusColor, fontSize: 12, fontWeight: FontWeight.bold)),
-                        )),
-                        DataCell(Row(
-                          children: [
-                            TextButton(onPressed: () {}, child: const Text('تحويل أرباح')),
-                          ],
-                        )),
-                      ],
-                    );
-                  }).toList(),
+                      return DataRow(
+                        cells: [
+                          DataCell(Text('#${request.id.substring(0, 8).toUpperCase()}')),
+                          DataCell(Text(request.providerName ?? 'غير معروف')),
+                          DataCell(Text('${request.amount} SAR', style: const TextStyle(fontWeight: FontWeight.bold))),
+                          DataCell(Text('${request.bankName}\n${request.iban}', style: const TextStyle(fontSize: 12))),
+                          DataCell(Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: statusColor.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(statusText, style: TextStyle(color: statusColor, fontSize: 12, fontWeight: FontWeight.bold)),
+                          )),
+                          DataCell(Row(
+                            children: [
+                              if (request.status == 'pending') ...[
+                                IconButton(
+                                  icon: const Icon(Icons.check, color: Colors.green),
+                                  onPressed: () => ref.read(financeRequestsProvider.notifier).updateRequestStatus(request.id, 'approved'),
+                                  tooltip: 'قبول',
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.close, color: Colors.red),
+                                  onPressed: () => ref.read(financeRequestsProvider.notifier).updateRequestStatus(request.id, 'rejected'),
+                                  tooltip: 'رفض',
+                                ),
+                              ] else if (request.status == 'approved') ...[
+                                IconButton(
+                                  icon: const Icon(Icons.done_all, color: Colors.blue),
+                                  onPressed: () => ref.read(financeRequestsProvider.notifier).updateRequestStatus(request.id, 'completed'),
+                                  tooltip: 'تأكيد التحويل',
+                                ),
+                              ]
+                            ],
+                          )),
+                        ],
+                      );
+                    }).toList(),
+                  ),
                 ),
               );
             },
