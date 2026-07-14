@@ -99,6 +99,16 @@ class MembersNotifier extends AsyncNotifier<List<MemberModel>> {
       return false;
     }
   }
+
+  Future<bool> deleteMember(String id) async {
+    try {
+      await _supabase.from('profiles').delete().eq('id', id);
+      await fetchMembers();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }
 
 // 2. Customers Provider
