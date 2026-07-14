@@ -43,11 +43,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         await auth.login(_emailController.text.trim(), _passwordController.text);
       } else {
         // Register
-        await auth.registerCustomer(
+        await auth.signUp(
           email: _emailController.text.trim(),
           password: _passwordController.text,
-          firstName: _firstNameController.text.trim(),
-          lastName: _lastNameController.text.trim(),
+          role: 'customer',
+          fullName: '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}',
           phone: _phoneController.text.trim(),
         );
       }

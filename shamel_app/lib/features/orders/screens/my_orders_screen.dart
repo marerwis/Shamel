@@ -167,7 +167,9 @@ class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
     final serviceName = order.service?['name'] ?? 'خدمة غير معروفة';
     final categoryName = order.service?['category'] ?? 'عام';
     // Format date properly in a real app, here simple slice
-    final dateStr = '${order.scheduledAt.year}-${order.scheduledAt.month.toString().padLeft(2, '0')}-${order.scheduledAt.day.toString().padLeft(2, '0')}';
+    final dateStr = order.scheduledAt != null 
+        ? '${order.scheduledAt!.year}-${order.scheduledAt!.month.toString().padLeft(2, '0')}-${order.scheduledAt!.day.toString().padLeft(2, '0')}'
+        : '';
 
     return Container(
       padding: const EdgeInsets.all(16),

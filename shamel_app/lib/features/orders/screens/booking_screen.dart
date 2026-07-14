@@ -43,7 +43,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       return;
     }
 
-    final providerId = widget.provider?['id'] ?? widget.service?.providerId;
+    final providerId = widget.provider?['id'];
     if (providerId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('بيانات مزود الخدمة مفقودة')),

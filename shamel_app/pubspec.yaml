@@ -20,6 +20,7 @@ dependencies:
   fl_chart: ^0.70.2
   supabase_flutter: ^2.16.0
   image_picker: ^1.2.3
+  timeago: ^3.7.1
 
 dev_dependencies:
   flutter_test:

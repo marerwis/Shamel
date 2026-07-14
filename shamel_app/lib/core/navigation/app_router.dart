@@ -23,6 +23,7 @@ import '../../features/orders/screens/order_details_screen.dart';
 import '../../features/orders/screens/order_edit_review_screen.dart';
 import '../../features/orders/screens/service_rating_screen.dart';
 import '../../features/orders/screens/booking_screen.dart';
+import '../../features/orders/providers/orders_provider.dart';
 import '../../features/home/providers/services_provider.dart';
 
 // Categories

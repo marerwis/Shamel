@@ -9,7 +9,7 @@ final rootCategoriesProvider = FutureProvider<List<CategoryModel>>((ref) async {
   final response = await supabase
       .from('categories')
       .select()
-      .is_('parent_id', null)
+      .isFilter('parent_id', null)
       .order('created_at', ascending: true);
       
   return (response as List).map((e) => CategoryModel.fromJson(e)).toList();

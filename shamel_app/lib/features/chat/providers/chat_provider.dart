@@ -123,7 +123,7 @@ class ChatsListNotifier extends AsyncNotifier<List<ChatModel>> {
     if (orderId != null) {
       query = query.eq('order_id', orderId);
     } else {
-      query = query.is_('order_id', null);
+      query = query.isFilter('order_id', null);
     }
     
     final existing = await query.maybeSingle();
