@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../providers/auth_provider.dart';
+import '../../categories/providers/categories_provider.dart';
+import '../../categories/models/category_model.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -12,12 +16,21 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   bool _isObscure = true;
   String _selectedRole = 'user';
+  String _selectedIdType = 'national_id'; // default
+  String? _selectedCategoryId;
 
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  
+  // Provider Specific Controllers
+  final _fatherNameController = TextEditingController();
+  final _grandfatherNameController = TextEditingController();
+  final _idNumberController = TextEditingController();
+  final _titleController = TextEditingController();
+
   bool _isLoading = false;
 
   @override
@@ -26,18 +39,26 @@ class _SignupScreenState extends State<SignupScreen> {
     _phoneController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _fatherNameController.dispose();
+    _grandfatherNameController.dispose();
+    _idNumberController.dispose();
+    _titleController.dispose();
     super.dispose();
   }
 
   Future<void> _handleSignUp(WidgetRef ref) async {
     if (!_formKey.currentState!.validate()) return;
     
-    // Require email if not phone, or if they just prefer email registration.
-    // For now, Supabase Auth usually requires email unless phone auth is explicitly configured.
-    // We will use email as the primary login, but store phone in the profile.
     if (_emailController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('الرجاء إدخال البريد الإلكتروني (مطلوب حالياً)')),
+      );
+      return;
+    }
+
+    if (_selectedRole == 'provider' && _selectedCategoryId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('الرجاء اختيار تصنيف الخدمة')),
       );
       return;
     }
@@ -51,18 +72,23 @@ class _SignupScreenState extends State<SignupScreen> {
         role: _selectedRole,
         fullName: _nameController.text.trim(),
         phone: _phoneController.text.trim(),
+        fatherName: _selectedRole == 'provider' ? _fatherNameController.text.trim() : null,
+        grandfatherName: _selectedRole == 'provider' ? _grandfatherNameController.text.trim() : null,
+        idType: _selectedRole == 'provider' ? _selectedIdType : null,
+        idNumber: _selectedRole == 'provider' ? _idNumberController.text.trim() : null,
+        categoryId: _selectedRole == 'provider' ? _selectedCategoryId : null,
+        title: _selectedRole == 'provider' ? _titleController.text.trim() : null,
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_selectedRole == 'provider' 
-              ? 'تم إنشاء الحساب بنجاح! طلبك قيد المراجعة من الإدارة.' 
-              : 'تم إنشاء الحساب بنجاح!'),
-          ),
-        );
-        // Navigate to home or let auth listener handle it
-        context.go('/home');
+        if (_selectedRole == 'provider') {
+          _showProviderSuccessDialog();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('تم إنشاء الحساب بنجاح!')),
+          );
+          context.go('/home');
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -73,6 +99,34 @@ class _SignupScreenState extends State<SignupScreen> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showProviderSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Icon(Icons.check_circle, color: Colors.green, size: 64),
+        content: const Text(
+          'تم تسجيل طلبك كمزود خدمة بنجاح!\n\nسيتم مراجعة طلبك من قبل الإدارة، ولن يتم تفعيل حسابك كلياً إلا بعد الموافقة.',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 16),
+        ),
+        actions: [
+          Center(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
+              onPressed: () {
+                Navigator.pop(ctx);
+                context.go('/home');
+              },
+              child: const Text('حسناً، فهمت'),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -127,10 +181,81 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                 ],
               ),
+              
+              if (_selectedRole == 'provider') ...[
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.orange),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.info_outline, color: Colors.orange),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'تنويه: سيتم مراجعة طلبك من قبل الإدارة قبل الموافقة عليه.',
+                          style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              
               const SizedBox(height: 32),
 
-              // Form
-              _buildTextField(label: 'الاسم الكامل', icon: Icons.person_outline, keyboardType: TextInputType.name, controller: _nameController),
+              // Basic Info Form
+              _buildTextField(label: 'الاسم الأول (أو الكامل)', icon: Icons.person_outline, keyboardType: TextInputType.name, controller: _nameController),
+              
+              // Provider Specific Info
+              if (_selectedRole == 'provider') ...[
+                const SizedBox(height: 16),
+                _buildTextField(label: 'اسم الأب', icon: Icons.person_outline, controller: _fatherNameController),
+                const SizedBox(height: 16),
+                _buildTextField(label: 'اسم الجد', icon: Icons.person_outline, controller: _grandfatherNameController),
+                const SizedBox(height: 16),
+                _buildTextField(label: 'المسمى الوظيفي (مثال: طبيب، سباك، نجار)', icon: Icons.work_outline, controller: _titleController),
+                const SizedBox(height: 16),
+                Text('نوع الهوية', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.onSurfaceVariant)),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: RadioListTile<String>(
+                        title: const Text('بطاقة هوية'),
+                        value: 'national_id',
+                        groupValue: _selectedIdType,
+                        onChanged: (val) => setState(() => _selectedIdType = val!),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                    Expanded(
+                      child: RadioListTile<String>(
+                        title: const Text('جواز سفر'),
+                        value: 'passport',
+                        groupValue: _selectedIdType,
+                        onChanged: (val) => setState(() => _selectedIdType = val!),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                _buildTextField(
+                  label: _selectedIdType == 'passport' ? 'رقم جواز السفر' : 'رقم الهوية', 
+                  icon: Icons.badge_outlined, 
+                  controller: _idNumberController,
+                ),
+                const SizedBox(height: 16),
+                Text('تصنيف الخدمة', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.onSurfaceVariant)),
+                const SizedBox(height: 8),
+                _buildCategoryDropdown(),
+              ],
+
               const SizedBox(height: 16),
               _buildTextField(label: 'رقم الجوال', icon: Icons.phone_android, keyboardType: TextInputType.phone, controller: _phoneController),
               const SizedBox(height: 16),
@@ -183,6 +308,44 @@ class _SignupScreenState extends State<SignupScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCategoryDropdown() {
+    return Consumer(
+      builder: (context, ref, child) {
+        final asyncCats = ref.watch(rootCategoriesProvider);
+        
+        return asyncCats.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, stack) => Text('خطأ في جلب التصنيفات', style: TextStyle(color: Colors.red)),
+          data: (categories) {
+            return DropdownButtonFormField<String>(
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: AppColors.surface,
+                prefixIcon: const Icon(Icons.category_outlined, color: AppColors.outline),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: AppColors.outlineVariant),
+                ),
+              ),
+              hint: const Text('اختر التصنيف (مثال: الطب)'),
+              value: _selectedCategoryId,
+              items: categories.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))).toList(),
+              onChanged: (val) {
+                setState(() => _selectedCategoryId = val);
+              },
+              validator: (value) {
+                if (_selectedRole == 'provider' && (value == null || value.isEmpty)) {
+                  return 'الرجاء اختيار تصنيف';
+                }
+                return null;
+              },
+            );
+          },
+        );
+      },
     );
   }
 

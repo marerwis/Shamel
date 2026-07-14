@@ -17,6 +17,7 @@ import 'features/services/screens/services_management_screen.dart';
 import 'features/promotions/screens/promotions_management_screen.dart';
 import 'features/disputes/screens/disputes_management_screen.dart';
 import 'features/members/screens/members_management_screen.dart';
+import 'features/providers/screens/providers_management_screen.dart';
 import 'features/orders/screens/orders_management_screen.dart';
 import 'features/finance/screens/finance_management_screen.dart';
 import 'features/categories/screens/categories_management_screen.dart';
@@ -88,6 +89,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/members',
             builder: (context, state) => const MembersManagementScreen(),
+          ),
+          GoRoute(
+            path: '/providers',
+            builder: (context, state) => const ProvidersManagementScreen(),
           ),
           GoRoute(
             path: '/orders',

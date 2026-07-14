@@ -37,6 +37,28 @@ create policy "Public profiles are viewable by everyone." on profiles for select
 create policy "Users can insert their own profile." on profiles for insert with check (auth.uid() = id);
 create policy "Users can update own profile." on profiles for update using (auth.uid() = id);
 
+-- 1.5 Provider Details Table
+drop table if exists public.provider_details cascade;
+create table public.provider_details (
+  id uuid references public.profiles(id) on delete cascade not null primary key,
+  father_name text,
+  grandfather_name text,
+  id_type text check (id_type in ('national_id', 'passport')),
+  id_number text,
+  category_id uuid, -- Foreign key will be added later if needed, or left loose to avoid circular/hard dependency
+  title text,
+  id_image_url text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.provider_details enable row level security;
+create policy "Provider details viewable by everyone." on provider_details for select using (true);
+create policy "Providers can insert own details." on provider_details for insert with check (auth.uid() = id);
+create policy "Providers can update own details." on provider_details for update using (auth.uid() = id);
+create policy "Admins can manage provider details." on provider_details for all using (
+  exists (select 1 from profiles where id = auth.uid() and role = 'admin')
+);
+
 -- 2. Categories Table (Hierarchy)
 drop table if exists public.categories cascade;
 create table public.categories (
@@ -103,6 +125,28 @@ begin
       else 'active'
     end
   );
+  
+  -- If provider, insert into provider_details with additional metadata
+  if new.raw_user_meta_data->>'role' = 'provider' then
+    insert into public.provider_details (
+      id, 
+      father_name, 
+      grandfather_name, 
+      id_type, 
+      id_number, 
+      category_id, 
+      title
+    ) values (
+      new.id,
+      new.raw_user_meta_data->>'father_name',
+      new.raw_user_meta_data->>'grandfather_name',
+      new.raw_user_meta_data->>'id_type',
+      new.raw_user_meta_data->>'id_number',
+      (new.raw_user_meta_data->>'category_id')::uuid,
+      new.raw_user_meta_data->>'title'
+    );
+  end if;
+  
   return new;
 end;
 $$ language plpgsql security definer;
@@ -111,3 +155,4 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+

@@ -112,6 +112,11 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
           final lastName = profile['last_name'] ?? '';
           final phone = profile['phone'] ?? '';
           final avatarUrl = profile['avatar_url'];
+          
+          String? jobTitle;
+          if (profile['provider_details'] != null && (profile['provider_details'] as List).isNotEmpty) {
+             jobTitle = profile['provider_details'][0]['title'];
+          }
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
@@ -171,7 +176,18 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text('$firstName $lastName', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 4),
+                      if (jobTitle != null && jobTitle.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryContainer,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(jobTitle, style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                      const SizedBox(height: 8),
                       Text(phone, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.outline), textDirection: TextDirection.ltr),
                       if (user?.email != null) ...[
                         const SizedBox(height: 4),

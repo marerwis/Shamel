@@ -29,6 +29,9 @@ import '../../features/home/providers/services_provider.dart';
 import '../../features/categories/screens/category_details_screen.dart';
 import '../../features/categories/models/category_model.dart';
 
+// Providers
+import '../../features/providers/screens/providers_list_screen.dart';
+
 // Wallet
 import '../../features/wallet/screens/wallet_screen.dart';
 import '../../features/wallet/screens/withdrawal_request_screen.dart';
@@ -115,6 +118,17 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final category = state.extra as CategoryModel;
           return CategoryDetailsScreen(category: category);
+        },
+      ),
+      GoRoute(
+        path: '/providers_list',
+        name: 'providers_list',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return ProvidersListScreen(
+            categoryId: extra?['categoryId'] as String?,
+            categoryName: extra?['categoryName'] as String? ?? 'مزودي الخدمة',
+          );
         },
       ),
       GoRoute(

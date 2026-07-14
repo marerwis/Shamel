@@ -19,7 +19,7 @@ final userProfileProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
   
   final response = await Supabase.instance.client
       .from('profiles')
-      .select()
+      .select('*, provider_details(*)')
       .eq('id', user.id)
       .maybeSingle();
       
@@ -40,6 +40,12 @@ class AuthController {
     required String role,
     required String fullName,
     String? phone,
+    String? fatherName,
+    String? grandfatherName,
+    String? idType,
+    String? idNumber,
+    String? categoryId,
+    String? title,
   }) async {
     return await _client.auth.signUp(
       email: email,
@@ -48,6 +54,12 @@ class AuthController {
         'role': role,
         'full_name': fullName,
         if (phone != null && phone.isNotEmpty) 'phone': phone,
+        if (fatherName != null && fatherName.isNotEmpty) 'father_name': fatherName,
+        if (grandfatherName != null && grandfatherName.isNotEmpty) 'grandfather_name': grandfatherName,
+        if (idType != null && idType.isNotEmpty) 'id_type': idType,
+        if (idNumber != null && idNumber.isNotEmpty) 'id_number': idNumber,
+        if (categoryId != null && categoryId.isNotEmpty) 'category_id': categoryId,
+        if (title != null && title.isNotEmpty) 'title': title,
       },
     );
   }

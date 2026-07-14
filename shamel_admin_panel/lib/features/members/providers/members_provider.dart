@@ -10,6 +10,14 @@ class MemberModel {
   final String? phone;
   final String? avatarUrl;
   final DateTime createdAt;
+  
+  // Provider Specific
+  final String? fatherName;
+  final String? grandfatherName;
+  final String? idType;
+  final String? idNumber;
+  final String? title;
+  final String? categoryId;
 
   MemberModel({
     required this.id,
@@ -19,9 +27,25 @@ class MemberModel {
     this.phone,
     this.avatarUrl,
     required this.createdAt,
+    this.fatherName,
+    this.grandfatherName,
+    this.idType,
+    this.idNumber,
+    this.title,
+    this.categoryId,
   });
 
   factory MemberModel.fromJson(Map<String, dynamic> json) {
+    // Extract provider details if they exist in the join
+    Map<String, dynamic>? pDetails;
+    if (json['provider_details'] != null) {
+      if (json['provider_details'] is List && (json['provider_details'] as List).isNotEmpty) {
+         pDetails = json['provider_details'][0];
+      } else if (json['provider_details'] is Map) {
+         pDetails = json['provider_details'];
+      }
+    }
+
     return MemberModel(
       id: json['id'],
       fullName: json['full_name'],
@@ -30,6 +54,12 @@ class MemberModel {
       phone: json['phone'],
       avatarUrl: json['avatar_url'],
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : DateTime.now(),
+      fatherName: pDetails?['father_name'],
+      grandfatherName: pDetails?['grandfather_name'],
+      idType: pDetails?['id_type'],
+      idNumber: pDetails?['id_number'],
+      title: pDetails?['title'],
+      categoryId: pDetails?['category_id'],
     );
   }
 }
@@ -49,7 +79,7 @@ class MembersNotifier extends AsyncNotifier<List<MemberModel>> {
   Future<List<MemberModel>> _fetchMembers() async {
     final response = await _supabase
         .from('profiles')
-        .select()
+        .select('*, provider_details(*)')
         .order('created_at', ascending: false);
         
     return (response as List).map((data) => MemberModel.fromJson(data)).toList();

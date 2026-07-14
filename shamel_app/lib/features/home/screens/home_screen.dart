@@ -156,8 +156,13 @@ class HomeScreen extends ConsumerWidget {
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: () {
-                          // Navigate to Subcategories or Services list for this category
-                          context.push('/category_details', extra: category);
+                          context.push(
+                            '/providers_list', 
+                            extra: {
+                              'categoryId': category.id,
+                              'categoryName': category.name,
+                            },
+                          );
                         },
                         borderRadius: BorderRadius.circular(16),
                         child: Container(

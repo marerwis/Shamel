@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../providers/members_provider.dart';
+import '../../members/providers/members_provider.dart';
 
-class MembersManagementScreen extends ConsumerStatefulWidget {
-  const MembersManagementScreen({super.key});
+class ProvidersManagementScreen extends ConsumerStatefulWidget {
+  const ProvidersManagementScreen({super.key});
 
   @override
-  ConsumerState<MembersManagementScreen> createState() => _MembersManagementScreenState();
+  ConsumerState<ProvidersManagementScreen> createState() => _ProvidersManagementScreenState();
 }
 
-class _MembersManagementScreenState extends ConsumerState<MembersManagementScreen> {
+class _ProvidersManagementScreenState extends ConsumerState<ProvidersManagementScreen> {
   String _searchQuery = '';
   String _statusFilter = 'الكل';
 
@@ -20,17 +20,12 @@ class _MembersManagementScreenState extends ConsumerState<MembersManagementScree
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'إدارة العملاء',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.onSurface,
-                  ),
-            ),
-          ],
+        Text(
+          'إدارة مزودي الخدمة',
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: AppColors.onSurface,
+              ),
         ),
         const SizedBox(height: 32),
         
@@ -53,7 +48,7 @@ class _MembersManagementScreenState extends ConsumerState<MembersManagementScree
                     });
                   },
                   decoration: InputDecoration(
-                    hintText: 'ابحث بالاسم أو رقم الهاتف...',
+                    hintText: 'ابحث بالاسم أو المسمى الوظيفي...',
                     prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   ),
@@ -68,10 +63,11 @@ class _MembersManagementScreenState extends ConsumerState<MembersManagementScree
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   ),
                   value: _statusFilter,
-                  items: ['الكل', 'active', 'suspended'].map((e) {
+                  items: ['الكل', 'active', 'pending', 'suspended'].map((e) {
                     String label = e;
                     if (e == 'الكل') label = 'الكل';
                     if (e == 'active') label = 'نشط';
+                    if (e == 'pending') label = 'قيد الانتظار / المراجعة';
                     if (e == 'suspended') label = 'موقوف';
                     return DropdownMenuItem(value: e, child: Text(label));
                   }).toList(),
@@ -87,43 +83,43 @@ class _MembersManagementScreenState extends ConsumerState<MembersManagementScree
         ),
         const SizedBox(height: 24),
 
-        // Tab Views
+        // List
         Expanded(
-          child: _buildMembersTab(),
+          child: _buildProvidersList(),
         ),
       ],
     );
   }
 
-  Widget _buildMembersTab() {
-    final asyncData = ref.watch(customersProvider);
+  Widget _buildProvidersList() {
+    final asyncData = ref.watch(providersListProvider);
     
     return asyncData.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text('حدث خطأ: $err', style: const TextStyle(color: Colors.red))),
-      data: (members) {
+      data: (providers) {
         // Filter by search
-        var filtered = members.where((m) {
-          final matchName = (m.fullName ?? '').toLowerCase().contains(_searchQuery);
-          final matchPhone = (m.phone ?? '').contains(_searchQuery);
-          return matchName || matchPhone;
+        var filtered = providers.where((p) {
+          final matchName = (p.fullName ?? '').toLowerCase().contains(_searchQuery);
+          final matchTitle = (p.title ?? '').toLowerCase().contains(_searchQuery);
+          return matchName || matchTitle;
         }).toList();
 
         // Filter by status
         if (_statusFilter != 'الكل') {
-          filtered = filtered.where((m) => m.status == _statusFilter).toList();
+          filtered = filtered.where((p) => p.status == _statusFilter).toList();
         }
 
         if (filtered.isEmpty) {
           return const Center(child: Text('لا توجد بيانات مطابقة للبحث'));
         }
         
-        return _buildMembersTable(filtered);
+        return _buildProvidersTable(filtered);
       },
     );
   }
 
-  Widget _buildMembersTable(List<MemberModel> members) {
+  Widget _buildProvidersTable(List<MemberModel> providers) {
     return SingleChildScrollView(
       child: Container(
         width: double.infinity,
@@ -137,28 +133,30 @@ class _MembersManagementScreenState extends ConsumerState<MembersManagementScree
           dataRowMinHeight: 70,
           dataRowMaxHeight: 70,
           columns: const [
-            DataColumn(label: Text('العميل', style: TextStyle(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text('مزود الخدمة', style: TextStyle(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text('المسمى الوظيفي', style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(label: Text('رقم الهاتف', style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(label: Text('تاريخ الانضمام', style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(label: Text('الحالة', style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(label: Text('إجراءات', style: TextStyle(fontWeight: FontWeight.bold))),
           ],
-          rows: members.map((member) {
+          rows: providers.map((provider) {
             
             // Status UI
             Color statusColor = Colors.grey;
-            String statusText = member.status;
-            if (member.status == 'active') {
+            String statusText = provider.status;
+            if (provider.status == 'active') {
               statusColor = Colors.green;
               statusText = 'نشط';
-            } else if (member.status == 'suspended') {
+            } else if (provider.status == 'pending') {
+              statusColor = Colors.orange;
+              statusText = 'بانتظار المراجعة';
+            } else if (provider.status == 'suspended') {
               statusColor = Colors.red;
               statusText = 'موقوف';
             }
 
-            final initial = (member.fullName != null && member.fullName!.isNotEmpty) 
-                ? member.fullName![0].toUpperCase() : '?';
-            final dateStr = DateFormat('yyyy-MM-dd').format(member.createdAt);
+            final initial = (provider.fullName != null && provider.fullName!.isNotEmpty) 
+                ? provider.fullName![0].toUpperCase() : '?';
 
             return DataRow(
               cells: [
@@ -166,18 +164,18 @@ class _MembersManagementScreenState extends ConsumerState<MembersManagementScree
                   children: [
                     CircleAvatar(
                       backgroundColor: AppColors.primaryContainer,
-                      backgroundImage: member.avatarUrl != null ? NetworkImage(member.avatarUrl!) : null,
-                      child: member.avatarUrl == null ? Text(
+                      backgroundImage: provider.avatarUrl != null ? NetworkImage(provider.avatarUrl!) : null,
+                      child: provider.avatarUrl == null ? Text(
                         initial, 
                         style: const TextStyle(color: AppColors.onPrimaryContainer, fontWeight: FontWeight.bold),
                       ) : null,
                     ),
                     const SizedBox(width: 12),
-                    Text(member.fullName ?? 'بدون اسم', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(provider.fullName ?? 'بدون اسم', style: const TextStyle(fontWeight: FontWeight.bold)),
                   ],
                 )),
-                DataCell(Text(member.phone ?? 'غير متوفر')),
-                DataCell(Text(dateStr)),
+                DataCell(Text(provider.title ?? 'غير محدد')),
+                DataCell(Text(provider.phone ?? 'غير متوفر')),
                 DataCell(Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
@@ -188,24 +186,37 @@ class _MembersManagementScreenState extends ConsumerState<MembersManagementScree
                 )),
                 DataCell(Row(
                   children: [
-                    if (member.status != 'suspended')
+                    IconButton(
+                      icon: const Icon(Icons.remove_red_eye, color: AppColors.primary),
+                      tooltip: 'عرض التفاصيل',
+                      onPressed: () => _showProviderDetails(context, provider),
+                    ),
+                    
+                    if (provider.status == 'pending') 
+                      IconButton(
+                        icon: const Icon(Icons.check_circle, color: Colors.green),
+                        tooltip: 'قبول وتفعيل',
+                        onPressed: () => _updateStatus(context, provider.id, 'active'),
+                      ),
+                    
+                    if (provider.status != 'suspended')
                       IconButton(
                         icon: const Icon(Icons.block, color: Colors.red),
-                        tooltip: 'إيقاف الحساب',
-                        onPressed: () => _updateStatus(context, member.id, 'suspended'),
+                        tooltip: 'إيقاف مؤقت',
+                        onPressed: () => _updateStatus(context, provider.id, 'suspended'),
                       ),
 
-                    if (member.status == 'suspended')
+                    if (provider.status == 'suspended')
                       IconButton(
                         icon: const Icon(Icons.restore, color: Colors.blue),
-                        tooltip: 'استعادة الحساب',
-                        onPressed: () => _updateStatus(context, member.id, 'active'),
+                        tooltip: 'استعادة',
+                        onPressed: () => _updateStatus(context, provider.id, 'active'),
                       ),
                       
                     IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
-                        tooltip: 'حذف العضو',
-                        onPressed: () => _deleteMember(context, member.id),
+                        tooltip: 'حذف المزود',
+                        onPressed: () => _deleteProvider(context, provider.id),
                     ),
                   ],
                 )),
@@ -213,6 +224,77 @@ class _MembersManagementScreenState extends ConsumerState<MembersManagementScree
             );
           }).toList(),
         ),
+      ),
+    );
+  }
+
+  void _showProviderDetails(BuildContext context, MemberModel provider) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('تفاصيل مزود الخدمة', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.person),
+                title: const Text('الاسم الكامل'),
+                subtitle: Text(provider.fullName ?? 'غير متوفر'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.family_restroom),
+                title: const Text('اسم الأب'),
+                subtitle: Text(provider.fatherName ?? 'غير متوفر'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.elderly),
+                title: const Text('اسم الجد'),
+                subtitle: Text(provider.grandfatherName ?? 'غير متوفر'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.badge),
+                title: Text(provider.idType == 'passport' ? 'رقم الجواز' : 'رقم الهوية'),
+                subtitle: Text(provider.idNumber ?? 'غير متوفر'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.work),
+                title: const Text('المسمى الوظيفي'),
+                subtitle: Text(provider.title ?? 'غير متوفر'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.phone),
+                title: const Text('رقم الجوال'),
+                subtitle: Text(provider.phone ?? 'غير متوفر'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.date_range),
+                title: const Text('تاريخ التسجيل'),
+                subtitle: Text(DateFormat('yyyy-MM-dd HH:mm').format(provider.createdAt)),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          if (provider.status == 'pending')
+             ElevatedButton.icon(
+                icon: const Icon(Icons.check),
+                label: const Text('موافقة وتفعيل'),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
+                onPressed: () async {
+                  Navigator.pop(ctx);
+                  await ref.read(membersProvider.notifier).updateMemberStatus(provider.id, 'active');
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تفعيل مزود الخدمة')));
+                  }
+                },
+             ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('إغلاق'),
+          ),
+        ],
       ),
     );
   }
@@ -249,12 +331,12 @@ class _MembersManagementScreenState extends ConsumerState<MembersManagementScree
     );
   }
 
-  void _deleteMember(BuildContext context, String id) {
+  void _deleteProvider(BuildContext context, String id) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('تأكيد الحذف'),
-        content: const Text('هل أنت متأكد من حذف هذا العضو؟ سيتم حذف جميع بياناته ولا يمكن التراجع عن هذا الإجراء.'),
+        content: const Text('هل أنت متأكد من حذف هذا المزود؟ سيتم حذف جميع بياناته ولا يمكن التراجع عن هذا الإجراء.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -278,4 +360,3 @@ class _MembersManagementScreenState extends ConsumerState<MembersManagementScree
     );
   }
 }
-
