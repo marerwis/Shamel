@@ -75,18 +75,32 @@ class FinanceManagementScreen extends ConsumerWidget {
                     DataColumn(label: Text('إجراءات', style: TextStyle(fontWeight: FontWeight.bold))),
                   ],
                   rows: providers.map((provider) {
+                    // Status UI
+                    Color statusColor = Colors.grey;
+                    String statusText = provider.status;
+                    if (provider.status == 'active') {
+                      statusColor = Colors.green;
+                      statusText = 'نشط';
+                    } else if (provider.status == 'pending') {
+                      statusColor = Colors.orange;
+                      statusText = 'قيد الانتظار';
+                    } else if (provider.status == 'suspended') {
+                      statusColor = Colors.red;
+                      statusText = 'موقوف';
+                    }
+
                     return DataRow(
                       cells: [
-                        DataCell(Text('${provider.firstName} ${provider.lastName}')),
+                        DataCell(Text(provider.fullName ?? 'بدون اسم')),
                         const DataCell(Text('SAR 0.00')),
                         const DataCell(Text('SAR 0.00')),
                         DataCell(Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.green.withValues(alpha: 0.1),
+                            color: statusColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: const Text('نشط', style: TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.bold)),
+                          child: Text(statusText, style: TextStyle(color: statusColor, fontSize: 12, fontWeight: FontWeight.bold)),
                         )),
                         DataCell(Row(
                           children: [
