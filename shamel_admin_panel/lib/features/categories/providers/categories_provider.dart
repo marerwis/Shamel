@@ -1,34 +1,34 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/category_model.dart';
 
-final categoriesProvider = StateNotifierProvider<CategoriesNotifier, AsyncValue<List<CategoryModel>>>((ref) {
+final categoriesProvider = AsyncNotifierProvider<CategoriesNotifier, List<CategoryModel>>(() {
   return CategoriesNotifier();
 });
 
-class CategoriesNotifier extends StateNotifier<AsyncValue<List<CategoryModel>>> {
-  CategoriesNotifier() : super(const AsyncValue.loading()) {
-    fetchCategories();
+class CategoriesNotifier extends AsyncNotifier<List<CategoryModel>> {
+  @override
+  FutureOr<List<CategoryModel>> build() async {
+    return _fetchCategories();
   }
 
   final _supabase = Supabase.instance.client;
 
+  Future<List<CategoryModel>> _fetchCategories() async {
+    final response = await _supabase
+        .from('categories')
+        .select()
+        .order('created_at', ascending: false);
+
+    return (response as List)
+        .map((json) => CategoryModel.fromJson(json))
+        .toList();
+  }
+
   Future<void> fetchCategories() async {
     state = const AsyncValue.loading();
-    try {
-      final response = await _supabase
-          .from('categories')
-          .select()
-          .order('created_at', ascending: false);
-
-      final categories = (response as List)
-          .map((json) => CategoryModel.fromJson(json))
-          .toList();
-          
-      state = AsyncValue.data(categories);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
+    state = await AsyncValue.guard(() => _fetchCategories());
   }
 
   Future<bool> addCategory(String name, {String? icon, String? parentId}) async {

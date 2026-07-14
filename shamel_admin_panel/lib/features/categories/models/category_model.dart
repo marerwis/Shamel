@@ -29,7 +29,7 @@ class CategoryModel {
       'name': name,
       'icon': icon,
       'parent_id': parentId,
-      'created_at': createdAt.toIso860String(),
+      'created_at': createdAt.toIso8601String(),
     };
   }
 }
