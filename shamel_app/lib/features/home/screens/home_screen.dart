@@ -4,15 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_drawer.dart';
-import '../providers/services_provider.dart';
+import '../../categories/providers/categories_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final servicesAsync = ref.watch(appServicesProvider);
-
     return Scaffold(
       backgroundColor: AppColors.background,
       drawer: const AppDrawer(),
@@ -115,17 +113,17 @@ class HomeScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 32),
 
-            // Categories
+            // Categories Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'الخدمات الرئيسية',
+                  'التصنيفات الرئيسية',
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 TextButton(
                   onPressed: () {
-                    context.push('/category/جميع الخدمات');
+                    context.push('/categories'); // We can make a categories list screen later
                   },
                   child: const Text('عرض الكل', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
                 ),
@@ -133,12 +131,12 @@ class HomeScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             // Categories Grid
-            servicesAsync.when(
+            ref.watch(rootCategoriesProvider).when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('خطأ في جلب الخدمات')),
-              data: (services) {
-                if (services.isEmpty) {
-                  return const Center(child: Text('لا توجد خدمات متاحة'));
+              error: (err, stack) => Center(child: Text('خطأ في جلب التصنيفات\n$err')),
+              data: (categories) {
+                if (categories.isEmpty) {
+                  return const Center(child: Text('لا توجد تصنيفات متاحة'));
                 }
                 return GridView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 0),
@@ -150,22 +148,16 @@ class HomeScreen extends ConsumerWidget {
                     crossAxisSpacing: 16,
                     childAspectRatio: 0.85,
                   ),
-                  itemCount: services.length,
+                  itemCount: categories.length,
                   itemBuilder: (context, index) {
-                    final service = services[index];
-                    // Assign icons dynamically based on category since our mock data doesn't have icon URLs yet
-                    IconData icon;
-                    if (service.category == 'نظافة') icon = Icons.cleaning_services;
-                    else if (service.category == 'صيانة') icon = Icons.ac_unit;
-                    else if (service.category == 'كهرباء') icon = Icons.electrical_services;
-                    else icon = Icons.home_repair_service;
+                    final category = categories[index];
 
                     return Material(
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: () {
-                          // Directly go to booking with selected service for now
-                          context.push('/booking', extra: service);
+                          // Navigate to Subcategories or Services list for this category
+                          context.push('/category_details', extra: category);
                         },
                         borderRadius: BorderRadius.circular(16),
                         child: Container(
@@ -190,18 +182,20 @@ class HomeScreen extends ConsumerWidget {
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
-                                  icon,
+                                  category.iconData,
                                   color: AppColors.onPrimaryContainer,
                                   size: 28,
                                 ),
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                service.name,
+                                category.name,
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                       fontWeight: FontWeight.bold,
                                     ),
                                 textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),

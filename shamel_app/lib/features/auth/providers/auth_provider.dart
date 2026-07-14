@@ -34,28 +34,24 @@ class AuthController {
     return await _client.auth.signInWithPassword(email: email, password: password);
   }
 
-  Future<AuthResponse> registerCustomer({
+  Future<AuthResponse> signUp({
     required String email,
     required String password,
-    required String firstName,
-    required String lastName,
-    required String phone,
+    required String role,
+    required String fullName,
+    String? phone,
   }) async {
-    final response = await _client.auth.signUp(email: email, password: password);
-    
-    if (response.user != null) {
-      // Insert profile data
-      await _client.from('profiles').insert({
-        'id': response.user!.id,
-        'first_name': firstName,
-        'last_name': lastName,
-        'phone': phone,
-        'role': 'customer',
-      });
-    }
-    
-    return response;
+    return await _client.auth.signUp(
+      email: email,
+      password: password,
+      data: {
+        'role': role,
+        'full_name': fullName,
+        if (phone != null && phone.isNotEmpty) 'phone': phone,
+      },
+    );
   }
+
 
   Future<void> logout() async {
     await _client.auth.signOut();

@@ -25,6 +25,10 @@ import '../../features/orders/screens/service_rating_screen.dart';
 import '../../features/orders/screens/booking_screen.dart';
 import '../../features/home/providers/services_provider.dart';
 
+// Categories
+import '../../features/categories/screens/category_details_screen.dart';
+import '../../features/categories/models/category_model.dart';
+
 // Wallet
 import '../../features/wallet/screens/wallet_screen.dart';
 import '../../features/wallet/screens/withdrawal_request_screen.dart';
@@ -103,6 +107,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final service = state.extra as ServiceModel?;
           return BookingScreen(service: service);
+        },
+      ),
+      GoRoute(
+        path: '/category_details',
+        name: 'category_details',
+        builder: (context, state) {
+          final category = state.extra as CategoryModel;
+          return CategoryDetailsScreen(category: category);
         },
       ),
       GoRoute(

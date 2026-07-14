@@ -24,18 +24,6 @@ class ServicesManagementScreen extends ConsumerWidget {
                       fontWeight: FontWeight.bold,
                       color: AppColors.onSurface,
                     ),
-              ),
-              ElevatedButton.icon(
-                onPressed: () => _showAddServiceDialog(context, ref),
-                icon: const Icon(Icons.add),
-                label: const Text('إضافة خدمة جديدة'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
             ],
           ),
           const SizedBox(height: 32),
@@ -111,8 +99,8 @@ class ServicesManagementScreen extends ConsumerWidget {
                     DataColumn(label: Text('معرف الخدمة', style: TextStyle(fontWeight: FontWeight.bold))),
                     DataColumn(label: Text('اسم الخدمة', style: TextStyle(fontWeight: FontWeight.bold))),
                     DataColumn(label: Text('التصنيف', style: TextStyle(fontWeight: FontWeight.bold))),
-                    DataColumn(label: Text('السعر الأساسي', style: TextStyle(fontWeight: FontWeight.bold))),
-                    DataColumn(label: Text('الحالة', style: TextStyle(fontWeight: FontWeight.bold))),
+                    DataColumn(label: Text('السعر', style: TextStyle(fontWeight: FontWeight.bold))),
+                    DataColumn(label: Text('مزود الخدمة', style: TextStyle(fontWeight: FontWeight.bold))),
                     DataColumn(label: Text('إجراءات', style: TextStyle(fontWeight: FontWeight.bold))),
                   ],
                   rows: services.map((service) {
@@ -131,7 +119,7 @@ class ServicesManagementScreen extends ConsumerWidget {
                               child: const Icon(Icons.home_repair_service, color: AppColors.onPrimaryContainer, size: 20),
                             ),
                             const SizedBox(width: 12),
-                            Text(service.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                            Text(service.title, style: const TextStyle(fontWeight: FontWeight.bold)),
                           ],
                         )),
                         DataCell(Container(
@@ -140,30 +128,12 @@ class ServicesManagementScreen extends ConsumerWidget {
                             color: AppColors.secondaryContainer,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Text(service.category, style: const TextStyle(color: AppColors.onSecondaryContainer, fontSize: 12)),
+                          child: Text(service.categoryName ?? 'غير مصنف', style: const TextStyle(color: AppColors.onSecondaryContainer, fontSize: 12)),
                         )),
-                        DataCell(Text('SAR ${service.basePrice}')),
-                        DataCell(Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: !service.isActive ? Colors.red.withValues(alpha: 0.1) : Colors.green.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            !service.isActive ? 'غير نشط' : 'نشط',
-                            style: TextStyle(
-                              color: !service.isActive ? Colors.red : Colors.green,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        )),
+                        DataCell(Text('SAR ${service.price}')),
+                        DataCell(Text(service.providerName ?? 'غير معروف')),
                         DataCell(Row(
                           children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit, color: AppColors.primary), 
-                              onPressed: () => _showEditServiceDialog(context, ref, service),
-                            ),
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red), 
                               onPressed: () => _deleteService(context, ref, service.id),
@@ -178,137 +148,6 @@ class ServicesManagementScreen extends ConsumerWidget {
             },
           ),
         ],
-      ),
-    );
-  }
-
-  void _showAddServiceDialog(BuildContext context, WidgetRef ref) {
-    final nameController = TextEditingController();
-    final catController = TextEditingController(text: 'نظافة');
-    final priceController = TextEditingController(text: '100');
-    final _formKey = GlobalKey<FormState>();
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('إضافة خدمة جديدة'),
-        content: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'اسم الخدمة'),
-                validator: (val) => val!.isEmpty ? 'مطلوب' : null,
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: catController.text,
-                decoration: const InputDecoration(labelText: 'التصنيف'),
-                items: ['نظافة', 'صيانة', 'كهرباء', 'خارجية']
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                    .toList(),
-                onChanged: (val) => catController.text = val!,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: priceController,
-                decoration: const InputDecoration(labelText: 'السعر الأساسي'),
-                keyboardType: TextInputType.number,
-                validator: (val) => val!.isEmpty ? 'مطلوب' : null,
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('إلغاء')),
-          ElevatedButton(
-            onPressed: () async {
-              if (_formKey.currentState!.validate()) {
-                await Supabase.instance.client.from('services').insert({
-                  'name': nameController.text,
-                  'category': catController.text,
-                  'base_price': double.parse(priceController.text),
-                  'is_active': true,
-                });
-                ref.invalidate(servicesProvider);
-                if (ctx.mounted) Navigator.pop(ctx);
-              }
-            },
-            child: const Text('إضافة'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showEditServiceDialog(BuildContext context, WidgetRef ref, ServiceModel service) {
-    final nameController = TextEditingController(text: service.name);
-    final catController = TextEditingController(text: service.category);
-    final priceController = TextEditingController(text: service.basePrice.toString());
-    bool isActive = service.isActive;
-    final _formKey = GlobalKey<FormState>();
-
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('تعديل الخدمة'),
-          content: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: nameController,
-                  decoration: const InputDecoration(labelText: 'اسم الخدمة'),
-                  validator: (val) => val!.isEmpty ? 'مطلوب' : null,
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: ['نظافة', 'صيانة', 'كهرباء', 'خارجية'].contains(catController.text) ? catController.text : 'نظافة',
-                  decoration: const InputDecoration(labelText: 'التصنيف'),
-                  items: ['نظافة', 'صيانة', 'كهرباء', 'خارجية']
-                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                      .toList(),
-                  onChanged: (val) => catController.text = val!,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: priceController,
-                  decoration: const InputDecoration(labelText: 'السعر الأساسي'),
-                  keyboardType: TextInputType.number,
-                  validator: (val) => val!.isEmpty ? 'مطلوب' : null,
-                ),
-                const SizedBox(height: 16),
-                SwitchListTile(
-                  title: const Text('الخدمة نشطة؟'),
-                  value: isActive,
-                  onChanged: (val) => setState(() => isActive = val),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('إلغاء')),
-            ElevatedButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  await Supabase.instance.client.from('services').update({
-                    'name': nameController.text,
-                    'category': catController.text,
-                    'base_price': double.parse(priceController.text),
-                    'is_active': isActive,
-                  }).eq('id', service.id);
-                  ref.invalidate(servicesProvider);
-                  if (ctx.mounted) Navigator.pop(ctx);
-                }
-              },
-              child: const Text('حفظ'),
-            ),
-          ],
-        ),
       ),
     );
   }

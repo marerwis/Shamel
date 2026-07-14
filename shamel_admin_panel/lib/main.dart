@@ -19,6 +19,7 @@ import 'features/disputes/screens/disputes_management_screen.dart';
 import 'features/members/screens/members_management_screen.dart';
 import 'features/orders/screens/orders_management_screen.dart';
 import 'features/finance/screens/finance_management_screen.dart';
+import 'features/categories/screens/categories_management_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -95,6 +96,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/finance',
             builder: (context, state) => const FinanceManagementScreen(),
+          ),
+          GoRoute(
+            path: '/categories',
+            builder: (context, state) => const CategoriesManagementScreen(),
           ),
         ],
       ),
