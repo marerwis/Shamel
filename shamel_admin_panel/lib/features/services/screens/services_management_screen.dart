@@ -25,6 +25,19 @@ class ServicesManagementScreen extends ConsumerWidget {
                       color: AppColors.onSurface,
                     ),
               ),
+              ElevatedButton.icon(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('سيتم إضافة هذه الميزة قريباً')),
+                  );
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('إضافة خدمة جديدة'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 32),
