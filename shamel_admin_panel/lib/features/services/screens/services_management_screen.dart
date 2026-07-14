@@ -24,6 +24,7 @@ class ServicesManagementScreen extends ConsumerWidget {
                       fontWeight: FontWeight.bold,
                       color: AppColors.onSurface,
                     ),
+              ),
             ],
           ),
           const SizedBox(height: 32),
