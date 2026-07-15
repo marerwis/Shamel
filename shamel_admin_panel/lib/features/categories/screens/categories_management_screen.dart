@@ -288,6 +288,11 @@ class _CategoriesManagementScreenState extends ConsumerState<CategoriesManagemen
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
+                            icon: const Icon(Icons.add_box, color: Colors.green),
+                            tooltip: 'إضافة تصنيف رئيسي',
+                            onPressed: () => _showAddEditDialog(context),
+                          ),
+                          IconButton(
                             icon: const Icon(Icons.add, color: AppColors.primary),
                             tooltip: 'إضافة تصنيف فرعي',
                             onPressed: () => _showAddEditDialog(context, null, mainCategory),
