@@ -12,8 +12,9 @@ class WithdrawalRequestScreen extends ConsumerStatefulWidget {
 }
 
 class _WithdrawalRequestScreenState extends ConsumerState<WithdrawalRequestScreen> {
-  String _selectedMethod = 'bank';
   final TextEditingController _amountController = TextEditingController(text: '');
+  final TextEditingController _bankNameController = TextEditingController();
+  final TextEditingController _ibanController = TextEditingController();
   bool _isLoading = false;
 
   @override
@@ -27,13 +28,28 @@ class _WithdrawalRequestScreenState extends ConsumerState<WithdrawalRequestScree
   @override
   void dispose() {
     _amountController.dispose();
+    _bankNameController.dispose();
+    _ibanController.dispose();
     super.dispose();
   }
 
   Future<void> _submitWithdrawal() async {
     final amountText = _amountController.text.trim();
+    final bankName = _bankNameController.text.trim();
+    final iban = _ibanController.text.trim();
+
     if (amountText.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('الرجاء إدخال المبلغ')));
+      return;
+    }
+
+    if (bankName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('الرجاء إدخال اسم المصرف')));
+      return;
+    }
+
+    if (iban.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('الرجاء إدخال رقم الحساب أو الآيبان')));
       return;
     }
 
@@ -55,8 +71,8 @@ class _WithdrawalRequestScreenState extends ConsumerState<WithdrawalRequestScree
 
     final success = await ref.read(walletProvider.notifier).requestWithdrawal(
       amount,
-      _selectedMethod == 'bank' ? 'مصرف الراجحي' : 'STC Pay',
-      _selectedMethod == 'bank' ? 'SA1234567890' : '0551234567',
+      bankName,
+      iban,
     );
 
     setState(() {
@@ -127,7 +143,7 @@ class _WithdrawalRequestScreenState extends ConsumerState<WithdrawalRequestScree
                     children: [
                       Text('$balance', style: Theme.of(context).textTheme.displaySmall?.copyWith(color: AppColors.onPrimary, fontWeight: FontWeight.bold)),
                       const SizedBox(width: 8),
-                      Text('ر.س', style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.primaryFixedDim)),
+                      Text('د.ل', style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.primaryFixedDim)),
                     ],
                   ),
                 ],
@@ -145,7 +161,7 @@ class _WithdrawalRequestScreenState extends ConsumerState<WithdrawalRequestScree
               decoration: InputDecoration(
                 filled: true,
                 fillColor: AppColors.surfaceContainerLowest,
-                suffixText: 'ر.س',
+                suffixText: 'د.ل',
                 suffixStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.onSurfaceVariant),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -164,33 +180,54 @@ class _WithdrawalRequestScreenState extends ConsumerState<WithdrawalRequestScree
             ),
             const SizedBox(height: 32),
 
-            // Withdrawal Methods
-            Text('طريقة السحب', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-            _buildMethodOption(
-              value: 'bank',
-              title: 'حساب بنكي مرتبط',
-              subtitle: 'مصرف الراجحي **** 4321',
-              icon: Icons.account_balance,
+            // Bank Name Input
+            Text('اسم المصرف', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.onSurfaceVariant)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _bankNameController,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: AppColors.surfaceContainerLowest,
+                hintText: 'مثال: مصرف الجمهورية',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: AppColors.outlineVariant),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: AppColors.outlineVariant),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              ),
             ),
-            const SizedBox(height: 12),
-            _buildMethodOption(
-              value: 'stc',
-              title: 'STC Pay',
-              subtitle: 'رقم الجوال **** 055',
-              icon: Icons.payments,
-            ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.add),
-              label: const Text('إضافة طريقة سحب جديدة'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: const BorderSide(color: AppColors.outline),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                minimumSize: const Size(double.infinity, 56),
+            const SizedBox(height: 24),
+
+            // IBAN Input
+            Text('رقم الحساب أو الآيبان (IBAN)', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.onSurfaceVariant)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _ibanController,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: AppColors.surfaceContainerLowest,
+                hintText: 'LY...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: AppColors.outlineVariant),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: AppColors.outlineVariant),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               ),
             ),
             const SizedBox(height: 32),
@@ -208,14 +245,14 @@ class _WithdrawalRequestScreenState extends ConsumerState<WithdrawalRequestScree
                 children: [
                   Text('ملخص العملية', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
-                  _buildSummaryRow('المبلغ المسحوب', '${_amountController.text.isEmpty ? "0.00" : _amountController.text} ر.س', false),
+                  _buildSummaryRow('المبلغ المسحوب', '${_amountController.text.isEmpty ? "0.00" : _amountController.text} د.ل', false),
                   const SizedBox(height: 12),
-                  _buildSummaryRow('رسوم التحويل', '0.00 ر.س', false),
+                  _buildSummaryRow('رسوم التحويل', '0.00 د.ل', false),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),
                     child: Divider(color: AppColors.outlineVariant),
                   ),
-                  _buildSummaryRow('إجمالي المبلغ المستلم', '${_amountController.text.isEmpty ? "0.00" : _amountController.text} ر.س', true),
+                  _buildSummaryRow('إجمالي المبلغ المستلم', '${_amountController.text.isEmpty ? "0.00" : _amountController.text} د.ل', true),
                 ],
               ),
             ),
@@ -260,65 +297,6 @@ class _WithdrawalRequestScreenState extends ConsumerState<WithdrawalRequestScree
               ),
             ),
             const SizedBox(height: 32),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMethodOption({
-    required String value,
-    required String title,
-    required String subtitle,
-    required IconData icon,
-  }) {
-    final isSelected = _selectedMethod == value;
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedMethod = value;
-        });
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryContainer.withOpacity(0.1) : AppColors.surfaceContainerLowest,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isSelected ? AppColors.primary : AppColors.outlineVariant, width: isSelected ? 2 : 1),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: AppColors.surfaceContainer,
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Icon(icon, color: AppColors.primary),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 4),
-                  Text(subtitle, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.onSurfaceVariant)),
-                ],
-              ),
-            ),
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : Colors.transparent,
-                border: Border.all(color: isSelected ? AppColors.primary : AppColors.outline, width: 2),
-                shape: BoxShape.circle,
-              ),
-              child: isSelected ? const Icon(Icons.check, color: AppColors.onPrimary, size: 16) : null,
-            ),
           ],
         ),
       ),

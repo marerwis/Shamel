@@ -33,14 +33,19 @@ class FinanceManagementScreen extends ConsumerWidget {
         const SizedBox(height: 32),
         
         // Stats Cards
-        Row(
-          children: [
-            Expanded(child: _buildFinanceCard(context, 'إجمالي الإيرادات', 'SAR 0.00', Icons.account_balance, AppColors.primary)),
-            const SizedBox(width: 24),
-            Expanded(child: _buildFinanceCard(context, 'أرباح المنصة (عمولة)', 'SAR 0.00', Icons.pie_chart, AppColors.secondary)),
-            const SizedBox(width: 24),
-            Expanded(child: _buildFinanceCard(context, 'مستحقات المزودين', 'SAR 0.00', Icons.payments, AppColors.tertiary)),
-          ],
+        Consumer(
+          builder: (context, ref, child) {
+            final adminWallet = ref.watch(adminWalletProvider);
+            return Row(
+              children: [
+                Expanded(child: _buildFinanceCard(context, 'أرباح المنصة (عمولة)', adminWallet.when(data: (d) => '$d د.ل', loading: () => '...', error: (e,s) => 'خطأ'), Icons.account_balance, AppColors.primary)),
+                const SizedBox(width: 24),
+                Expanded(child: _buildFinanceCard(context, 'إجمالي الإيرادات', 'قريباً', Icons.pie_chart, AppColors.secondary)),
+                const SizedBox(width: 24),
+                Expanded(child: _buildFinanceCard(context, 'مستحقات المزودين', 'قريباً', Icons.payments, AppColors.tertiary)),
+              ],
+            );
+          }
         ),
         const SizedBox(height: 32),
         
@@ -80,10 +85,9 @@ class FinanceManagementScreen extends ConsumerWidget {
                       Color statusColor;
                       String statusText;
                       switch(request.status) {
-                        case 'pending': statusColor = Colors.orange; statusText = 'قيد الانتظار'; break;
-                        case 'approved': statusColor = Colors.green; statusText = 'مقبول'; break;
-                        case 'rejected': statusColor = Colors.red; statusText = 'مرفوض'; break;
-                        case 'completed': statusColor = Colors.blue; statusText = 'مكتمل'; break;
+                        case 'Pending': statusColor = Colors.orange; statusText = 'قيد الانتظار'; break;
+                        case 'Approved': statusColor = Colors.green; statusText = 'مقبول / محول'; break;
+                        case 'Rejected': statusColor = Colors.red; statusText = 'مرفوض'; break;
                         default: statusColor = Colors.grey; statusText = request.status;
                       }
 
@@ -91,7 +95,7 @@ class FinanceManagementScreen extends ConsumerWidget {
                         cells: [
                           DataCell(Text('#${request.id.substring(0, 8).toUpperCase()}')),
                           DataCell(Text(request.providerName ?? 'غير معروف')),
-                          DataCell(Text('${request.amount} SAR', style: const TextStyle(fontWeight: FontWeight.bold))),
+                          DataCell(Text('${request.amount} د.ل', style: const TextStyle(fontWeight: FontWeight.bold))),
                           DataCell(Text('${request.bankName}\n${request.iban}', style: const TextStyle(fontSize: 12))),
                           DataCell(Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -103,22 +107,16 @@ class FinanceManagementScreen extends ConsumerWidget {
                           )),
                           DataCell(Row(
                             children: [
-                              if (request.status == 'pending') ...[
+                              if (request.status == 'Pending') ...[
                                 IconButton(
                                   icon: const Icon(Icons.check, color: Colors.green),
                                   onPressed: () => ref.read(financeRequestsProvider.notifier).updateRequestStatus(request.id, 'approved'),
-                                  tooltip: 'قبول',
+                                  tooltip: 'قبول وتأكيد التحويل',
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.close, color: Colors.red),
                                   onPressed: () => ref.read(financeRequestsProvider.notifier).updateRequestStatus(request.id, 'rejected'),
-                                  tooltip: 'رفض',
-                                ),
-                              ] else if (request.status == 'approved') ...[
-                                IconButton(
-                                  icon: const Icon(Icons.done_all, color: Colors.blue),
-                                  onPressed: () => ref.read(financeRequestsProvider.notifier).updateRequestStatus(request.id, 'completed'),
-                                  tooltip: 'تأكيد التحويل',
+                                  tooltip: 'رفض (إرجاع الرصيد للمزود)',
                                 ),
                               ]
                             ],

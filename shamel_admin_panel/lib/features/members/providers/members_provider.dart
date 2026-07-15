@@ -18,6 +18,9 @@ class MemberModel {
   final String? idNumber;
   final String? title;
   final String? categoryId;
+  final bool isPremium;
+  final bool isFast;
+  final bool isClean;
 
   MemberModel({
     required this.id,
@@ -33,6 +36,9 @@ class MemberModel {
     this.idNumber,
     this.title,
     this.categoryId,
+    this.isPremium = false,
+    this.isFast = false,
+    this.isClean = false,
   });
 
   factory MemberModel.fromJson(Map<String, dynamic> json) {
@@ -60,6 +66,9 @@ class MemberModel {
       idNumber: pDetails?['id_number'],
       title: pDetails?['title'],
       categoryId: pDetails?['category_id'],
+      isPremium: json['is_premium'] == true,
+      isFast: json['is_fast'] == true,
+      isClean: json['is_clean'] == true,
     );
   }
 }
@@ -93,6 +102,21 @@ class MembersNotifier extends AsyncNotifier<List<MemberModel>> {
   Future<bool> updateMemberStatus(String id, String status) async {
     try {
       await _supabase.from('profiles').update({'status': status}).eq('id', id);
+      await fetchMembers();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> updateProviderBadges(String id, bool isPremium, bool isFast, bool isClean) async {
+    try {
+      await _supabase.rpc('admin_update_provider_badges', params: {
+        'p_provider_id': id,
+        'p_is_premium': isPremium,
+        'p_is_fast': isFast,
+        'p_is_clean': isClean,
+      });
       await fetchMembers();
       return true;
     } catch (e) {

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "766148399130",
+    "project_id": "shamel-app-654b5",
+    "storage_bucket": "shamel-app-654b5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:766148399130:android:817a01b5e20b7933d241a3",
+        "android_client_info": {
+          "package_name": "com.marai.shamel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8ia31CYdmWJvFiPX1nsh51iBD390GRng"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

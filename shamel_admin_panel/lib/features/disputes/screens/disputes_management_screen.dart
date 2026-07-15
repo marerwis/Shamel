@@ -83,7 +83,7 @@ class DisputesManagementScreen extends ConsumerWidget {
             return DataRow(
               cells: [
                 DataCell(Text('#${dispute.id.substring(0, 8).toUpperCase()}')),
-                DataCell(Text(dispute.subject, style: const TextStyle(fontWeight: FontWeight.bold))),
+                DataCell(Text(dispute.reason, style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis)),
                 DataCell(Text(dispute.createdAt.toString().split(' ')[0])),
                 DataCell(Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -124,30 +124,26 @@ class DisputesManagementScreen extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('الموضوع: ${dispute.subject}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text('الطلب: #${dispute.orderId.substring(0, 8)}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                Text('السبب: ${dispute.reason}', maxLines: 2, overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 8),
-                Text('الوصف: ${dispute.description}'),
+                Text(
+                  'تاريخ النزاع: ${dispute.createdAt.toString().substring(0, 10)}',
+                  style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12),
+                ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: currentStatus,
                   items: const [
-                    DropdownMenuItem(value: 'open', child: Text('مفتوح')),
-                    DropdownMenuItem(value: 'under_review', child: Text('قيد المراجعة')),
-                    DropdownMenuItem(value: 'resolved', child: Text('محلول')),
-                    DropdownMenuItem(value: 'closed', child: Text('مغلق')),
+                    DropdownMenuItem(value: 'Open', child: Text('مفتوح')),
+                    DropdownMenuItem(value: 'Resolved_Customer', child: Text('لصالح العميل')),
+                    DropdownMenuItem(value: 'Resolved_Provider', child: Text('لصالح المزود')),
                   ],
                   onChanged: (val) => setState(() => currentStatus = val!),
                   decoration: const InputDecoration(labelText: 'حالة الشكوى'),
                 ),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: notesController,
-                  decoration: const InputDecoration(
-                    labelText: 'ملاحظات الإدارة (تظهر للعميل أو للإدارة)',
-                    border: OutlineInputBorder(),
-                  ),
-                  maxLines: 3,
-                ),
               ],
             ),
           ),
@@ -157,8 +153,13 @@ class DisputesManagementScreen extends ConsumerWidget {
               onPressed: () async {
                 await Supabase.instance.client.from('disputes').update({
                   'status': currentStatus,
-                  'admin_notes': notesController.text,
                 }).eq('id', dispute.id);
+                
+                // If resolved, update order status as well
+                if (currentStatus == 'Resolved_Customer' || currentStatus == 'Resolved_Provider') {
+                    await Supabase.instance.client.from('orders').update({'status': 'Completed'}).eq('id', dispute.orderId);
+                }
+
                 ref.invalidate(disputesProvider);
                 if (ctx.mounted) Navigator.pop(ctx);
               },

@@ -87,7 +87,7 @@ class WalletScreen extends ConsumerWidget {
                                     const SizedBox(width: 8),
                                     Padding(
                                       padding: const EdgeInsets.only(bottom: 6),
-                                      child: Text('ر.س', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.onPrimary.withOpacity(0.8))),
+                                      child: Text('د.ل', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.onPrimary.withOpacity(0.8))),
                                     ),
                                   ],
                                 ),
@@ -193,7 +193,7 @@ class WalletScreen extends ConsumerWidget {
                             context,
                             title: tx.description,
                             date: timeago.format(tx.createdAt, locale: 'ar'),
-                            amount: '${isCredit ? '+' : '-'} ${tx.amount} ر.س',
+                            amount: '${isCredit ? '+' : '-'} ${tx.amount} د.ل',
                             isPositive: isCredit,
                             status: 'مكتمل',
                             icon: isCredit ? Icons.add_card : Icons.payment,

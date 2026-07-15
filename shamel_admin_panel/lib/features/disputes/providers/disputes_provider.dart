@@ -5,20 +5,16 @@ class DisputeModel {
   final String id;
   final String orderId;
   final String raisedBy;
-  final String subject;
-  final String description;
+  final String reason;
   final String status;
-  final String? adminNotes;
   final DateTime createdAt;
 
   DisputeModel({
     required this.id,
     required this.orderId,
     required this.raisedBy,
-    required this.subject,
-    required this.description,
+    required this.reason,
     required this.status,
-    this.adminNotes,
     required this.createdAt,
   });
 
@@ -27,10 +23,8 @@ class DisputeModel {
       id: json['id'],
       orderId: json['order_id'],
       raisedBy: json['raised_by'],
-      subject: json['subject'],
-      description: json['description'],
+      reason: json['reason'],
       status: json['status'],
-      adminNotes: json['admin_notes'],
       createdAt: DateTime.parse(json['created_at']),
     );
   }

@@ -2,6 +2,17 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+final adminWalletProvider = FutureProvider<double>((ref) async {
+  final response = await Supabase.instance.client
+      .from('admin_wallet')
+      .select('total_revenue')
+      .limit(1)
+      .maybeSingle();
+      
+  if (response == null) return 0.0;
+  return (response['total_revenue'] as num).toDouble();
+});
+
 class WithdrawalRequestAdminModel {
   final String id;
   final String providerId;
@@ -63,8 +74,20 @@ class FinanceRequestsNotifier extends AsyncNotifier<List<WithdrawalRequestAdminM
 
   Future<bool> updateRequestStatus(String id, String status) async {
     try {
-      await Supabase.instance.client.from('withdrawal_requests').update({'status': status}).eq('id', id);
-      // Optional: Add logic to deduct from provider wallet if approved, or handle that via Supabase triggers
+      String dbStatus;
+      if (status == 'approved') {
+        dbStatus = 'Approved';
+      } else if (status == 'rejected') {
+        dbStatus = 'Rejected';
+      } else {
+        return false;
+      }
+      
+      await Supabase.instance.client.rpc('admin_handle_withdrawal', params: {
+        'p_request_id': id,
+        'p_status': dbStatus,
+      });
+
       await fetchRequests();
       return true;
     } catch (e) {

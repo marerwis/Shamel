@@ -46,6 +46,16 @@ import '../../features/chat/screens/messages_list_screen.dart';
 import '../../features/chat/screens/live_chat_screen.dart';
 import '../../features/chat/screens/chat_quote_screen.dart';
 
+// Requests
+import '../../features/requests/screens/create_request_screen.dart';
+import '../../features/requests/screens/provider_requests_screen.dart';
+import '../../features/requests/screens/submit_bid_screen.dart';
+import '../../features/requests/screens/request_bids_screen.dart';
+
+// Orders
+import '../../features/orders/screens/orders_screen.dart';
+import '../../features/orders/screens/order_details_screen.dart';
+
 class AppRouter {
   static final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
   static final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -103,6 +113,44 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'category_providers',
         builder: (context, state) => CategoryProvidersScreen(
           categoryName: state.pathParameters['name'] ?? 'مزودي الخدمة',
+        ),
+      ),
+      GoRoute(
+        path: '/create_request',
+        name: 'create_request',
+        builder: (context, state) => const CreateRequestScreen(),
+      ),
+      GoRoute(
+        path: '/provider_requests/:categoryId',
+        name: 'provider_requests',
+        builder: (context, state) => ProviderRequestsScreen(
+          categoryId: state.pathParameters['categoryId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/submit_bid',
+        name: 'submit_bid',
+        builder: (context, state) => SubmitBidScreen(
+          requestData: state.extra as Map<String, dynamic>,
+        ),
+      ),
+      GoRoute(
+        path: '/request_bids',
+        name: 'request_bids',
+        builder: (context, state) => RequestBidsScreen(
+          requestData: state.extra as Map<String, dynamic>,
+        ),
+      ),
+      GoRoute(
+        path: '/orders',
+        name: 'orders',
+        builder: (context, state) => const OrdersScreen(),
+      ),
+      GoRoute(
+        path: '/order_details',
+        name: 'order_details',
+        builder: (context, state) => OrderDetailsScreen(
+          order: state.extra as Map<String, dynamic>,
         ),
       ),
       GoRoute(

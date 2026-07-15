@@ -21,6 +21,9 @@ import 'features/providers/screens/providers_management_screen.dart';
 import 'features/orders/screens/orders_management_screen.dart';
 import 'features/finance/screens/finance_management_screen.dart';
 import 'features/categories/screens/categories_management_screen.dart';
+import 'features/requests/screens/requests_screen.dart';
+import 'features/requests/screens/bids_blocks_screen.dart';
+import 'features/settings/screens/settings_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -103,8 +106,20 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const FinanceManagementScreen(),
           ),
           GoRoute(
+            path: '/settings',
+            builder: (context, state) => const SettingsScreen(),
+          ),
+          GoRoute(
             path: '/categories',
             builder: (context, state) => const CategoriesManagementScreen(),
+          ),
+          GoRoute(
+            path: '/requests',
+            builder: (context, state) => const RequestsScreen(),
+          ),
+          GoRoute(
+            path: '/bids_blocks',
+            builder: (context, state) => const BidsBlocksScreen(),
           ),
         ],
       ),

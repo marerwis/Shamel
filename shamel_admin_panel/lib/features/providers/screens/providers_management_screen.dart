@@ -136,6 +136,7 @@ class _ProvidersManagementScreenState extends ConsumerState<ProvidersManagementS
             DataColumn(label: Text('مزود الخدمة', style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(label: Text('المسمى الوظيفي', style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(label: Text('رقم الهاتف', style: TextStyle(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text('الشارات', style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(label: Text('الحالة', style: TextStyle(fontWeight: FontWeight.bold))),
             DataColumn(label: Text('إجراءات', style: TextStyle(fontWeight: FontWeight.bold))),
           ],
@@ -176,6 +177,16 @@ class _ProvidersManagementScreenState extends ConsumerState<ProvidersManagementS
                 )),
                 DataCell(Text(provider.title ?? 'غير محدد')),
                 DataCell(Text(provider.phone ?? 'غير متوفر')),
+                DataCell(Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (provider.isPremium) const Tooltip(message: 'مميز', child: Text('👑', style: TextStyle(fontSize: 20))),
+                    if (provider.isFast) const Tooltip(message: 'سريع التجاوب', child: Text('⚡', style: TextStyle(fontSize: 20))),
+                    if (provider.isClean) const Tooltip(message: 'عمل نظيف', child: Text('✨', style: TextStyle(fontSize: 20))),
+                    if (!provider.isPremium && !provider.isFast && !provider.isClean)
+                      const Text('-', style: TextStyle(color: Colors.grey)),
+                  ],
+                )),
                 DataCell(Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
@@ -186,6 +197,11 @@ class _ProvidersManagementScreenState extends ConsumerState<ProvidersManagementS
                 )),
                 DataCell(Row(
                   children: [
+                    IconButton(
+                      icon: const Icon(Icons.stars, color: Colors.amber),
+                      tooltip: 'تعديل الشارات',
+                      onPressed: () => _showBadgesDialog(context, provider),
+                    ),
                     IconButton(
                       icon: const Icon(Icons.remove_red_eye, color: AppColors.primary),
                       tooltip: 'عرض التفاصيل',
@@ -328,6 +344,66 @@ class _ProvidersManagementScreenState extends ConsumerState<ProvidersManagementS
           ),
         ],
       ),
+    );
+  }
+
+  void _showBadgesDialog(BuildContext context, MemberModel provider) {
+    bool isPremium = provider.isPremium;
+    bool isFast = provider.isFast;
+    bool isClean = provider.isClean;
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('إدارة الشارات والتميز'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SwitchListTile(
+                    title: const Text('مزود مميز 👑'),
+                    subtitle: const Text('عمولة مخفضة وأولوية في الظهور'),
+                    value: isPremium,
+                    onChanged: (val) => setState(() => isPremium = val),
+                  ),
+                  SwitchListTile(
+                    title: const Text('سريع التجاوب ⚡'),
+                    value: isFast,
+                    onChanged: (val) => setState(() => isFast = val),
+                  ),
+                  SwitchListTile(
+                    title: const Text('عمل نظيف ✨'),
+                    value: isClean,
+                    onChanged: (val) => setState(() => isClean = val),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('إلغاء'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final success = await ref.read(membersProvider.notifier).updateProviderBadges(
+                      provider.id, isPremium, isFast, isClean
+                    );
+                    if (success && ctx.mounted) {
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('تم تحديث الشارات بنجاح')),
+                      );
+                    }
+                  },
+                  child: const Text('حفظ'),
+                ),
+              ],
+            );
+          }
+        );
+      },
     );
   }
 
