@@ -13,19 +13,25 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Initialize Supabase
-  await Supabase.initialize(
-    url: SupabaseConfig.supabaseUrl,
-    anonKey: SupabaseConfig.supabaseAnonKey,
-  );
+  try {
+    await Supabase.initialize(
+      url: SupabaseConfig.supabaseUrl,
+      anonKey: SupabaseConfig.supabaseAnonKey,
+    );
+  } catch (e) {
+    debugPrint('Supabase initialization error: $e');
+  }
 
   // Initialize Firebase
-  await Firebase.initializeApp();
-  
-  // Request permission for notifications
-  await FirebaseMessaging.instance.requestPermission();
-  
-  // Setup FCM Service
-  await FCMService.initialize();
+  try {
+    await Firebase.initializeApp();
+    // Request permission for notifications
+    await FirebaseMessaging.instance.requestPermission();
+    // Setup FCM Service
+    await FCMService.initialize();
+  } catch (e) {
+    debugPrint('Firebase initialization error: $e');
+  }
 
   runApp(
     const ProviderScope(
