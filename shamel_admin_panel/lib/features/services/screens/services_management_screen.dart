@@ -145,6 +145,12 @@ class ServicesManagementScreen extends ConsumerWidget {
                         DataCell(Text(service.providerName ?? 'غير معروف')),
                         DataCell(Row(
                           children: [
+                            if (services.indexOf(service) == 0)
+                              IconButton(
+                                icon: const Icon(Icons.add_box, color: Colors.green),
+                                tooltip: 'إضافة خدمة جديدة',
+                                onPressed: () => _showAddServiceDialog(context, ref),
+                              ),
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red), 
                               onPressed: () => _deleteService(context, ref, service.id),
