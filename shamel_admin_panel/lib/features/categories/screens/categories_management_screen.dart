@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../providers/categories_provider.dart';
 import '../models/category_model.dart';
 import '../../../core/theme/app_colors.dart';
@@ -16,68 +18,132 @@ class _CategoriesManagementScreenState extends ConsumerState<CategoriesManagemen
 
   void _showAddEditDialog(BuildContext context, [CategoryModel? category, CategoryModel? parent]) {
     final nameController = TextEditingController(text: category?.name);
-    final iconController = TextEditingController(text: category?.icon);
+    String? currentIconUrl = category?.icon;
+    XFile? selectedImage;
+    bool isUploading = false;
     
     String? currentParentId = category?.parentId ?? parent?.id;
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (ctx) {
-        return AlertDialog(
-          title: Text(category == null 
-              ? (parent == null ? 'إضافة تصنيف رئيسي جديد' : 'إضافة تصنيف فرعي لـ ${parent.name}') 
-              : 'تعديل التصنيف'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'اسم التصنيف'),
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              title: Text(category == null 
+                  ? (parent == null ? 'إضافة تصنيف رئيسي جديد' : 'إضافة تصنيف فرعي لـ ${parent.name}') 
+                  : 'تعديل التصنيف'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(labelText: 'اسم التصنيف'),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.image),
+                        label: const Text('اختيار أيقونة'),
+                        onPressed: () async {
+                          final ImagePicker picker = ImagePicker();
+                          final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+                          if (image != null) {
+                            setStateDialog(() {
+                              selectedImage = image;
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 16),
+                      if (selectedImage != null)
+                        const Text('تم اختيار صورة', style: TextStyle(color: Colors.green))
+                      else if (currentIconUrl != null && currentIconUrl!.isNotEmpty)
+                        Image.network(currentIconUrl!, width: 40, height: 40)
+                      else
+                        const Text('لا يوجد أيقونة'),
+                    ],
+                  ),
+                  if (isUploading) ...[
+                    const SizedBox(height: 16),
+                    const LinearProgressIndicator(),
+                    const Text('جاري الرفع...', style: TextStyle(fontSize: 12)),
+                  ]
+                ],
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: iconController,
-                decoration: const InputDecoration(labelText: 'رابط الأيقونة (اختياري)'),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('إلغاء'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (nameController.text.trim().isEmpty) return;
-                
-                final notifier = ref.read(categoriesProvider.notifier);
-                bool success;
-                
-                if (category == null) {
-                  success = await notifier.addCategory(
-                    nameController.text.trim(),
-                    icon: iconController.text.trim(),
-                    parentId: currentParentId,
-                  );
-                } else {
-                  success = await notifier.updateCategory(
-                    category!.id,
-                    nameController.text.trim(),
-                    icon: iconController.text.trim(),
-                    parentId: currentParentId,
-                  );
-                }
+              actions: [
+                TextButton(
+                  onPressed: isUploading ? null : () => Navigator.pop(ctx),
+                  child: const Text('إلغاء'),
+                ),
+                ElevatedButton(
+                  onPressed: isUploading ? null : () async {
+                    if (nameController.text.trim().isEmpty) {
+                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('اسم التصنيف مطلوب')));
+                       return;
+                    }
+                    
+                    setStateDialog(() => isUploading = true);
+                    
+                    String? finalIconUrl = currentIconUrl;
+                    
+                    if (selectedImage != null) {
+                       try {
+                         final bytes = await selectedImage!.readAsBytes();
+                         final ext = selectedImage!.name.split('.').last;
+                         final fileName = '${DateTime.now().millisecondsSinceEpoch}.$ext';
+                         await Supabase.instance.client.storage
+                             .from('categories_icons')
+                             .uploadBinary(fileName, bytes);
+                         finalIconUrl = Supabase.instance.client.storage
+                             .from('categories_icons')
+                             .getPublicUrl(fileName);
+                       } catch (e) {
+                         print('Upload error: $e');
+                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ في الرفع: $e')));
+                         setStateDialog(() => isUploading = false);
+                         return;
+                       }
+                    }
 
-                if (success && ctx.mounted) {
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('تم الحفظ بنجاح')),
-                  );
-                }
-              },
-              child: const Text('حفظ'),
-            ),
-          ],
+                    final notifier = ref.read(categoriesProvider.notifier);
+                    bool success;
+                    
+                    if (category == null) {
+                      success = await notifier.addCategory(
+                        nameController.text.trim(),
+                        icon: finalIconUrl,
+                        parentId: currentParentId,
+                      );
+                    } else {
+                      success = await notifier.updateCategory(
+                        category!.id,
+                        nameController.text.trim(),
+                        icon: finalIconUrl,
+                        parentId: currentParentId,
+                      );
+                    }
+
+                    setStateDialog(() => isUploading = false);
+
+                    if (success && ctx.mounted) {
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('تم الحفظ بنجاح')),
+                      );
+                    } else if (!success && ctx.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('حدث خطأ أثناء الحفظ')),
+                      );
+                    }
+                  },
+                  child: const Text('حفظ'),
+                ),
+              ],
+            );
+          }
         );
       },
     );

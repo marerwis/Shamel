@@ -38,9 +38,10 @@ class CategoriesNotifier extends AsyncNotifier<List<CategoryModel>> {
         'icon': icon,
         'parent_id': parentId,
       });
-      await fetchCategories();
+      ref.invalidateSelf();
       return true;
     } catch (e) {
+      print('Add Category Error: $e');
       return false;
     }
   }
@@ -52,9 +53,10 @@ class CategoriesNotifier extends AsyncNotifier<List<CategoryModel>> {
         'icon': icon,
         'parent_id': parentId,
       }).eq('id', id);
-      await fetchCategories();
+      ref.invalidateSelf();
       return true;
     } catch (e) {
+      print('Update Category Error: $e');
       return false;
     }
   }
@@ -62,9 +64,10 @@ class CategoriesNotifier extends AsyncNotifier<List<CategoryModel>> {
   Future<bool> deleteCategory(String id) async {
     try {
       await _supabase.from('categories').delete().eq('id', id);
-      await fetchCategories();
+      ref.invalidateSelf();
       return true;
     } catch (e) {
+      print('Delete Category Error: $e');
       return false;
     }
   }

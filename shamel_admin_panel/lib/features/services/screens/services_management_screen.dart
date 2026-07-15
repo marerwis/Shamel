@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../providers/services_provider.dart';
+import '../../categories/providers/categories_provider.dart';
 
 class ServicesManagementScreen extends ConsumerWidget {
   const ServicesManagementScreen({super.key});
@@ -26,11 +27,7 @@ class ServicesManagementScreen extends ConsumerWidget {
                     ),
               ),
               ElevatedButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('سيتم إضافة هذه الميزة قريباً')),
-                  );
-                },
+                onPressed: () => _showAddServiceDialog(context, ref),
                 icon: const Icon(Icons.add),
                 label: const Text('إضافة خدمة جديدة'),
                 style: ElevatedButton.styleFrom(
@@ -176,14 +173,100 @@ class ServicesManagementScreen extends ConsumerWidget {
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('إلغاء')),
           TextButton(
             onPressed: () async {
-              await Supabase.instance.client.from('services').delete().eq('id', id);
-              ref.invalidate(servicesProvider);
+              await ref.read(servicesProvider.notifier).deleteService(id);
               if (ctx.mounted) Navigator.pop(ctx);
             },
             child: const Text('حذف', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
+    );
+  }
+
+  void _showAddServiceDialog(BuildContext context, WidgetRef ref) {
+    final titleController = TextEditingController();
+    final priceController = TextEditingController();
+    String? selectedCategoryId;
+    
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return Consumer(
+          builder: (context, ref, child) {
+            final categoriesState = ref.watch(categoriesProvider);
+            
+            return AlertDialog(
+              title: const Text('إضافة خدمة جديدة'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: titleController,
+                      decoration: const InputDecoration(labelText: 'اسم الخدمة'),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: priceController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: 'السعر (د.ل)'),
+                    ),
+                    const SizedBox(height: 16),
+                    categoriesState.when(
+                      data: (categories) {
+                        final subCategories = categories.where((c) => c.parentId != null).toList();
+                        return DropdownButtonFormField<String>(
+                          decoration: const InputDecoration(labelText: 'التصنيف الفرعي'),
+                          value: selectedCategoryId,
+                          items: subCategories.map((c) {
+                            final parent = categories.firstWhere((p) => p.id == c.parentId, orElse: () => c);
+                            return DropdownMenuItem(
+                              value: c.id,
+                              child: Text('${parent.name} - ${c.name}'),
+                            );
+                          }).toList(),
+                          onChanged: (val) {
+                            selectedCategoryId = val;
+                          },
+                        );
+                      },
+                      loading: () => const CircularProgressIndicator(),
+                      error: (err, stack) => const Text('خطأ في جلب التصنيفات'),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('إلغاء'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (titleController.text.isEmpty || priceController.text.isEmpty) return;
+                    
+                    final price = double.tryParse(priceController.text) ?? 0.0;
+                    
+                    final success = await ref.read(servicesProvider.notifier).addService(
+                      title: titleController.text.trim(),
+                      price: price,
+                      categoryId: selectedCategoryId,
+                    );
+                    
+                    if (success && ctx.mounted) {
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إضافة الخدمة بنجاح')));
+                    } else if (ctx.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('فشل في الإضافة')));
+                    }
+                  },
+                  child: const Text('إضافة'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

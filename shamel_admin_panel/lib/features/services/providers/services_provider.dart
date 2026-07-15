@@ -38,11 +38,55 @@ class ServiceModel {
 }
 
 // Provider
-final servicesProvider = FutureProvider<List<ServiceModel>>((ref) async {
-  final response = await Supabase.instance.client
-      .from('services')
-      .select('*, categories(name), profiles(full_name)')
-      .order('created_at', ascending: false);
-      
-  return (response as List).map((data) => ServiceModel.fromJson(data)).toList();
+final servicesProvider = AsyncNotifierProvider<ServicesNotifier, List<ServiceModel>>(() {
+  return ServicesNotifier();
 });
+
+class ServicesNotifier extends AsyncNotifier<List<ServiceModel>> {
+  @override
+  Future<List<ServiceModel>> build() async {
+    return _fetchServices();
+  }
+
+  Future<List<ServiceModel>> _fetchServices() async {
+    final response = await Supabase.instance.client
+        .from('services')
+        .select('*, categories(name), profiles(full_name)')
+        .order('created_at', ascending: false);
+        
+    return (response as List).map((data) => ServiceModel.fromJson(data)).toList();
+  }
+
+  Future<bool> addService({
+    required String title,
+    required double price,
+    String? categoryId,
+    String? providerId,
+  }) async {
+    try {
+      final currentUserId = Supabase.instance.client.auth.currentUser!.id;
+      await Supabase.instance.client.from('services').insert({
+        'title': title,
+        'price': price,
+        'category_id': categoryId,
+        'provider_id': providerId ?? currentUserId,
+      });
+      ref.invalidateSelf();
+      return true;
+    } catch (e) {
+      print('Add Service Error: $e');
+      return false;
+    }
+  }
+
+  Future<bool> deleteService(String id) async {
+    try {
+      await Supabase.instance.client.from('services').delete().eq('id', id);
+      ref.invalidateSelf();
+      return true;
+    } catch (e) {
+      print('Delete Service Error: $e');
+      return false;
+    }
+  }
+}
