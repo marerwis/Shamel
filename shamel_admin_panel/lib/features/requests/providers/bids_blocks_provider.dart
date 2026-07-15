@@ -23,9 +23,13 @@ final adminBlocksProvider = FutureProvider<List<Map<String, dynamic>>>((ref) asy
   return List<Map<String, dynamic>>.from(response);
 });
 
-class AdminBlocksNotifier extends StateNotifier<bool> {
-  AdminBlocksNotifier() : super(false);
+class AdminBlocksNotifier extends Notifier<bool> {
   final _client = Supabase.instance.client;
+
+  @override
+  bool build() {
+    return false;
+  }
 
   Future<void> removeBlock(String blockId) async {
     state = true;
@@ -33,12 +37,12 @@ class AdminBlocksNotifier extends StateNotifier<bool> {
       await _client.from('temporary_blocks').delete().eq('id', blockId);
     } catch (e) {
       state = false;
-      throw e;
+      rethrow;
     }
     state = false;
   }
 }
 
-final adminBlocksNotifierProvider = StateNotifierProvider<AdminBlocksNotifier, bool>((ref) {
+final adminBlocksNotifierProvider = NotifierProvider<AdminBlocksNotifier, bool>(() {
   return AdminBlocksNotifier();
 });
