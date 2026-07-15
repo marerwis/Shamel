@@ -252,17 +252,17 @@ class ServicesManagementScreen extends ConsumerWidget {
                     
                     final price = double.tryParse(priceController.text) ?? 0.0;
                     
-                    final success = await ref.read(servicesProvider.notifier).addService(
+                    final errorMsg = await ref.read(servicesProvider.notifier).addService(
                       title: titleController.text.trim(),
                       price: price,
                       categoryId: selectedCategoryId,
                     );
                     
-                    if (success && ctx.mounted) {
+                    if (errorMsg == null && ctx.mounted) {
                       Navigator.pop(ctx);
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إضافة الخدمة بنجاح')));
                     } else if (ctx.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('فشل في الإضافة')));
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('فشل في الإضافة: $errorMsg')));
                     }
                   },
                   child: const Text('إضافة'),

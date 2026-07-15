@@ -57,7 +57,7 @@ class ServicesNotifier extends AsyncNotifier<List<ServiceModel>> {
     return (response as List).map((data) => ServiceModel.fromJson(data)).toList();
   }
 
-  Future<bool> addService({
+  Future<String?> addService({
     required String title,
     required double price,
     String? categoryId,
@@ -72,10 +72,10 @@ class ServicesNotifier extends AsyncNotifier<List<ServiceModel>> {
         'provider_id': providerId ?? currentUserId,
       });
       ref.invalidateSelf();
-      return true;
+      return null;
     } catch (e) {
       print('Add Service Error: $e');
-      return false;
+      return e.toString();
     }
   }
 
