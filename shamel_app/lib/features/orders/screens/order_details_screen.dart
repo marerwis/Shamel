@@ -5,16 +5,16 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../providers/orders_provider.dart';
 
 class OrderDetailsScreen extends ConsumerWidget {
-  final Map<String, dynamic> order;
+  final OrderModel order;
   const OrderDetailsScreen({super.key, required this.order});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final orderId = order['id'];
+    final orderId = order.id;
     final milestonesStream = ref.watch(orderMilestonesStreamProvider(orderId));
     final isProcessing = ref.watch(ordersProvider);
     final currentUserId = Supabase.instance.client.auth.currentUser!.id;
-    final isCustomer = currentUserId == order['customer_id'];
+    final isCustomer = currentUserId == order.customerId;
 
     return Scaffold(
       appBar: AppBar(
@@ -29,9 +29,9 @@ class OrderDetailsScreen extends ConsumerWidget {
             width: double.infinity,
             child: Column(
               children: [
-                Text('المبلغ الإجمالي: ${order['total_amount']} د.ل', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green)),
+                Text('المبلغ الإجمالي: ${order.totalAmount} د.ل', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green)),
                 const SizedBox(height: 8),
-                Text('حالة الطلب: ${order['status']}', style: const TextStyle(fontSize: 16)),
+                Text('حالة الطلب: ${order.status}', style: const TextStyle(fontSize: 16)),
               ],
             ),
           ),
@@ -63,7 +63,7 @@ class OrderDetailsScreen extends ConsumerWidget {
                         ),
                         title: Text(m['description'], style: const TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: Text('المبلغ: ${m['amount']} د.ل'),
-                        trailing: isCustomer && !isPaid && order['status'] != 'Disputed' && order['status'] != 'Cancelled'
+                        trailing: isCustomer && !isPaid && order.status != 'Disputed' && order.status != 'Cancelled'
                             ? ElevatedButton(
                                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
                                 onPressed: () async {
@@ -83,7 +83,7 @@ class OrderDetailsScreen extends ConsumerWidget {
                                   if (confirm == true) {
                                     try {
                                       final double amount = double.parse(m['amount'].toString());
-                                      await ref.read(ordersProvider.notifier).releaseMilestone(m['id'], orderId, amount, order['provider_id']);
+                                      await ref.read(ordersProvider.notifier).releaseMilestone(m['id'], orderId, amount, order.providerId);
                                       if (context.mounted) {
                                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحويل الدفعة للمزود بنجاح!')));
                                       }
@@ -108,7 +108,7 @@ class OrderDetailsScreen extends ConsumerWidget {
           ),
           
           // Dispute Action
-          if (order['status'] != 'Completed' && order['status'] != 'Cancelled' && order['status'] != 'Disputed')
+          if (order.status != 'Completed' && order.status != 'Cancelled' && order.status != 'Disputed')
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: SizedBox(

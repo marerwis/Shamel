@@ -138,10 +138,10 @@ final providerRequestsProvider = StreamProvider.family<List<Map<String, dynamic>
         .from('requests')
         .stream(primaryKey: ['id'])
         .eq('category_id', categoryId)
-        .eq('status', 'Pending_Broadcast')
         .order('created_at')
-        .listen((requests) {
+        .listen((allRequests) {
       
+      final requests = allRequests.where((r) => r['status'] == 'Pending_Broadcast').toList();      
       if (isPremium) {
         controller.add(requests);
       } else {

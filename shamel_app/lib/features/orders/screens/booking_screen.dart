@@ -71,7 +71,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       await ref.read(ordersProvider.notifier).createOrder(
         providerId: providerId,
         serviceId: widget.service?.id,
-        price: widget.service?.basePrice ?? 50.0, // Default price if no specific service selected
+        totalAmount: widget.service?.basePrice ?? 50.0, // Default price if no specific service selected
         address: _addressController.text,
         scheduledAt: finalScheduledAt,
         notes: _notesController.text,

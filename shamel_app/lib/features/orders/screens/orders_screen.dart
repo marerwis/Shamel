@@ -26,29 +26,29 @@ class OrdersScreen extends ConsumerWidget {
             itemCount: orders.length,
             itemBuilder: (context, index) {
               final order = orders[index];
-              final createdAt = DateTime.parse(order['created_at']);
+              final createdAt = order.createdAt;
               
               Color statusColor = Colors.blue;
-              if (order['status'] == 'Completed') statusColor = Colors.green;
-              if (order['status'] == 'Disputed') statusColor = Colors.red;
+              if (order.status == 'Completed') statusColor = Colors.green;
+              if (order.status == 'Disputed') statusColor = Colors.red;
 
               return Card(
                 elevation: 2,
                 margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
                   contentPadding: const EdgeInsets.all(16),
-                  title: Text('طلب #${order['id'].toString().substring(0, 6)}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  title: Text('طلب #${order.id.substring(0, 6)}', style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 4),
-                      Text('الإجمالي: ${order['total_amount']} د.ل', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
+                      Text('الإجمالي: ${order.totalAmount} د.ل', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
                       const SizedBox(height: 4),
                       Text(timeago.format(createdAt, locale: 'ar'), style: const TextStyle(color: Colors.grey, fontSize: 12)),
                     ],
                   ),
                   trailing: Chip(
-                    label: Text(order['status']),
+                    label: Text(order.status),
                     backgroundColor: statusColor.withOpacity(0.1),
                     labelStyle: TextStyle(color: statusColor),
                   ),

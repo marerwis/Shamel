@@ -18,7 +18,7 @@ class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ordersAsync = ref.watch(ordersProvider);
+    final ordersAsync = ref.watch(myOrdersStreamProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -103,7 +103,7 @@ class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
 
                 return RefreshIndicator(
                   onRefresh: () async {
-                    return ref.refresh(ordersProvider.future);
+                    return ref.refresh(myOrdersStreamProvider.future);
                   },
                   child: ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

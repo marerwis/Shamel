@@ -148,9 +148,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/order_details',
-        name: 'order_details',
+        name: 'order_details_no_id', // Prevent name clash
         builder: (context, state) => OrderDetailsScreen(
-          order: state.extra as Map<String, dynamic>,
+          order: state.extra as OrderModel,
         ),
       ),
       GoRoute(
@@ -188,6 +188,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'order_details',
         builder: (context, state) {
           final order = state.extra as OrderModel?;
+          if (order == null) return const Scaffold(body: Center(child: Text('الطلب غير موجود')));
           return OrderDetailsScreen(order: order);
         },
       ),
