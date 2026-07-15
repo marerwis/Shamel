@@ -10,8 +10,11 @@ final settingsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   return response['value'] as Map<String, dynamic>;
 });
 
-class SettingsNotifier extends StateNotifier<bool> {
-  SettingsNotifier() : super(false);
+class SettingsNotifier extends Notifier<bool> {
+  @override
+  bool build() {
+    return false;
+  }
 
   Future<void> updateCommissionRates(double defaultRate, double premiumRate) async {
     state = true;
@@ -24,10 +27,10 @@ class SettingsNotifier extends StateNotifier<bool> {
       }).eq('key', 'commission_rates');
     } catch (e) {
       state = false;
-      throw e;
+      rethrow;
     }
     state = false;
   }
 }
 
-final settingsNotifierProvider = StateNotifierProvider<SettingsNotifier, bool>((ref) => SettingsNotifier());
+final settingsNotifierProvider = NotifierProvider<SettingsNotifier, bool>(() => SettingsNotifier());
