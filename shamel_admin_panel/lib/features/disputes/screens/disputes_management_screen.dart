@@ -111,7 +111,6 @@ class DisputesManagementScreen extends ConsumerWidget {
 
   void _showDisputeDialog(BuildContext context, WidgetRef ref, DisputeModel dispute) {
     String currentStatus = dispute.status;
-    final notesController = TextEditingController(text: dispute.adminNotes ?? '');
 
     showDialog(
       context: context,
