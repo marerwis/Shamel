@@ -23,6 +23,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _rememberMe = false;
   int _selectedTabIndex = 0; // 0 for Login, 1 for Signup
   bool _isLoading = false;
+  String _selectedRole = 'customer'; // Default role for registration
 
   @override
   void dispose() {
@@ -46,7 +47,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         await auth.signUp(
           email: _emailController.text.trim(),
           password: _passwordController.text,
-          role: 'customer',
+          role: _selectedRole,
           fullName: '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}',
           phone: _phoneController.text.trim(),
         );
@@ -238,6 +239,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ],
                           ),
                           const SizedBox(height: 24),
+                          const SizedBox(height: 24),
                           TextFormField(
                             controller: _phoneController,
                             decoration: InputDecoration(
@@ -248,6 +250,46 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                           ),
                           const SizedBox(height: 24),
+                          
+                          // Role Selection
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'نوع الحساب',
+                                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                      color: AppColors.onSurfaceVariant,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: RadioListTile<String>(
+                                      title: const Text('عضو عادي', style: TextStyle(fontSize: 14)),
+                                      value: 'customer',
+                                      groupValue: _selectedRole,
+                                      onChanged: (value) => setState(() => _selectedRole = value!),
+                                      contentPadding: EdgeInsets.zero,
+                                      activeColor: AppColors.primary,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: RadioListTile<String>(
+                                      title: const Text('مزود خدمة', style: TextStyle(fontSize: 14)),
+                                      value: 'provider',
+                                      groupValue: _selectedRole,
+                                      onChanged: (value) => setState(() => _selectedRole = value!),
+                                      contentPadding: EdgeInsets.zero,
+                                      activeColor: AppColors.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
                         ],
                         
                         // Email Field
