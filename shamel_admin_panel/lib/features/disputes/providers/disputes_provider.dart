@@ -7,6 +7,7 @@ class DisputeModel {
   final String raisedBy;
   final String reason;
   final String status;
+  final String? adminNotes;
   final DateTime createdAt;
 
   DisputeModel({
@@ -15,6 +16,7 @@ class DisputeModel {
     required this.raisedBy,
     required this.reason,
     required this.status,
+    this.adminNotes,
     required this.createdAt,
   });
 
@@ -25,6 +27,7 @@ class DisputeModel {
       raisedBy: json['raised_by'],
       reason: json['reason'],
       status: json['status'],
+      adminNotes: json['admin_notes'],
       createdAt: DateTime.parse(json['created_at']),
     );
   }
