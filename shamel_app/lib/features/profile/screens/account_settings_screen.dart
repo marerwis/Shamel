@@ -9,6 +9,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_drawer.dart';
 import '../../auth/providers/auth_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/providers/shared_prefs_provider.dart';
 
 class AccountSettingsScreen extends ConsumerStatefulWidget {
   const AccountSettingsScreen({super.key});
@@ -56,7 +57,7 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
   }
 
   Future<void> _saveSelectedArea(String area) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = ref.read(sharedPrefsProvider);
     await prefs.setString('selected_area', area);
   }
 

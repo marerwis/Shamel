@@ -61,17 +61,38 @@ class _ProviderRequestsScreenState extends ConsumerState<ProviderRequestsScreen>
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              context.push('/provider_accept_request', extra: req);
-                            },
-                            icon: const Icon(Icons.check_circle),
-                            label: const Text('قبول وتقديم سعر'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).primaryColor,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
+                          Consumer(
+                            builder: (context, ref, _) {
+                              final isLoading = ref.watch(requestsProvider);
+                              return ElevatedButton.icon(
+                                onPressed: isLoading ? null : () async {
+                                  try {
+                                    await ref.read(requestsProvider.notifier).acceptRequestDirectly(req['id']);
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('تم قبول الطلب بنجاح!')),
+                                      );
+                                      context.go('/orders');
+                                    }
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text(e.toString().replaceAll('Exception:', '').trim()), backgroundColor: Colors.red),
+                                      );
+                                    }
+                                  }
+                                },
+                                icon: isLoading 
+                                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                                  : const Icon(Icons.check_circle),
+                                label: const Text('قبول الطلب'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Theme.of(context).primaryColor,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                ),
+                              );
+                            }
                           ),
                         ],
                       )

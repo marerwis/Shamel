@@ -11,6 +11,8 @@ class AppDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(userProfileProvider);
     final user = ref.watch(currentUserProvider);
+    final isProvider = profileAsync.value?['role'] == 'provider';
+    
     return Drawer(
       backgroundColor: AppColors.surface,
       child: ListView(
@@ -71,14 +73,42 @@ class AppDrawer extends ConsumerWidget {
               },
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.home, color: AppColors.primary),
-            title: const Text('الرئيسية'),
-            onTap: () {
-              context.pop();
-              context.go('/home');
-            },
-          ),
+          // Provider Specific Items
+          if (isProvider) ...[
+            ListTile(
+              leading: const Icon(Icons.work_outline, color: AppColors.primary),
+              title: const Text('الطلبات المتاحة'),
+              onTap: () {
+                context.pop();
+                context.go('/home');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.receipt_long_outlined, color: AppColors.primary),
+              title: const Text('طلباتي النشطة'),
+              onTap: () {
+                context.pop();
+                context.go('/orders');
+              },
+            ),
+          ] else ...[
+            ListTile(
+              leading: const Icon(Icons.home, color: AppColors.primary),
+              title: const Text('الرئيسية'),
+              onTap: () {
+                context.pop();
+                context.go('/home');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.receipt_long_outlined, color: AppColors.primary),
+              title: const Text('طلباتي'),
+              onTap: () {
+                context.pop();
+                context.go('/orders');
+              },
+            ),
+          ],
           ListTile(
             leading: const Icon(Icons.person, color: AppColors.primary),
             title: const Text('حسابي'),

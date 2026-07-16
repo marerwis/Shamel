@@ -51,9 +51,6 @@ import '../../features/chat/screens/chat_quote_screen.dart';
 // Requests
 import '../../features/requests/screens/create_request_screen.dart';
 import '../../features/requests/screens/provider_requests_screen.dart';
-import '../../features/requests/screens/provider_accept_request_screen.dart';
-import '../../features/requests/screens/submit_bid_screen.dart';
-import '../../features/requests/screens/request_bids_screen.dart';
 
 // Orders
 import '../../features/orders/screens/orders_screen.dart';
@@ -128,27 +125,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'provider_requests',
         builder: (context, state) => ProviderRequestsScreen(
           categoryId: state.pathParameters['categoryId']!,
-        ),
-      ),
-      GoRoute(
-        path: '/provider_accept_request',
-        name: 'provider_accept_request',
-        builder: (context, state) => ProviderAcceptRequestScreen(
-          request: state.extra as Map<String, dynamic>,
-        ),
-      ),
-      GoRoute(
-        path: '/submit_bid',
-        name: 'submit_bid',
-        builder: (context, state) => SubmitBidScreen(
-          requestData: state.extra as Map<String, dynamic>,
-        ),
-      ),
-      GoRoute(
-        path: '/request_bids',
-        name: 'request_bids',
-        builder: (context, state) => RequestBidsScreen(
-          requestData: state.extra as Map<String, dynamic>,
         ),
       ),
       GoRoute(

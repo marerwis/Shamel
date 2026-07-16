@@ -6,7 +6,7 @@ import '../../home/providers/services_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/orders_provider.dart';
 import '../../requests/providers/requests_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/providers/shared_prefs_provider.dart';
 
 class BookingScreen extends ConsumerStatefulWidget {
   final ServiceModel? service;
@@ -33,23 +33,10 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   void initState() {
     super.initState();
     _times = widget.service?.availableSlots ?? ['09:00 ص', '10:00 ص', '11:00 ص', '01:00 م', '03:00 م', '05:00 م'];
-    _loadSavedArea();
-  }
-
-  Future<void> _loadSavedArea() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedArea = prefs.getString('selected_area');
-    if (savedArea != null && savedArea.isNotEmpty) {
-      if (mounted) {
-        setState(() {
-          _addressController.text = savedArea;
-        });
-      }
-    }
   }
 
   Future<void> _saveSelectedArea(String area) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = ref.read(sharedPrefsProvider);
     await prefs.setString('selected_area', area);
   }
 
@@ -104,8 +91,10 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 ''';
         await ref.read(requestsProvider.notifier).createRequest(
           categoryId: widget.service?.categoryId ?? '',
+          serviceId: widget.service?.id,
           description: desc,
           imageFiles: [],
+          price: widget.service?.price ?? 50.0,
         );
 
         if (mounted) {
@@ -166,16 +155,27 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     final displayPrice = srv?.price.toString() ?? 'حسب الاتفاق';
 
     final profileAsync = ref.watch(userProfileProvider);
-    profileAsync.whenData((profile) {
-      if (profile != null && _addressController.text.isEmpty && profile['address'] != null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted && _addressController.text.isEmpty) {
-            _addressController.text = profile['address'];
-            setState((){});
+    final sharedPrefs = ref.watch(sharedPrefsProvider);
+    
+    // Initialize addressController synchronously before build if empty
+    if (_addressController.text.isEmpty) {
+      final savedArea = sharedPrefs.getString('selected_area');
+      if (savedArea != null && savedArea.isNotEmpty) {
+        _addressController.text = savedArea;
+      } else {
+        // Fallback to profile address
+        profileAsync.whenData((profile) {
+          if (profile != null && profile['address'] != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted && _addressController.text.isEmpty) {
+                _addressController.text = profile['address'];
+                setState((){});
+              }
+            });
           }
         });
       }
-    });
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,

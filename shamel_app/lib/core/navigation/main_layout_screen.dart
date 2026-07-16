@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/app_colors.dart';
+import '../../features/auth/providers/auth_provider.dart';
 
-class MainLayoutScreen extends StatelessWidget {
+class MainLayoutScreen extends ConsumerWidget {
   final Widget child;
   
   const MainLayoutScreen({super.key, required this.child});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profileAsync = ref.watch(userProfileProvider);
+    final isProvider = profileAsync.value?['role'] == 'provider';
+
     return Scaffold(
       body: child,
       bottomNavigationBar: Container(
@@ -19,32 +24,55 @@ class MainLayoutScreen extends StatelessWidget {
         ),
         child: NavigationBar(
           selectedIndex: _calculateSelectedIndex(context),
-          onDestinationSelected: (int index) => _onItemTapped(index, context),
+          onDestinationSelected: (int index) => _onItemTapped(index, context, isProvider),
           backgroundColor: AppColors.surface,
           elevation: 0,
           indicatorColor: AppColors.primaryContainer,
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home, color: AppColors.onPrimaryContainer),
-              label: 'الرئيسية',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.receipt_long_outlined),
-              selectedIcon: Icon(Icons.receipt_long, color: AppColors.onPrimaryContainer),
-              label: 'طلباتي',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.account_balance_wallet_outlined),
-              selectedIcon: Icon(Icons.account_balance_wallet, color: AppColors.onPrimaryContainer),
-              label: 'المحفظة',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon: Icon(Icons.person, color: AppColors.onPrimaryContainer),
-              label: 'حسابي',
-            ),
-          ],
+          destinations: isProvider 
+          ? const [
+              NavigationDestination(
+                icon: Icon(Icons.work_outline),
+                selectedIcon: Icon(Icons.work, color: AppColors.onPrimaryContainer),
+                label: 'الطلبات المتاحة',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.receipt_long_outlined),
+                selectedIcon: Icon(Icons.receipt_long, color: AppColors.onPrimaryContainer),
+                label: 'طلباتي النشطة',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.account_balance_wallet_outlined),
+                selectedIcon: Icon(Icons.account_balance_wallet, color: AppColors.onPrimaryContainer),
+                label: 'المحفظة',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.person_outline),
+                selectedIcon: Icon(Icons.person, color: AppColors.onPrimaryContainer),
+                label: 'حسابي',
+              ),
+            ]
+          : const [
+              NavigationDestination(
+                icon: Icon(Icons.home_outlined),
+                selectedIcon: Icon(Icons.home, color: AppColors.onPrimaryContainer),
+                label: 'الرئيسية',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.receipt_long_outlined),
+                selectedIcon: Icon(Icons.receipt_long, color: AppColors.onPrimaryContainer),
+                label: 'طلباتي',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.account_balance_wallet_outlined),
+                selectedIcon: Icon(Icons.account_balance_wallet, color: AppColors.onPrimaryContainer),
+                label: 'المحفظة',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.person_outline),
+                selectedIcon: Icon(Icons.person, color: AppColors.onPrimaryContainer),
+                label: 'حسابي',
+              ),
+            ],
         ),
       ),
     );
@@ -59,7 +87,7 @@ class MainLayoutScreen extends StatelessWidget {
     return 0;
   }
 
-  void _onItemTapped(int index, BuildContext context) {
+  void _onItemTapped(int index, BuildContext context, bool isProvider) {
     switch (index) {
       case 0:
         context.go('/home');

@@ -11,7 +11,10 @@ import '../../../core/widgets/app_drawer.dart';
 import '../../categories/providers/categories_provider.dart';
 import '../providers/services_provider.dart';
 import '../providers/promotions_provider.dart';
+import '../providers/promotions_provider.dart';
 import '../../orders/providers/orders_provider.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../../requests/screens/provider_requests_screen.dart';
 
 final searchProvider = StateProvider<String>((ref) => '');
 
@@ -33,8 +36,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
+    final profileAsync = ref.watch(userProfileProvider);
+    
+    return profileAsync.when(
+      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (e, s) => Scaffold(body: Center(child: Text('Error: $e'))),
+      data: (profile) {
+        if (profile != null && profile['role'] == 'provider') {
+           final categoryId = profile['provider_details'] != null && profile['provider_details'].isNotEmpty 
+               ? profile['provider_details'][0]['category_id'] 
+               : '';
+           return ProviderRequestsScreen(categoryId: categoryId);
+        }
+
+        return Scaffold(
+          backgroundColor: AppColors.background,
       drawer: const AppDrawer(),
       appBar: AppBar(
         leading: Builder(
@@ -356,6 +372,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
       ),
     );
+    });
   }
 
   Widget _buildPromoCard(

@@ -14,8 +14,10 @@ class RequestsNotifier extends StateNotifier<bool> {
 
   Future<void> createRequest({
     required String categoryId,
+    String? serviceId,
     required String description,
     required List<File> imageFiles,
+    double price = 0,
   }) async {
     state = true;
     try {
@@ -38,8 +40,10 @@ class RequestsNotifier extends StateNotifier<bool> {
       await _client.from('requests').insert({
         'user_id': userId,
         'category_id': categoryId,
+        'service_id': serviceId,
         'description': description,
         'images': imageUrls,
+        'price': price,
         'status': 'Pending_Broadcast',
       });
 
@@ -50,67 +54,17 @@ class RequestsNotifier extends StateNotifier<bool> {
     state = false;
   }
 
-  Future<void> submitBid({
-    required String requestId,
-    required double price,
-  }) async {
+  Future<void> acceptRequestDirectly(String requestId) async {
     state = true;
     try {
       final userId = _client.auth.currentUser!.id;
-      
-      // Calculate net profit (assuming 10% commission for now)
-      final double netProfit = price * 0.90;
-
-      await _client.from('bids').insert({
-        'request_id': requestId,
-        'provider_id': userId,
-        'price': price,
-        'net_profit': netProfit,
-        'status': 'Pending',
-      });
-
-    } catch (e) {
-      state = false;
-      throw e;
-    }
-    state = false;
-  }
-
-  Future<void> rejectBid(String bidId, String providerId, String requestId) async {
-    state = true;
-    try {
-      final customerId = _client.auth.currentUser!.id;
-
-      // 1. Update bid status
-      await _client.from('bids').update({'status': 'Rejected'}).eq('id', bidId);
-
-      // 2. Add temporary block for 24 hours
-      final expiresAt = DateTime.now().add(const Duration(hours: 24));
-      await _client.from('temporary_blocks').insert({
-        'customer_id': customerId,
-        'provider_id': providerId,
-        'request_id': requestId,
-        'expires_at': expiresAt.toIso8601String(),
-      });
-
-    } catch (e) {
-      state = false;
-      throw e;
-    }
-    state = false;
-  }
-
-  Future<void> acceptBid(String bidId, String requestId, String providerId, double price) async {
-    state = true;
-    try {
-      // Call the RPC to handle the entire transaction securely
-      await _client.rpc('accept_bid_and_lock_escrow', params: {
-        'p_bid_id': bidId,
+      final response = await _client.rpc('accept_direct_request', params: {
         'p_request_id': requestId,
-        'p_provider_id': providerId,
-        'p_total_amount': price,
+        'p_provider_id': userId,
       });
-
+      if (response == false) {
+        throw Exception('عذراً، لقد تم قبول هذا الطلب من قبل مزود آخر.');
+      }
     } catch (e) {
       state = false;
       throw e;
@@ -131,6 +85,16 @@ final providerRequestsProvider = StreamProvider.family<List<Map<String, dynamic>
   Timer? timer;
 
   Future<void> init() async {
+    // 1. Check if provider is busy
+    final activeOrders = await supabase.from('orders').select('id')
+      .eq('provider_id', userId)
+      .inFilter('status', ['Pending', 'In Progress', 'Accepted']);
+    
+    if (activeOrders.isNotEmpty) {
+      controller.add([]);
+      return; // Provider is busy, do not listen to new requests
+    }
+
     final profileRes = await supabase.from('profiles').select('is_premium').eq('id', userId).maybeSingle();
     final isPremium = profileRes?['is_premium'] == true;
 
@@ -182,23 +146,7 @@ final providerRequestsProvider = StreamProvider.family<List<Map<String, dynamic>
   return controller.stream;
 });
 
-// Stream provider to fetch bids for a customer's specific request
-final requestBidsProvider = StreamProvider.family<List<Map<String, dynamic>>, String>((ref, requestId) {
-  final supabase = Supabase.instance.client;
-  
-  return supabase
-      .from('bids')
-      .stream(primaryKey: ['id'])
-      .eq('request_id', requestId)
-      .order('price', ascending: true); // Order by price lowest first
-});
-
-// Future provider to get provider details for a bid
-final bidProviderDetailsProvider = FutureProvider.family<Map<String, dynamic>, String>((ref, providerId) async {
-  final supabase = Supabase.instance.client;
-  final response = await supabase.from('profiles').select('full_name, avatar_url, is_premium, is_fast, is_clean').eq('id', providerId).single();
-  return response;
-});
+// Removed bidding providers
 
 // Stream provider to fetch customer's own requests
 final myRequestsStreamProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
