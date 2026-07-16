@@ -23,6 +23,7 @@ dependencies:
   timeago: ^3.7.1
   firebase_core: ^4.12.1
   firebase_messaging: ^16.4.3
+  supabase: ^2.14.0
 
 dev_dependencies:
   flutter_test:

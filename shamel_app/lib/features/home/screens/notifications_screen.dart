@@ -48,11 +48,11 @@ class NotificationsScreen extends ConsumerWidget {
                 child: _buildNotificationItem(
                   context,
                   title: notif['title'] ?? 'إشعار جديد',
-                  message: notif['body'] ?? '',
+                  message: notif['body'] ?? notif['message'] ?? '',
                   time: 'الآن', // Can format `created_at` with timeago
                   icon: Icons.notifications,
                   color: AppColors.primary,
-                  isNew: notif['is_read'] == false,
+                  isNew: notif['is_read'] == false || notif['read'] == false,
                 ),
               );
             },

@@ -29,6 +29,7 @@ import '../../features/home/providers/services_provider.dart';
 // Categories
 import '../../features/categories/screens/category_details_screen.dart';
 import '../../features/categories/screens/services_screen.dart';
+import '../../features/categories/screens/categories_list_screen.dart';
 import '../../features/categories/models/category_model.dart';
 
 // Providers
@@ -172,6 +173,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             provider: extra?['provider'] as Map<String, dynamic>?,
           );
         },
+      ),
+      GoRoute(
+        path: '/categories',
+        name: 'categories',
+        builder: (context, state) => const CategoriesListScreen(),
       ),
       GoRoute(
         path: '/category_details',

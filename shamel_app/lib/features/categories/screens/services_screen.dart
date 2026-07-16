@@ -37,7 +37,7 @@ class ServicesScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(child: Text('حدث خطأ: $error')),
         data: (allServices) {
-          final services = allServices.where((s) => s.category == category.name).toList();
+          final services = allServices.where((s) => s.categoryId == category.id).toList();
 
           if (services.isEmpty) {
             return Center(
@@ -104,13 +104,15 @@ class ServicesScreen extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  service.name,
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                  service.title,
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'يبدأ من: ${service.basePrice} د.ل',
-                                  style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 14),
+                                  service.description ?? 'خدمة موثوقة من أفضل المزودين',
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.onSurfaceVariant),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
@@ -118,9 +120,17 @@ class ServicesScreen extends ConsumerWidget {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      Text(
-                        service.description ?? 'لا يوجد وصف متاح لهذه الخدمة.',
-                        style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 14),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'يبدأ من ${service.price} د.ل',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
                       SizedBox(

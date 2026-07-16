@@ -138,7 +138,7 @@ class MembersNotifier extends AsyncNotifier<List<MemberModel>> {
 // 2. Customers Provider
 final customersProvider = Provider<AsyncValue<List<MemberModel>>>((ref) {
   final allMembers = ref.watch(membersProvider);
-  return allMembers.whenData((members) => members.where((m) => m.role == 'user').toList());
+  return allMembers.whenData((members) => members.where((m) => m.role == 'user' || m.role == 'customer').toList());
 });
 
 // 3. Providers Provider

@@ -108,8 +108,11 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
             return const Center(child: Text('الرجاء تسجيل الدخول'));
           }
 
-          final firstName = profile['first_name'] ?? '';
-          final lastName = profile['last_name'] ?? '';
+          final firstName = profile['first_name'];
+          final lastName = profile['last_name'];
+          final fullName = (firstName != null || lastName != null) && ('${firstName ?? ''} ${lastName ?? ''}').trim().isNotEmpty 
+              ? ('${firstName ?? ''} ${lastName ?? ''}').trim() 
+              : 'مستخدم جديد';
           final phone = profile['phone'] ?? '';
           final avatarUrl = profile['avatar_url'];
           
@@ -175,7 +178,7 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      Text('$firstName $lastName', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                      Text(fullName, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
                       if (jobTitle != null && jobTitle.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Container(
