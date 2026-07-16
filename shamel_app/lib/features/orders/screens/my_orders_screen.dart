@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_drawer.dart';
 import '../providers/orders_provider.dart';
+import '../../requests/providers/requests_provider.dart';
 
 class MyOrdersScreen extends ConsumerStatefulWidget {
   const MyOrdersScreen({super.key});
@@ -11,8 +12,6 @@ class MyOrdersScreen extends ConsumerStatefulWidget {
   @override
   ConsumerState<MyOrdersScreen> createState() => _MyOrdersScreenState();
 }
-
-import '../../requests/providers/requests_provider.dart';
 
 class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
   @override

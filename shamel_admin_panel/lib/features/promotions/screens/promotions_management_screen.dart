@@ -13,14 +13,13 @@ class PromotionsManagementScreen extends ConsumerWidget {
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
     final targetUrlController = TextEditingController();
+    XFile? selectedImage;
+    Uint8List? imageBytes;
 
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setState) {
-          XFile? selectedImage;
-          Uint8List? imageBytes;
-          
           return AlertDialog(
             title: const Text('إنشاء عرض ترويجي'),
             content: SizedBox(
@@ -138,7 +137,11 @@ class PromotionsManagementScreen extends ConsumerWidget {
                       
                       try {
                         final fileName = '${DateTime.now().millisecondsSinceEpoch}.png';
-                        await Supabase.instance.client.storage.from('app_assets').uploadBinary('promotions/$fileName', imageBytes!);
+                        await Supabase.instance.client.storage.from('app_assets').uploadBinary(
+                          'promotions/$fileName', 
+                          imageBytes!,
+                          fileOptions: const FileOptions(contentType: 'image/png'),
+                        );
                         final imageUrl = Supabase.instance.client.storage.from('app_assets').getPublicUrl('promotions/$fileName');
                         
                         final error = await ref.read(promotionsProvider.notifier).addPromotion(
