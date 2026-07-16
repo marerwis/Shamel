@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import '../../../core/theme/app_colors.dart';
@@ -128,8 +129,44 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   items: promotions.map((promo) {
                     return Builder(
                       builder: (BuildContext context) {
-                        return Container(
-                          width: MediaQuery.of(context).size.width,
+                        return GestureDetector(
+                          onTap: () {
+                            if (promo.targetUrl != null && promo.targetUrl!.startsWith('service_id:')) {
+                              final serviceId = promo.targetUrl!.split(':')[1];
+                              // Fetch the service details before navigating
+                              showDialog(
+                                context: context, 
+                                barrierDismissible: false,
+                                builder: (_) => const Center(child: CircularProgressIndicator()),
+                              );
+                              
+                              Supabase.instance.client
+                                  .from('services')
+                                  .select('*, categories(name), profiles(full_name)')
+                                  .eq('id', serviceId)
+                                  .maybeSingle()
+                                  .then((data) {
+                                Navigator.pop(context); // Close loading
+                                if (data != null && context.mounted) {
+                                  final service = ServiceModel.fromJson(data);
+                                  context.push('/booking', extra: {'service': service});
+                                } else if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('الخدمة لم تعد متوفرة')),
+                                  );
+                                }
+                              }).catchError((e) {
+                                Navigator.pop(context);
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('خطأ: $e')),
+                                  );
+                                }
+                              });
+                            }
+                          },
+                          child: Container(
+                            width: MediaQuery.of(context).size.width,
                           margin: const EdgeInsets.symmetric(horizontal: 5.0),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),

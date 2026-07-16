@@ -65,12 +65,33 @@ class PromotionsManagementScreen extends ConsumerWidget {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    TextField(
-                      controller: targetUrlController,
-                      decoration: const InputDecoration(
-                        labelText: 'رابط التوجيه (اختياري)',
-                        hintText: 'https://example.com/promo',
-                      ),
+                    FutureBuilder<List<dynamic>>(
+                      future: Supabase.instance.client.from('services').select('id, title'),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        if (snapshot.hasError) {
+                          return Text('خطأ في جلب الخدمات: ${snapshot.error}');
+                        }
+                        final services = snapshot.data ?? [];
+                        return DropdownButtonFormField<String>(
+                          decoration: const InputDecoration(
+                            labelText: 'الخدمة المرتبطة (اختياري)',
+                            hintText: 'اختر الخدمة ليتم توجيه العميل إليها',
+                          ),
+                          items: [
+                            const DropdownMenuItem(value: null, child: Text('بدون ارتباط')),
+                            ...services.map((s) => DropdownMenuItem(
+                                  value: 'service_id:${s['id']}',
+                                  child: Text(s['title'].toString()),
+                                ))
+                          ],
+                          onChanged: (val) {
+                            targetUrlController.text = val ?? '';
+                          },
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -150,35 +171,33 @@ class PromotionsManagementScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'إدارة العروض الترويجية',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.onSurface,
-                    ),
-              ),
-              ElevatedButton.icon(
-                onPressed: () {
-                  _showAddPromotionDialog(context, ref);
-                },
-                icon: const Icon(Icons.local_offer),
-                label: const Text('إنشاء عرض جديد'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          _showAddPromotionDialog(context, ref);
+        },
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.local_offer),
+        label: const Text('إنشاء عرض جديد', style: TextStyle(fontWeight: FontWeight.bold)),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'إدارة العروض الترويجية',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.onSurface,
+                      ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
           const SizedBox(height: 32),
           
           // Analytics Cards
@@ -188,7 +207,7 @@ class PromotionsManagementScreen extends ConsumerWidget {
               const SizedBox(width: 24),
               Expanded(child: _buildStatCard(context, 'كوبونات مستخدمة', '1,420', Icons.confirmation_number, AppColors.secondary)),
               const SizedBox(width: 24),
-              Expanded(child: _buildStatCard(context, 'إجمالي الخصومات الممنوحة', 'SAR 45,000', Icons.money_off, Colors.red)),
+              Expanded(child: _buildStatCard(context, 'إجمالي الخصومات الممنوحة', 'د.ل 45,000', Icons.money_off, Colors.red)),
             ],
           ),
           const SizedBox(height: 32),
@@ -308,7 +327,7 @@ class PromotionsManagementScreen extends ConsumerWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, Color color) {

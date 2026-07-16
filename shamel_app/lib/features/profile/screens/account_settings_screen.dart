@@ -38,6 +38,8 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
           .from('profiles')
           .update({'address': _addressController.text})
           .eq('id', user.id);
+      
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحديث العنوان بنجاح'), backgroundColor: Colors.green));
         ref.invalidate(userProfileProvider);
         FocusScope.of(context).unfocus();
