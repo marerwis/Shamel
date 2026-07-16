@@ -318,9 +318,14 @@ class _ProvidersManagementScreenState extends ConsumerState<ProvidersManagementS
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
                 onPressed: () async {
                   Navigator.pop(ctx);
-                  await ref.read(membersProvider.notifier).updateMemberStatus(provider.id, 'active');
+                  final success = await ref.read(membersProvider.notifier).updateMemberStatus(provider.id, 'active');
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تفعيل مزود الخدمة')));
+                    if (success) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تفعيل مزود الخدمة')));
+                      ref.invalidate(membersProvider);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('حدث خطأ أثناء التفعيل، تأكد من الصلاحيات')));
+                    }
                   }
                 },
              ),
@@ -351,14 +356,22 @@ class _ProvidersManagementScreenState extends ConsumerState<ProvidersManagementS
           ElevatedButton(
             onPressed: () async {
               final success = await ref.read(membersProvider.notifier).updateMemberStatus(id, newStatus);
-              if (success && ctx.mounted) {
+              if (ctx.mounted) {
                 Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('تم تحديث حالة الحساب بنجاح')),
-                );
+                if (success) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('تم تحديث الحالة بنجاح')),
+                  );
+                  ref.invalidate(membersProvider);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('حدث خطأ أثناء التحديث')),
+                  );
+                }
               }
             },
-            child: const Text('تأكيد'),
+            style: ElevatedButton.styleFrom(backgroundColor: newStatus == 'suspended' ? Colors.red : Colors.green, foregroundColor: Colors.white),
+            child: const Text('نعم، متأكد'),
           ),
         ],
       ),

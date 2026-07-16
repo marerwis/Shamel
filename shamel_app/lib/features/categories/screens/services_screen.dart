@@ -25,6 +25,8 @@ class ServicesScreen extends ConsumerWidget {
           onPressed: () {
             if (context.canPop()) {
               context.pop();
+            } else {
+              context.go('/home');
             }
           },
         ),
@@ -67,37 +69,76 @@ class ServicesScreen extends ConsumerWidget {
             separatorBuilder: (context, index) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final service = services[index];
-              return Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.all(16),
-                  leading: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryContainer,
-                      shape: BoxShape.circle,
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceContainerLowest,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.surfaceVariant),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
-                    child: const Icon(Icons.home_repair_service, color: AppColors.onPrimaryContainer),
-                  ),
-                  title: Text(service.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  subtitle: Column(
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 8),
-                      Text(service.description ?? 'بدون وصف'),
-                      const SizedBox(height: 8),
-                      Text('يبدأ من: ${service.basePrice} د.ل', style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryContainer,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.home_repair_service, color: AppColors.onPrimaryContainer),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  service.name,
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'يبدأ من: ${service.basePrice} د.ل',
+                                  style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 14),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        service.description ?? 'لا يوجد وصف متاح لهذه الخدمة.',
+                        style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 14),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            context.push('/booking', extra: {'service': service});
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: const Text('طلب الخدمة', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                      ),
                     ],
-                  ),
-                  trailing: ElevatedButton(
-                    onPressed: () {
-                      context.push('/booking', extra: {'service': service});
-                    },
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                    child: const Text('احجز'),
                   ),
                 ),
               );

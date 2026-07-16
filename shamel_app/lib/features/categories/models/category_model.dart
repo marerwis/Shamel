@@ -19,11 +19,11 @@ class CategoryModel {
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
     return CategoryModel(
-      id: json['id'],
-      name: json['name'],
+      id: json['id'] ?? '',
+      name: json['name'] ?? 'بدون اسم',
       icon: json['icon'],
       parentId: json['parent_id'],
-      createdAt: DateTime.parse(json['created_at']),
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : DateTime.now(),
       subcategories: json['subcategories'] != null
           ? (json['subcategories'] as List).map((i) => CategoryModel.fromJson(i)).toList()
           : null,

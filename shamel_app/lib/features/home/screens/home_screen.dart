@@ -1,16 +1,32 @@
-import 'dart:ui';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_drawer.dart';
 import '../../categories/providers/categories_provider.dart';
+import '../providers/services_provider.dart';
 
-class HomeScreen extends ConsumerWidget {
+final searchProvider = StateProvider<String>((ref) => '');
+
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       drawer: const AppDrawer(),
@@ -60,6 +76,12 @@ class HomeScreen extends ConsumerWidget {
           children: [
             // Search
             TextField(
+              onChanged: (val) {
+                if (_debounce?.isActive ?? false) _debounce!.cancel();
+                _debounce = Timer(const Duration(milliseconds: 500), () {
+                  ref.read(searchProvider.notifier).state = val;
+                });
+              },
               decoration: InputDecoration(
                 hintText: 'عن ماذا تبحث اليوم؟',
                 prefixIcon: const Icon(Icons.search),
@@ -134,9 +156,14 @@ class HomeScreen extends ConsumerWidget {
             ref.watch(rootCategoriesProvider).when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, stack) => Center(child: Text('خطأ في جلب التصنيفات\n$err')),
-              data: (categories) {
+              data: (allCategories) {
+                final query = ref.watch(searchProvider).toLowerCase();
+                final categories = allCategories.where((c) {
+                  return c.name.toLowerCase().contains(query);
+                }).toList();
+
                 if (categories.isEmpty) {
-                  return const Center(child: Text('لا توجد تصنيفات متاحة'));
+                  return const Center(child: Text('لا توجد نتائج مطابقة للبحث'));
                 }
                 return GridView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 0),

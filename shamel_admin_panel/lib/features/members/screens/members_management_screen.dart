@@ -379,12 +379,13 @@ class _MembersManagementScreenState extends ConsumerState<MembersManagementScree
                         
                         setState(() => isLoading = true);
                         try {
+                          final nameParts = nameCtrl.text.trim().split(' ');
                           await Supabase.instance.client.rpc('admin_create_user', params: {
-                            'p_email': emailCtrl.text.trim(),
-                            'p_password': passCtrl.text,
-                            'p_full_name': nameCtrl.text.trim(),
-                            'p_role': 'user',
-                            'p_phone': phoneCtrl.text.trim(),
+                            'email': emailCtrl.text.trim(),
+                            'password': passCtrl.text,
+                            'role': 'user',
+                            'first_name': nameParts.isNotEmpty ? nameParts.first : '',
+                            'last_name': nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '',
                           });
                           
                           if (ctx.mounted) {
@@ -392,7 +393,7 @@ class _MembersManagementScreenState extends ConsumerState<MembersManagementScree
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('تمت إضافة العضو بنجاح!')),
                             );
-                            ref.read(membersProvider.notifier).fetchMembers();
+                            ref.invalidate(membersProvider);
                           }
                         } catch (e) {
                           if (ctx.mounted) {

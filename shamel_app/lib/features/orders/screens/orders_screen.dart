@@ -19,6 +19,8 @@ class OrdersScreen extends ConsumerWidget {
           onPressed: () {
             if (context.canPop()) {
               context.pop();
+            } else {
+              context.go('/home');
             }
           },
         ),

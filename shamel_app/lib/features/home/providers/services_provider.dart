@@ -18,11 +18,11 @@ class ServiceModel {
 
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
     return ServiceModel(
-      id: json['id'],
-      name: json['name'],
-      category: json['category'],
+      id: json['id'] ?? '',
+      name: json['name'] ?? 'بدون اسم',
+      category: json['category'] ?? 'عام',
       description: json['description'],
-      basePrice: (json['base_price'] as num).toDouble(),
+      basePrice: json['base_price'] != null ? (json['base_price'] as num).toDouble() : 0.0,
     );
   }
 }

@@ -9,6 +9,7 @@ class AppDrawer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final profileAsync = ref.watch(userProfileProvider);
     final user = ref.watch(currentUserProvider);
     return Drawer(
       backgroundColor: AppColors.surface,
@@ -19,37 +20,55 @@ class AppDrawer extends ConsumerWidget {
             decoration: const BoxDecoration(
               color: AppColors.primaryContainer,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.onPrimaryContainer, width: 2),
-                    image: const DecorationImage(
-                      image: NetworkImage('https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop'),
-                      fit: BoxFit.cover,
+            child: profileAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => const Center(child: Text('خطأ في تحميل البيانات')),
+              data: (profile) {
+                final firstName = profile?['first_name'] ?? '';
+                final lastName = profile?['last_name'] ?? '';
+                final fullName = (firstName.isEmpty && lastName.isEmpty) ? 'مستخدم ضيف' : '$firstName $lastName';
+                final avatarUrl = profile?['avatar_url'];
+                
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.onPrimaryContainer, width: 2),
+                        color: AppColors.surfaceContainerHigh,
+                        image: avatarUrl != null && avatarUrl.isNotEmpty
+                            ? DecorationImage(
+                                image: NetworkImage(avatarUrl),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
+                      ),
+                      child: (avatarUrl == null || avatarUrl.isEmpty)
+                          ? const Icon(Icons.person, color: AppColors.outline, size: 30)
+                          : null,
                     ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  user?.email ?? 'مستخدم ضيف',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppColors.onPrimaryContainer,
-                        fontWeight: FontWeight.bold,
+                    const SizedBox(height: 12),
+                    Text(
+                      fullName,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: AppColors.onPrimaryContainer,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    if (user?.email != null)
+                      Text(
+                        user!.email!,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: AppColors.onPrimaryContainer.withValues(alpha: 0.8),
+                            ),
                       ),
-                ),
-                Text(
-                  user?.phone ?? '',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.onPrimaryContainer.withValues(alpha: 0.8),
-                      ),
-                ),
-              ],
+                  ],
+                );
+              },
             ),
           ),
           ListTile(

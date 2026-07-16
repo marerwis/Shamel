@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 
-class NotificationsScreen extends StatelessWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/notifications_provider.dart';
+
+class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notificationsAsync = ref.watch(notificationsProvider);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -15,6 +20,8 @@ class NotificationsScreen extends StatelessWidget {
           onPressed: () {
             if (context.canPop()) {
               context.pop();
+            } else {
+              context.go('/home');
             }
           },
           color: AppColors.primary,
@@ -24,39 +31,33 @@ class NotificationsScreen extends StatelessWidget {
         backgroundColor: AppColors.surface,
         elevation: 0,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          _buildNotificationItem(
-            context,
-            title: 'تم تأكيد حجزك!',
-            message: 'تم تأكيد حجز خدمة صيانة التكييف بنجاح.',
-            time: 'منذ ساعتين',
-            icon: Icons.check_circle,
-            color: AppColors.secondary,
-            isNew: true,
-          ),
-          const SizedBox(height: 12),
-          _buildNotificationItem(
-            context,
-            title: 'عرض خاص لك 🎉',
-            message: 'احصل على خصم 20% على خدمات التنظيف اليوم.',
-            time: 'منذ 5 ساعات',
-            icon: Icons.local_offer,
-            color: AppColors.primary,
-            isNew: true,
-          ),
-          const SizedBox(height: 12),
-          _buildNotificationItem(
-            context,
-            title: 'اكتملت الخدمة',
-            message: 'نرجو تقييم الخدمة التي قدمها أحمد محمود.',
-            time: 'أمس',
-            icon: Icons.star,
-            color: AppColors.tertiaryContainer,
-            isNew: false,
-          ),
-        ],
+      body: notificationsAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(child: Text('خطأ: $err')),
+        data: (notifications) {
+          if (notifications.isEmpty) {
+            return const Center(child: Text('لا توجد إشعارات'));
+          }
+          return ListView.builder(
+            padding: const EdgeInsets.all(16.0),
+            itemCount: notifications.length,
+            itemBuilder: (context, index) {
+              final notif = notifications[index];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: _buildNotificationItem(
+                  context,
+                  title: notif['title'] ?? 'إشعار جديد',
+                  message: notif['body'] ?? '',
+                  time: 'الآن', // Can format `created_at` with timeago
+                  icon: Icons.notifications,
+                  color: AppColors.primary,
+                  isNew: notif['is_read'] == false,
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
