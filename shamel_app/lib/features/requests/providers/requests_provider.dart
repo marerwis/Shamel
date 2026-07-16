@@ -78,62 +78,69 @@ final providerRequestsProvider = StreamProvider.family<List<Map<String, dynamic>
   final supabase = Supabase.instance.client;
   final userId = supabase.auth.currentUser?.id;
   
-  if (userId == null) return Stream.value([]);
+  if (userId == null || categoryId.isEmpty) return Stream.value([]);
 
   final controller = StreamController<List<Map<String, dynamic>>>();
   StreamSubscription? sub;
   Timer? timer;
 
   Future<void> init() async {
-    // 1. Check if provider is busy
-    final activeOrders = await supabase.from('orders').select('id')
-      .eq('provider_id', userId)
-      .inFilter('status', ['Pending', 'In Progress', 'Accepted']);
-    
-    if (activeOrders.isNotEmpty) {
-      controller.add([]);
-      return; // Provider is busy, do not listen to new requests
-    }
-
-    final profileRes = await supabase.from('profiles').select('is_premium').eq('id', userId).maybeSingle();
-    final isPremium = profileRes?['is_premium'] == true;
-
-    sub = supabase
-        .from('requests')
-        .stream(primaryKey: ['id'])
-        .eq('category_id', categoryId)
-        .order('created_at')
-        .listen((allRequests) {
+    try {
+      // 1. Check if provider is busy
+      final activeOrders = await supabase.from('orders').select('id')
+        .eq('provider_id', userId)
+        .inFilter('status', ['pending', 'in_progress', 'accepted']);
       
-      final requests = allRequests.where((r) => r['status'] == 'Pending_Broadcast').toList();      
-      if (isPremium) {
-        controller.add(requests);
-      } else {
-        void emitFiltered() {
-          final now = DateTime.now();
-          bool hasDelayed = false;
-          final filtered = requests.where((req) {
-            final createdAtRaw = req['created_at'];
-            final createdAt = createdAtRaw != null ? DateTime.tryParse(createdAtRaw.toString()) ?? DateTime.now() : DateTime.now();
-            if (now.difference(createdAt).inSeconds >= 5) {
-              return true;
-            } else {
-              hasDelayed = true;
-              return false;
-            }
-          }).toList();
-          
-          controller.add(filtered);
-          
-          if (hasDelayed) {
-            timer?.cancel();
-            timer = Timer(const Duration(seconds: 1), emitFiltered);
-          }
-        }
-        
-        emitFiltered();
+      if (activeOrders.isNotEmpty) {
+        controller.add([]);
+        return; // Provider is busy, do not listen to new requests
       }
-    });
+
+      final profileRes = await supabase.from('profiles').select('is_premium').eq('id', userId).maybeSingle();
+      final isPremium = profileRes?['is_premium'] == true;
+
+      sub = supabase
+          .from('requests')
+          .stream(primaryKey: ['id'])
+          .eq('category_id', categoryId)
+          .order('created_at')
+          .listen((allRequests) {
+        
+        final requests = allRequests.where((r) => r['status'] == 'Pending_Broadcast').toList();      
+        if (isPremium) {
+          controller.add(requests);
+        } else {
+          void emitFiltered() {
+            final now = DateTime.now();
+            bool hasDelayed = false;
+            final filtered = requests.where((req) {
+              final createdAtRaw = req['created_at'];
+              final createdAt = createdAtRaw != null ? DateTime.tryParse(createdAtRaw.toString()) ?? DateTime.now() : DateTime.now();
+              if (now.difference(createdAt).inSeconds >= 5) {
+                hasDelayed = true;
+                return true;
+              } else {
+                hasDelayed = true;
+                return false;
+              }
+            }).toList();
+            
+            controller.add(filtered);
+            
+            if (hasDelayed) {
+              timer?.cancel();
+              timer = Timer(const Duration(seconds: 1), emitFiltered);
+            }
+          }
+          
+          emitFiltered();
+        }
+      }, onError: (error) {
+        if (!controller.isClosed) controller.addError(error);
+      });
+    } catch (e, st) {
+      if (!controller.isClosed) controller.addError(e, st);
+    }
   }
 
   init();

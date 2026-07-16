@@ -171,8 +171,11 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
           final avatarUrl = profile['avatar_url'];
           
           String? jobTitle;
-          if (profile['provider_details'] != null && (profile['provider_details'] as List).isNotEmpty) {
-             jobTitle = profile['provider_details'][0]['title'];
+          final pDetails = profile['provider_details'];
+          if (pDetails is List && pDetails.isNotEmpty) {
+             jobTitle = pDetails[0]['title'];
+          } else if (pDetails is Map) {
+             jobTitle = pDetails['title'];
           }
 
           return SingleChildScrollView(
