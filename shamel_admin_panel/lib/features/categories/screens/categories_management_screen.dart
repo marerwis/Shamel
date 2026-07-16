@@ -182,33 +182,34 @@ class _CategoriesManagementScreenState extends ConsumerState<CategoriesManagemen
   Widget build(BuildContext context) {
     final categoriesState = ref.watch(categoriesProvider);
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'إدارة التصنيفات',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.onSurface,
-                    ),
-              ),
-              ElevatedButton.icon(
-                onPressed: () => _showAddEditDialog(context),
-                icon: const Icon(Icons.add),
-                label: const Text('إضافة تصنيف رئيسي'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'add_category',
+        onPressed: () => _showAddEditDialog(context),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add),
+        label: const Text('إضافة تصنيف رئيسي', style: TextStyle(fontWeight: FontWeight.bold)),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'إدارة التصنيفات',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.onSurface,
+                      ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 32),
+              ],
+            ),
+            const SizedBox(height: 32),
           
           // Filters and Search
           Container(
@@ -339,6 +340,7 @@ class _CategoriesManagementScreenState extends ConsumerState<CategoriesManagemen
             },
           ),
         ],
+      ),
       ),
     );
   }

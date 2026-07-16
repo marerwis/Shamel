@@ -501,8 +501,8 @@ class _MembersManagementScreenState extends ConsumerState<MembersManagementScree
                         setState(() => isLoading = true);
                         try {
                           await Supabase.instance.client.rpc('admin_add_funds_by_email', params: {
-                            'target_email': emailCtrl.text.trim(),
-                            'amount_to_add': amount,
+                            'p_email': emailCtrl.text.trim(),
+                            'p_amount': amount,
                           });
                           
                           if (ctx.mounted) {
