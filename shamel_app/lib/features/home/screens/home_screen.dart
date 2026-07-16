@@ -10,6 +10,7 @@ import '../../../core/widgets/app_drawer.dart';
 import '../../categories/providers/categories_provider.dart';
 import '../providers/services_provider.dart';
 import '../providers/promotions_provider.dart';
+import '../../orders/providers/orders_provider.dart';
 
 final searchProvider = StateProvider<String>((ref) => '');
 
@@ -511,7 +512,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   color: iconBg,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: iconColor),
+                child: Icon(Icons.receipt_long, color: iconColor),
               ),
               const SizedBox(width: 16),
               Expanded(
