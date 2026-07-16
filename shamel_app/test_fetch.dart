@@ -1,0 +1,23 @@
+
+import 'dart:io';
+import 'package:supabase/supabase.dart';
+
+void main() async {
+  final envLines = File('.env').readAsLinesSync();
+  String? url;
+  String? key;
+  for (var line in envLines) {
+    if (line.startsWith('SUPABASE_URL=')) url = line.split('=')[1];
+    if (line.startsWith('SUPABASE_ANON_KEY=')) key = line.split('=')[1];
+  }
+  
+  final client = SupabaseClient(url!, key!);
+  try {
+    final response = await client.from('categories').select();
+    print('Categories fetched: ' + response.length.toString());
+  } catch (e) {
+    print('Error fetching: ' + e.toString());
+  }
+  exit(0);
+}
+

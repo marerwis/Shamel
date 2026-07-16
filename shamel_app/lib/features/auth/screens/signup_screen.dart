@@ -250,11 +250,36 @@ class _SignupScreenState extends State<SignupScreen> {
                   icon: Icons.badge_outlined, 
                   controller: _idNumberController,
                 ),
-                const SizedBox(height: 16),
-                Text('تصنيف الخدمة', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.onSurfaceVariant)),
-                const SizedBox(height: 8),
-                _buildCategoryDropdown(),
               ],
+              
+              // Force show category dropdown
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withOpacity(0.1),
+                  border: Border.all(color: Colors.amber),
+                  borderRadius: BorderRadius.circular(16)
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Consumer(
+                      builder: (context, ref, child) {
+                        final asyncCats = ref.watch(allCategoriesProvider);
+                        final countText = asyncCats.when(
+                          data: (cats) => ' (تم جلب \${cats.length})',
+                          loading: () => ' (جاري الجلب...)',
+                          error: (_, __) => ' (خطأ)',
+                        );
+                        return Text('تصنيف الخدمة (ظاهر دائماً للتجربة)\$countText', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.onSurfaceVariant, fontWeight: FontWeight.bold));
+                      }
+                    ),
+                    const SizedBox(height: 8),
+                    _buildCategoryDropdown(),
+                  ]
+                )
+              ),
 
               const SizedBox(height: 16),
               _buildTextField(label: 'رقم الجوال', icon: Icons.phone_android, keyboardType: TextInputType.phone, controller: _phoneController),
@@ -320,6 +345,20 @@ class _SignupScreenState extends State<SignupScreen> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (err, stack) => Text('خطأ في جلب التصنيفات', style: TextStyle(color: Colors.red)),
           data: (categories) {
+            if (categories.isEmpty) {
+              return Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.red),
+                ),
+                child: const Text(
+                  'عذراً، لا توجد تصنيفات متاحة في قاعدة البيانات.',
+                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                ),
+              );
+            }
             return DropdownButtonFormField<String>(
               decoration: InputDecoration(
                 filled: true,
