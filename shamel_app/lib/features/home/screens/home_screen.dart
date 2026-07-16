@@ -129,7 +129,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   items: promotions.map((promo) {
                     return Builder(
                       builder: (BuildContext context) {
-                        return GestureDetector(
+                        return AspectRatio(
+                          aspectRatio: 16 / 9,
+                          child: GestureDetector(
                           onTap: () {
                             if (promo.targetUrl != null && promo.targetUrl!.startsWith('service_id:')) {
                               final serviceId = promo.targetUrl!.split(':')[1];
