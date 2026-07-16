@@ -6,6 +6,7 @@ import '../../home/providers/services_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/orders_provider.dart';
 import '../../requests/providers/requests_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BookingScreen extends ConsumerStatefulWidget {
   final ServiceModel? service;
@@ -32,6 +33,24 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   void initState() {
     super.initState();
     _times = widget.service?.availableSlots ?? ['09:00 ص', '10:00 ص', '11:00 ص', '01:00 م', '03:00 م', '05:00 م'];
+    _loadSavedArea();
+  }
+
+  Future<void> _loadSavedArea() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedArea = prefs.getString('selected_area');
+    if (savedArea != null && savedArea.isNotEmpty) {
+      if (mounted) {
+        setState(() {
+          _addressController.text = savedArea;
+        });
+      }
+    }
+  }
+
+  Future<void> _saveSelectedArea(String area) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selected_area', area);
   }
 
   @override
@@ -235,6 +254,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                   onChanged: (newValue) {
                     if (newValue != null) {
                       _addressController.text = newValue;
+                      _saveSelectedArea(newValue);
                     }
                   },
                   decoration: InputDecoration(

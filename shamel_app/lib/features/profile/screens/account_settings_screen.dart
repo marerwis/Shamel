@@ -8,6 +8,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_drawer.dart';
 import '../../auth/providers/auth_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AccountSettingsScreen extends ConsumerStatefulWidget {
   const AccountSettingsScreen({super.key});
@@ -52,6 +53,11 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
     } finally {
       if (mounted) setState(() { _isSavingAddress = false; });
     }
+  }
+
+  Future<void> _saveSelectedArea(String area) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selected_area', area);
   }
 
   Future<void> _pickAndUploadImage() async {
@@ -293,6 +299,7 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
                                       onChanged: (newValue) {
                                         if (newValue != null) {
                                           _addressController.text = newValue;
+                                          _saveSelectedArea(newValue);
                                         }
                                       },
                                       decoration: InputDecoration(
