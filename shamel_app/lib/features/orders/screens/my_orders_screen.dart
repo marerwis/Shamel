@@ -98,7 +98,29 @@ class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
                 }
 
                 if (filteredOrders.isEmpty) {
-                  return const Center(child: Text('لا توجد طلبات في هذا القسم'));
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.assignment_outlined, size: 80, color: AppColors.outline.withOpacity(0.5)),
+                        const SizedBox(height: 16),
+                        Text(
+                          'لا توجد طلبات في هذا القسم',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: AppColors.onSurfaceVariant,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'تظهر هنا طلباتك عند توفرها',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: AppColors.outline,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
                 }
 
                 return RefreshIndicator(

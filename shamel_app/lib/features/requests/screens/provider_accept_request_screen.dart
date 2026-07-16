@@ -71,6 +71,14 @@ class _ProviderAcceptRequestScreenState extends ConsumerState<ProviderAcceptRequ
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_forward),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            }
+          },
+        ),
         title: const Text('قبول الطلب وتحديد السعر'),
       ),
       body: SingleChildScrollView(

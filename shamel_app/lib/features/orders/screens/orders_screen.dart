@@ -14,12 +14,29 @@ class OrdersScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_forward),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            }
+          },
+        ),
         title: const Text('الطلبات المنفذة والمفتوحة'),
       ),
       body: ordersStream.when(
         data: (orders) {
           if (orders.isEmpty) {
-            return const Center(child: Text('لا توجد طلبات حالياً'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.inbox_outlined, size: 80, color: Colors.grey.withOpacity(0.5)),
+                  const SizedBox(height: 16),
+                  const Text('لا توجد طلبات حالياً', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            );
           }
           return ListView.builder(
             padding: const EdgeInsets.all(16),
