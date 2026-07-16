@@ -6,7 +6,7 @@ class OrderModel {
   final String providerId;
   final String customerId;
   final String status;
-  final double totalAmount;
+  final double price;
   final String? serviceId;
   final DateTime createdAt;
   final DateTime? scheduledAt;

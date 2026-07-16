@@ -86,4 +86,5 @@ class _ProviderRequestsScreenState extends ConsumerState<ProviderRequestsScreen>
         error: (err, stack) => Center(child: Text('حدث خطأ: $err')),
       ),
     );
+  }
 }
