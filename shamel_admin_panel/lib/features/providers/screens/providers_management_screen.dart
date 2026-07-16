@@ -317,11 +317,18 @@ class _ProvidersManagementScreenState extends ConsumerState<ProvidersManagementS
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
                 onPressed: () async {
                   Navigator.pop(ctx);
-                  final success = await ref.read(membersProvider.notifier).updateMemberStatus(provider.id, 'active');
+                  bool success = false;
+                  try {
+                    await Supabase.instance.client.rpc('admin_approve_provider', params: {'p_provider_id': provider.id});
+                    success = true;
+                  } catch (e) {
+                    success = false;
+                  }
                   if (context.mounted) {
                     if (success) {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تفعيل مزود الخدمة')));
                       ref.invalidate(membersProvider);
+                      ref.invalidate(providersListProvider);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('حدث خطأ أثناء التفعيل، تأكد من الصلاحيات')));
                     }
@@ -354,7 +361,17 @@ class _ProvidersManagementScreenState extends ConsumerState<ProvidersManagementS
           ),
           ElevatedButton(
             onPressed: () async {
-              final success = await ref.read(membersProvider.notifier).updateMemberStatus(id, newStatus);
+              bool success = false;
+              try {
+                if (newStatus == 'active') {
+                  await Supabase.instance.client.rpc('admin_approve_provider', params: {'p_provider_id': id});
+                  success = true;
+                } else {
+                  success = await ref.read(membersProvider.notifier).updateMemberStatus(id, newStatus);
+                }
+              } catch (e) {
+                success = false;
+              }
               if (ctx.mounted) {
                 Navigator.pop(ctx);
                 if (success) {
@@ -362,6 +379,7 @@ class _ProvidersManagementScreenState extends ConsumerState<ProvidersManagementS
                     const SnackBar(content: Text('تم تحديث الحالة بنجاح')),
                   );
                   ref.invalidate(membersProvider);
+                  ref.invalidate(providersListProvider);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('حدث خطأ أثناء التحديث')),
