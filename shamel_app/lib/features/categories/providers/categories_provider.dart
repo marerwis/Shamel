@@ -20,19 +20,12 @@ final rootCategoriesProvider = FutureProvider<List<CategoryModel>>((ref) async {
 final allCategoriesProvider = FutureProvider<List<CategoryModel>>((ref) async {
   final supabase = Supabase.instance.client;
   
-  try {
-    final response = await supabase
-        .from('categories')
-        .select()
-        .order('name', ascending: true);
-        
-    final categories = (response as List).map((e) => CategoryModel.fromJson(e)).toList();
-    print('DEBUG_CATEGORIES: Fetched \${categories.length} categories from DB.');
-    return categories;
-  } catch (e) {
-    print('DEBUG_CATEGORIES: Error fetching categories: \$e');
-    rethrow;
-  }
+  final response = await supabase
+      .from('categories')
+      .select()
+      .order('name', ascending: true);
+      
+  return (response as List).map((e) => CategoryModel.fromJson(e)).toList();
 });
 
 // Provider to fetch subcategories for a given parentId

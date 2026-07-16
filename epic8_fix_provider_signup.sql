@@ -7,7 +7,7 @@
 -- the values and caused category_id to be NULL or cast to UUID incorrectly.
 
 create or replace function public.handle_new_user()
-  returns trigger as $BODY
+  returns trigger as $$
   begin
     insert into public.profiles (id, full_name, role, status)
     values (
@@ -53,7 +53,7 @@ create or replace function public.handle_new_user()
     
     return new;
   end;
-  $BODY language plpgsql security definer;
+  $$ language plpgsql security definer;
 
 -- Drop any old conflicting triggers
 drop trigger if exists on_auth_user_created on auth.users;

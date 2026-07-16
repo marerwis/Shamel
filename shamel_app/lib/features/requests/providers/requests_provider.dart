@@ -86,7 +86,7 @@ final providerRequestsProvider = StreamProvider.family<List<Map<String, dynamic>
   final supabase = Supabase.instance.client;
   final userId = supabase.auth.currentUser?.id;
   
-  if (userId == null || categoryId.isEmpty) return Stream.value([]);
+  if (userId == null) return Stream.value([]);
 
   final controller = StreamController<List<Map<String, dynamic>>>();
   StreamSubscription? sub;

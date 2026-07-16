@@ -4,6 +4,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../members/providers/members_provider.dart';
+import '../../categories/providers/categories_provider.dart';
+import '../../categories/models/category_model.dart';
 
 class ProvidersManagementScreen extends ConsumerStatefulWidget {
   const ProvidersManagementScreen({super.key});
@@ -315,29 +317,91 @@ class _ProvidersManagementScreenState extends ConsumerState<ProvidersManagementS
                 icon: const Icon(Icons.check),
                 label: const Text('موافقة وتفعيل'),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
-                onPressed: () async {
+                onPressed: () {
                   Navigator.pop(ctx);
-                  bool success = false;
-                  try {
-                    await Supabase.instance.client.rpc('admin_approve_provider', params: {'p_provider_id': provider.id});
-                    success = true;
-                  } catch (e) {
-                    success = false;
-                  }
-                  if (context.mounted) {
-                    if (success) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تفعيل مزود الخدمة')));
-                      ref.invalidate(membersProvider);
-                      ref.invalidate(providersListProvider);
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('حدث خطأ أثناء التفعيل، تأكد من الصلاحيات')));
-                    }
-                  }
+                  _showCategorySelectionDialog(context, provider);
                 },
              ),
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: const Text('إغلاق'),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+  void _showCategorySelectionDialog(BuildContext context, MemberModel provider) {
+    String? selectedCategoryId;
+    
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('اختيار تصنيف المزود'),
+        content: Consumer(
+          builder: (context, ref, child) {
+            final asyncCats = ref.watch(categoriesProvider);
+            return asyncCats.when(
+              loading: () => const SizedBox(height: 100, child: Center(child: CircularProgressIndicator())),
+              error: (e, st) => Text('خطأ: '),
+              data: (categories) {
+                if (categories.isEmpty) return const Text('لا توجد تصنيفات');
+                return StatefulBuilder(
+                  builder: (context, setState) {
+                    return DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        filled: true,
+                        fillColor: AppColors.surface,
+                      ),
+                      hint: const Text('اختر التصنيف'),
+                      value: selectedCategoryId,
+                      items: categories.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))).toList(),
+                      onChanged: (val) {
+                        setState(() => selectedCategoryId = val);
+                      },
+                    );
+                  }
+                );
+              }
+            );
+          }
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
+            onPressed: () async {
+              if (selectedCategoryId == null) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('الرجاء اختيار تصنيف')));
+                return;
+              }
+              Navigator.pop(ctx);
+              bool success = false;
+              try {
+                await Supabase.instance.client.rpc('admin_approve_provider', params: {
+                  'p_provider_id': provider.id,
+                  'p_category_id': selectedCategoryId,
+                });
+                success = true;
+              } catch (e) {
+                success = false;
+              }
+              if (context.mounted) {
+                if (success) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تفعيل مزود الخدمة بنجاح')));
+                  ref.invalidate(membersProvider);
+                  ref.invalidate(providersListProvider);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('حدث خطأ أثناء التفعيل، تأكد من الصلاحيات')));
+                }
+              }
+            },
+            child: const Text('اعتماد وتفعيل'),
           ),
         ],
       ),
