@@ -47,13 +47,69 @@ class FinanceManagementScreen extends ConsumerWidget {
         Consumer(
           builder: (context, ref, child) {
             final adminWallet = ref.watch(adminWalletProvider);
-            return Row(
+            return Column(
               children: [
-                Expanded(child: _buildFinanceCard(context, 'أرباح المنصة (عمولة)', adminWallet.when(data: (d) => '$d د.ل', loading: () => '...', error: (e,s) => 'خطأ'), Icons.account_balance, AppColors.primary)),
-                const SizedBox(width: 24),
-                Expanded(child: _buildFinanceCard(context, 'إجمالي الإيرادات', 'قريباً', Icons.pie_chart, AppColors.secondary)),
-                const SizedBox(width: 24),
-                Expanded(child: _buildFinanceCard(context, 'مستحقات المزودين', 'قريباً', Icons.payments, AppColors.tertiary)),
+                // Prominent Admin Wallet Card
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)], // Premium Blue Gradient
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blue.withValues(alpha: 0.3),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.account_balance_wallet, color: Colors.white, size: 48),
+                      ),
+                      const SizedBox(width: 24),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'محفظة الإدارة (أرباح المنصة)',
+                              style: TextStyle(color: Colors.white70, fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              adminWallet.when(
+                                data: (d) => '${d.toStringAsFixed(2)} د.ل',
+                                loading: () => 'جاري الحساب...',
+                                error: (e, s) => 'خطأ في الجلب',
+                              ),
+                              style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(child: _buildFinanceCard(context, 'إجمالي الإيرادات', 'قريباً', Icons.pie_chart, AppColors.secondary)),
+                    const SizedBox(width: 24),
+                    Expanded(child: _buildFinanceCard(context, 'مستحقات المزودين', 'قريباً', Icons.payments, AppColors.tertiary)),
+                  ],
+                ),
               ],
             );
           }
