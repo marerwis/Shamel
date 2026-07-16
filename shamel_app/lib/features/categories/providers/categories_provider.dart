@@ -1,3 +1,4 @@
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/category_model.dart';
@@ -11,6 +12,18 @@ final rootCategoriesProvider = FutureProvider<List<CategoryModel>>((ref) async {
       .select()
       .isFilter('parent_id', null)
       .order('created_at', ascending: true);
+      
+  return (response as List).map((e) => CategoryModel.fromJson(e)).toList();
+});
+
+// Provider to fetch ALL categories (including sub-categories)
+final allCategoriesProvider = FutureProvider<List<CategoryModel>>((ref) async {
+  final supabase = Supabase.instance.client;
+  
+  final response = await supabase
+      .from('categories')
+      .select()
+      .order('name', ascending: true);
       
   return (response as List).map((e) => CategoryModel.fromJson(e)).toList();
 });
@@ -37,8 +50,9 @@ final searchCategoriesProvider = FutureProvider.family<List<CategoryModel>, Stri
   final response = await supabase
       .from('categories')
       .select()
-      .ilike('name', '%$query%')
+      .ilike('name', '%\%')
       .order('created_at', ascending: true);
       
   return (response as List).map((e) => CategoryModel.fromJson(e)).toList();
 });
+

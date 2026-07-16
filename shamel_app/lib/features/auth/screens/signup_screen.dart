@@ -314,7 +314,7 @@ class _SignupScreenState extends State<SignupScreen> {
   Widget _buildCategoryDropdown() {
     return Consumer(
       builder: (context, ref, child) {
-        final asyncCats = ref.watch(rootCategoriesProvider);
+        final asyncCats = ref.watch(allCategoriesProvider);
         
         return asyncCats.when(
           loading: () => const Center(child: CircularProgressIndicator()),

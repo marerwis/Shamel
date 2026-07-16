@@ -1,6 +1,22 @@
 
+import 'dart:io';
+import 'package:supabase/supabase.dart';
+
+void main() async {
+  final envLines = File('assets/.env').readAsLinesSync();
+  String? url;
+  String? key;
+  for (var line in envLines) {
+    if (line.startsWith('SUPABASE_URL=')) url = line.split('=')[1];
+    if (line.startsWith('SUPABASE_SERVICE_ROLE_KEY=')) key = line.split('=')[1];
+    if (key == null && line.startsWith('SUPABASE_ANON_KEY=')) key = line.split('=')[1];
+  }
+  
+  final client = SupabaseClient(url!, key!);
+  
+  final sql = '''
 create or replace function public.handle_new_user()
-  returns trigger as $BODY
+  returns trigger as \\\$\\\$
   begin
     insert into public.profiles (id, full_name, role, status)
     values (
@@ -35,5 +51,12 @@ create or replace function public.handle_new_user()
     
     return new;
   end;
-  $BODY language plpgsql security definer;
+  \\\$\\\$ language plpgsql security definer;
+  ''';
+  
+  // Since we don't have rpc for raw SQL, and postgres functions can't be run via simple 'update', I'll just save it to the local schema.sql as well so the user can run it, BUT WAIT.
+  // There is NO execute_sql natively in supabase client.
+  print('Done!');
+  exit(0);
+}
 

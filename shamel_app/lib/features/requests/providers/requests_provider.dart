@@ -110,7 +110,6 @@ final providerRequestsProvider = StreamProvider.family<List<Map<String, dynamic>
       sub = supabase
           .from('requests')
           .stream(primaryKey: ['id'])
-          .eq('category_id', categoryId)
           .order('created_at')
           .listen((allRequests) {
         
