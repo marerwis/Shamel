@@ -20,7 +20,7 @@ class OrderModel {
     required this.providerId,
     required this.customerId,
     required this.status,
-    required this.totalAmount,
+    required this.price,
     this.serviceId,
     required this.createdAt,
     this.scheduledAt,
@@ -36,7 +36,7 @@ class OrderModel {
       providerId: json['provider_id'],
       customerId: json['customer_id'],
       status: json['status'],
-      totalAmount: (json['total_amount'] as num).toDouble(),
+      price: (json['price'] as num).toDouble(),
       serviceId: json['service_id'],
       createdAt: DateTime.parse(json['created_at']),
       scheduledAt: json['scheduled_at'] != null ? DateTime.parse(json['scheduled_at']) : null,
@@ -58,7 +58,7 @@ class OrdersNotifier extends StateNotifier<bool> {
 
   Future<String> createOrder({
     required String providerId,
-    required double totalAmount,
+    required double price,
     String? requestDescription,
     List<Map<String, dynamic>>? milestones,
     String? serviceId,
@@ -73,7 +73,7 @@ class OrdersNotifier extends StateNotifier<bool> {
         'customer_id': customerId,
         'provider_id': providerId,
         'status': 'Pending',
-        'total_amount': totalAmount,
+        'price': price,
         'service_id': serviceId,
         'scheduled_at': scheduledAt?.toIso8601String(),
         'notes': notes,
@@ -154,7 +154,6 @@ final myOrdersStreamProvider = StreamProvider<List<OrderModel>>((ref) async* {
     // This is a naive merge if the user can be both, 
     // but in Supabase flutter, stream builder with multiple eq is limited.
     // For simplicity, we just fetch from DB directly if we want a realtime view of both,
-    // or rely on fetching the union via a view. Since it's a simple app:
     final res = await supabase.from('orders').select().or('customer_id.eq.$userId,provider_id.eq.$userId').order('created_at', ascending: false);
     yield res.map((e) => OrderModel.fromJson(e)).toList();
   }

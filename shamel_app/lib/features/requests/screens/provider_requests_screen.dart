@@ -4,14 +4,20 @@ import 'package:go_router/go_router.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../providers/requests_provider.dart';
+import '../providers/commission_provider.dart';
 
-class ProviderRequestsScreen extends ConsumerWidget {
+class ProviderRequestsScreen extends ConsumerStatefulWidget {
   final String categoryId;
   const ProviderRequestsScreen({super.key, required this.categoryId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final requestsStream = ref.watch(providerRequestsProvider(categoryId));
+  ConsumerState<ProviderRequestsScreen> createState() => _ProviderRequestsScreenState();
+}
+
+class _ProviderRequestsScreenState extends ConsumerState<ProviderRequestsScreen> {
+  @override
+  Widget build(BuildContext context) {
+    final requestsStream = ref.watch(providerRequestsProvider(widget.categoryId));
 
     return Scaffold(
       appBar: AppBar(
@@ -57,14 +63,14 @@ class ProviderRequestsScreen extends ConsumerWidget {
                         children: [
                           ElevatedButton.icon(
                             onPressed: () {
-                              // Navigate to Submit Bid Screen
-                              context.push('/submit_bid', extra: req);
+                              context.push('/provider_accept_request', extra: req);
                             },
-                            icon: const Icon(Icons.local_offer),
-                            label: const Text('تقديم عرض سعر'),
+                            icon: const Icon(Icons.check_circle),
+                            label: const Text('قبول وتقديم سعر'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Theme.of(context).primaryColor,
                               foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
                           ),
                         ],
@@ -80,5 +86,4 @@ class ProviderRequestsScreen extends ConsumerWidget {
         error: (err, stack) => Center(child: Text('حدث خطأ: $err')),
       ),
     );
-  }
 }

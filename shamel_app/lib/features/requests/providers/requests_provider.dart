@@ -104,7 +104,7 @@ class RequestsNotifier extends StateNotifier<bool> {
     state = true;
     try {
       // Call the RPC to handle the entire transaction securely
-      await _client.rpc('accept_bid_and_create_order', params: {
+      await _client.rpc('accept_bid_and_lock_escrow', params: {
         'p_bid_id': bidId,
         'p_request_id': requestId,
         'p_provider_id': providerId,

@@ -30,6 +30,18 @@ class _MembersManagementScreenState extends ConsumerState<MembersManagementScree
                     color: AppColors.onSurface,
                   ),
             ),
+            ElevatedButton.icon(
+              onPressed: () => _showAddMemberDialog(context),
+              icon: const Icon(Icons.person_add),
+              label: const Text('إضافة عضو جديد'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                elevation: 2,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 32),
@@ -274,6 +286,132 @@ class _MembersManagementScreenState extends ConsumerState<MembersManagementScree
             child: const Text('حذف', style: TextStyle(color: Colors.white)),
           ),
         ],
+      ),
+    );
+  }
+  void _showAddMemberDialog(BuildContext context) {
+    final emailCtrl = TextEditingController();
+    final passCtrl = TextEditingController();
+    final nameCtrl = TextEditingController();
+    final phoneCtrl = TextEditingController();
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: const Row(
+              children: [
+                Icon(Icons.person_add, color: AppColors.primary),
+                SizedBox(width: 8),
+                Text('إضافة عضو جديد'),
+              ],
+            ),
+            content: SizedBox(
+              width: 400,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: nameCtrl,
+                      decoration: InputDecoration(
+                        labelText: 'الاسم الكامل',
+                        prefixIcon: const Icon(Icons.person),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: emailCtrl,
+                      decoration: InputDecoration(
+                        labelText: 'البريد الإلكتروني',
+                        prefixIcon: const Icon(Icons.email),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: phoneCtrl,
+                      decoration: InputDecoration(
+                        labelText: 'رقم الهاتف',
+                        prefixIcon: const Icon(Icons.phone),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: passCtrl,
+                      decoration: InputDecoration(
+                        labelText: 'كلمة المرور',
+                        prefixIcon: const Icon(Icons.lock),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      obscureText: true,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: isLoading ? null : () => Navigator.pop(ctx),
+                child: const Text('إلغاء'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: isLoading
+                    ? null
+                    : () async {
+                        if (nameCtrl.text.isEmpty || emailCtrl.text.isEmpty || passCtrl.text.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('الرجاء تعبئة الحقول الإلزامية')),
+                          );
+                          return;
+                        }
+                        
+                        setState(() => isLoading = true);
+                        try {
+                          await Supabase.instance.client.rpc('admin_create_user', params: {
+                            'p_email': emailCtrl.text.trim(),
+                            'p_password': passCtrl.text,
+                            'p_full_name': nameCtrl.text.trim(),
+                            'p_role': 'user',
+                            'p_phone': phoneCtrl.text.trim(),
+                          });
+                          
+                          if (ctx.mounted) {
+                            Navigator.pop(ctx);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('تمت إضافة العضو بنجاح!')),
+                            );
+                            ref.read(membersProvider.notifier).fetchMembers();
+                          }
+                        } catch (e) {
+                          if (ctx.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('خطأ: $e')),
+                            );
+                          }
+                        } finally {
+                          if (ctx.mounted) {
+                            setState(() => isLoading = false);
+                          }
+                        }
+                      },
+                child: isLoading
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : const Text('إضافة'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

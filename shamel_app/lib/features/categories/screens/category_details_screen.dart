@@ -41,10 +41,9 @@ class CategoryDetailsScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
-                      // Navigate to providers or services for this category
-                      context.push('/category/${category.name}');
+                      context.push('/services', extra: category);
                     },
-                    child: const Text('عرض مزودي الخدمة'),
+                    child: const Text('عرض الخدمات المتاحة'),
                   )
                 ],
               ),
@@ -59,8 +58,8 @@ class CategoryDetailsScreen extends ConsumerWidget {
               final sub = subcategories[index];
               return ListTile(
                 onTap: () {
-                  // Navigate deeper or to providers
-                  context.push('/category_details', extra: sub);
+                  // Navigate to services for this subcategory
+                  context.push('/services', extra: sub);
                 },
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),

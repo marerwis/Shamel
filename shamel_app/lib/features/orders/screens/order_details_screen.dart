@@ -29,7 +29,7 @@ class OrderDetailsScreen extends ConsumerWidget {
             width: double.infinity,
             child: Column(
               children: [
-                Text('المبلغ الإجمالي: ${order.totalAmount} د.ل', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green)),
+                Text('المبلغ الإجمالي: ${order.price} د.ل', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green)),
                 const SizedBox(height: 8),
                 Text('حالة الطلب: ${order.status}', style: const TextStyle(fontSize: 16)),
               ],

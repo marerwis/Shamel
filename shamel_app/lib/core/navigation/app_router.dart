@@ -28,6 +28,7 @@ import '../../features/home/providers/services_provider.dart';
 
 // Categories
 import '../../features/categories/screens/category_details_screen.dart';
+import '../../features/categories/screens/services_screen.dart';
 import '../../features/categories/models/category_model.dart';
 
 // Providers
@@ -49,6 +50,7 @@ import '../../features/chat/screens/chat_quote_screen.dart';
 // Requests
 import '../../features/requests/screens/create_request_screen.dart';
 import '../../features/requests/screens/provider_requests_screen.dart';
+import '../../features/requests/screens/provider_accept_request_screen.dart';
 import '../../features/requests/screens/submit_bid_screen.dart';
 import '../../features/requests/screens/request_bids_screen.dart';
 
@@ -128,6 +130,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        path: '/provider_accept_request',
+        name: 'provider_accept_request',
+        builder: (context, state) => ProviderAcceptRequestScreen(
+          request: state.extra as Map<String, dynamic>,
+        ),
+      ),
+      GoRoute(
         path: '/submit_bid',
         name: 'submit_bid',
         builder: (context, state) => SubmitBidScreen(
@@ -170,6 +179,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final category = state.extra as CategoryModel;
           return CategoryDetailsScreen(category: category);
+        },
+      ),
+      GoRoute(
+        path: '/services',
+        name: 'services',
+        builder: (context, state) {
+          final category = state.extra as CategoryModel;
+          return ServicesScreen(category: category);
         },
       ),
       GoRoute(

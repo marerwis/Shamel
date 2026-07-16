@@ -157,11 +157,8 @@ class HomeScreen extends ConsumerWidget {
                       child: InkWell(
                         onTap: () {
                           context.push(
-                            '/providers_list', 
-                            extra: {
-                              'categoryId': category.id,
-                              'categoryName': category.name,
-                            },
+                            '/category_details', 
+                            extra: category,
                           );
                         },
                         borderRadius: BorderRadius.circular(16),
