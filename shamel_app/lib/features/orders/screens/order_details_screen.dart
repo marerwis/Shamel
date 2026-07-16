@@ -13,8 +13,8 @@ class OrderDetailsScreen extends ConsumerWidget {
     final orderId = order.id;
     final milestonesStream = ref.watch(orderMilestonesStreamProvider(orderId));
     final isProcessing = ref.watch(ordersProvider);
-    final currentUserId = Supabase.instance.client.auth.currentUser!.id;
-    final isCustomer = currentUserId == order.customerId;
+    final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+    final isCustomer = currentUserId == order.userId;
 
     return Scaffold(
       appBar: AppBar(

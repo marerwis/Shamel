@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class OrderModel {
   final String id;
-  final String customerId;
+  final String userId;
   final String? providerId;
   final String? serviceId;
   final String status;
@@ -16,7 +16,7 @@ class OrderModel {
 
   OrderModel({
     required this.id,
-    required this.customerId,
+    required this.userId,
     this.providerId,
     this.serviceId,
     required this.status,
@@ -31,7 +31,7 @@ class OrderModel {
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     return OrderModel(
       id: json['id'],
-      customerId: json['customer_id'],
+      userId: json['user_id'],
       providerId: json['provider_id'],
       serviceId: json['service_id'],
       status: json['status'],
@@ -48,7 +48,7 @@ class OrderModel {
 final ordersProvider = FutureProvider<List<OrderModel>>((ref) async {
   final response = await Supabase.instance.client
       .from('orders')
-      .select('*, customer:profiles!customer_id(full_name), provider:profiles!provider_id(full_name)')
+      .select('*, customer:profiles!user_id(full_name), provider:profiles!provider_id(full_name)')
       .order('created_at', ascending: false);
       
   return (response as List).map((data) => OrderModel.fromJson(data)).toList();

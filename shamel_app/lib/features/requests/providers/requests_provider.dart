@@ -36,7 +36,7 @@ class RequestsNotifier extends StateNotifier<bool> {
       }
 
       await _client.from('requests').insert({
-        'customer_id': userId,
+        'user_id': userId,
         'category_id': categoryId,
         'description': description,
         'images': imageUrls,
@@ -210,7 +210,7 @@ final myRequestsStreamProvider = StreamProvider<List<Map<String, dynamic>>>((ref
   return supabase
       .from('requests')
       .stream(primaryKey: ['id'])
-      .eq('customer_id', userId)
+      .eq('user_id', userId)
       .order('created_at', ascending: false);
 });
 

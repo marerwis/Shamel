@@ -4,7 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class OrderModel {
   final String id;
   final String providerId;
-  final String customerId;
+  final String userId;
   final String status;
   final double price;
   final String? serviceId;
@@ -18,7 +18,7 @@ class OrderModel {
   OrderModel({
     required this.id,
     required this.providerId,
-    required this.customerId,
+    required this.userId,
     required this.status,
     required this.price,
     this.serviceId,
@@ -34,7 +34,7 @@ class OrderModel {
     return OrderModel(
       id: json['id'],
       providerId: json['provider_id'],
-      customerId: json['customer_id'],
+      userId: json['user_id'],
       status: json['status'],
       price: (json['price'] as num).toDouble(),
       serviceId: json['service_id'],
@@ -70,7 +70,7 @@ class OrdersNotifier extends StateNotifier<bool> {
     try {
       final customerId = _client.auth.currentUser!.id;
       final orderRes = await _client.from('orders').insert({
-        'customer_id': customerId,
+        'user_id': customerId,
         'provider_id': providerId,
         'status': 'Pending',
         'price': price,
@@ -143,7 +143,7 @@ final myOrdersStreamProvider = StreamProvider<List<OrderModel>>((ref) async* {
   final customerOrdersStream = supabase
       .from('orders')
       .stream(primaryKey: ['id'])
-      .eq('customer_id', userId);
+      .eq('user_id', userId);
       
   final providerOrdersStream = supabase
       .from('orders')
@@ -154,7 +154,7 @@ final myOrdersStreamProvider = StreamProvider<List<OrderModel>>((ref) async* {
     // This is a naive merge if the user can be both, 
     // but in Supabase flutter, stream builder with multiple eq is limited.
     // For simplicity, we just fetch from DB directly if we want a realtime view of both,
-    final res = await supabase.from('orders').select('*, service:services(*), provider:profiles!orders_provider_id_fkey(*), customer:profiles!orders_customer_id_fkey(*)').or('customer_id.eq.$userId,provider_id.eq.$userId').order('created_at', ascending: false);
+    final res = await supabase.from('orders').select('*, service:services(*), provider:profiles!orders_provider_id_fkey(*), customer:profiles!user_id(*)').or('user_id.eq.$userId,provider_id.eq.$userId').order('created_at', ascending: false);
     yield res.map((e) => OrderModel.fromJson(e)).toList();
   }
 });

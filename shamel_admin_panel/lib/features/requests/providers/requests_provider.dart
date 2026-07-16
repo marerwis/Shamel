@@ -14,7 +14,7 @@ final adminRequestsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) a
     // 2. Fetch requests along with customer name and category name
     final response = await supabase
         .from('requests')
-        .select('*, customer:profiles!customer_id(full_name), category:categories!category_id(name)')
+        .select('*, customer:profiles!user_id(full_name), category:categories!category_id(name)')
         .order('created_at', ascending: false);
         
     print('------ DEBUG REQUESTS WITH JOINS ------');
