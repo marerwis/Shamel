@@ -59,7 +59,7 @@ class OrdersScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 4),
-                      Text('الإجمالي: ${order.totalAmount} د.ل', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
+                      Text('الإجمالي: ${order.price} د.ل', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
                       const SizedBox(height: 4),
                       Text(timeago.format(createdAt, locale: 'ar'), style: const TextStyle(color: Colors.grey, fontSize: 12)),
                     ],
