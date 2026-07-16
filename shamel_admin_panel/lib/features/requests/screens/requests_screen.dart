@@ -24,8 +24,8 @@ class RequestsScreen extends ConsumerWidget {
             itemCount: requests.length,
             itemBuilder: (context, index) {
               final req = requests[index];
-              final customerName = req['profiles']?['full_name'] ?? 'مجهول';
-              final categoryName = req['categories']?['name'] ?? 'غير محدد';
+              final customerName = req['customer']?['full_name'] ?? 'مجهول';
+              final categoryName = req['category']?['name'] ?? 'غير محدد';
               final createdAt = DateTime.parse(req['created_at']);
               final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(createdAt);
 
