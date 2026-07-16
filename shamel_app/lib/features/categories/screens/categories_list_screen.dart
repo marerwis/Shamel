@@ -44,9 +44,9 @@ class CategoriesListScreen extends ConsumerWidget {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      cat.imageUrl != null && cat.imageUrl!.isNotEmpty
-                          ? Image.network(cat.imageUrl!, fit: BoxFit.cover, errorBuilder: (_,__,___) => const Icon(Icons.broken_image))
-                          : Container(color: AppColors.secondary.withOpacity(0.3), child: const Icon(Icons.category, size: 50, color: AppColors.primary)),
+                      cat.icon != null && cat.icon!.isNotEmpty
+                          ? Image.network(cat.icon!, fit: BoxFit.cover, errorBuilder: (_,__,___) => const Icon(Icons.broken_image))
+                          : const Center(child: Icon(Icons.category, color: AppColors.primary, size: 50)),
                       Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(

@@ -71,7 +71,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       await ref.read(ordersProvider.notifier).createOrder(
         providerId: providerId,
         serviceId: widget.service?.id,
-        price: widget.service?.basePrice ?? 50.0, // Default price if no specific service selected
+        price: widget.service?.price ?? 50.0, // Default price if no specific service selected
         address: _addressController.text,
         scheduledAt: finalScheduledAt,
         notes: _notesController.text,
@@ -110,9 +110,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     final srv = widget.service;
     final prov = widget.provider;
 
-    final displayName = srv?.name ?? prov?['first_name'] ?? 'طلب خدمة';
-    final displayCategory = srv?.category ?? prov?['provider_details']?[0]?['title'] ?? 'عام';
-    final displayPrice = srv?.basePrice.toString() ?? 'حسب الاتفاق';
+    final displayName = srv?.title ?? prov?['first_name'] ?? 'طلب خدمة';
+    final displayCategory = srv?.categoryId ?? prov?['provider_details']?[0]?['title'] ?? 'عام';
+    final displayPrice = srv?.price.toString() ?? 'حسب الاتفاق';
 
     return Scaffold(
       backgroundColor: AppColors.background,
