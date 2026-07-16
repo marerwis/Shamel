@@ -93,6 +93,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('تم إنشاء طلب عام بنجاح! بانتظار عروض المزودين.'), backgroundColor: Colors.green),
           );
+          ref.invalidate(myRequestsStreamProvider);
           context.go('/orders'); // Go to orders or requests
         }
       } else {
@@ -108,8 +109,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('تم تأكيد الحجز بنجاح!'), backgroundColor: Colors.green),
+            const SnackBar(content: Text('تم إرسال الطلب بنجاح!'), backgroundColor: Colors.green),
           );
+          ref.invalidate(myOrdersStreamProvider);
           context.go('/orders');
         }
       }

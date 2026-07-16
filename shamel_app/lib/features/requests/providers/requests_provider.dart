@@ -199,3 +199,18 @@ final bidProviderDetailsProvider = FutureProvider.family<Map<String, dynamic>, S
   final response = await supabase.from('profiles').select('full_name, avatar_url, is_premium, is_fast, is_clean').eq('id', providerId).single();
   return response;
 });
+
+// Stream provider to fetch customer's own requests
+final myRequestsStreamProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
+  final supabase = Supabase.instance.client;
+  final userId = supabase.auth.currentUser?.id;
+  
+  if (userId == null) return Stream.value([]);
+  
+  return supabase
+      .from('requests')
+      .stream(primaryKey: ['id'])
+      .eq('customer_id', userId)
+      .order('created_at', ascending: false);
+});
+

@@ -12,127 +12,92 @@ class MyOrdersScreen extends ConsumerStatefulWidget {
   ConsumerState<MyOrdersScreen> createState() => _MyOrdersScreenState();
 }
 
-class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
-  int _selectedFilterIndex = 0;
-  final List<String> _filters = ['النشطة', 'المكتملة', 'الملغاة'];
+import '../../requests/providers/requests_provider.dart';
 
+class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
   @override
   Widget build(BuildContext context) {
     final ordersAsync = ref.watch(myOrdersStreamProvider);
+    final requestsAsync = ref.watch(myRequestsStreamProvider);
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      drawer: const AppDrawer(),
-      appBar: AppBar(
-        leading: Builder(
-          builder: (context) {
-            return IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-              color: AppColors.primary,
-            );
-          }
-        ),
-        title: const Text('طلباتي', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 24)),
-        centerTitle: true,
-        backgroundColor: AppColors.surface,
-        elevation: 0,
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Filters
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
-            child: SizedBox(
-              height: 40,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: _filters.length,
-                itemBuilder: (context, index) {
-                  final isSelected = _selectedFilterIndex == index;
-                  return Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: ChoiceChip(
-                      label: Text(_filters[index]),
-                      selected: isSelected,
-                      onSelected: (selected) {
-                        setState(() => _selectedFilterIndex = index);
-                      },
-                      selectedColor: AppColors.primary,
-                      backgroundColor: AppColors.surfaceContainer,
-                      labelStyle: TextStyle(
-                        color: isSelected ? AppColors.onPrimary : AppColors.onSurfaceVariant,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      showCheckmark: false,
-                      side: BorderSide.none,
-                    ),
-                  );
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        drawer: const AppDrawer(),
+        appBar: AppBar(
+          leading: Builder(
+            builder: (context) {
+              return IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
                 },
-              ),
-            ),
+                color: AppColors.primary,
+              );
+            }
           ),
-          
-          const SizedBox(height: 16),
-          
-          // Orders List
-          Expanded(
-            child: ordersAsync.when(
+          title: const Text('طلباتي', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 24)),
+          centerTitle: true,
+          backgroundColor: AppColors.surface,
+          elevation: 0,
+          bottom: const TabBar(
+            labelColor: AppColors.primary,
+            unselectedLabelColor: Colors.grey,
+            indicatorColor: AppColors.primary,
+            tabs: [
+              Tab(text: 'طلبات قيد الانتظار'),
+              Tab(text: 'طلبات حالية/مكتملة'),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            // Tab 1: Pending Requests
+            requestsAsync.when(
+              data: (requests) {
+                final pendingRequests = requests.where((r) => r['status'] == 'Pending_Broadcast').toList();
+                
+                if (pendingRequests.isEmpty) {
+                  return _buildEmptyState(context, 'لا توجد طلبات معلقة');
+                }
+                
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    return ref.refresh(myRequestsStreamProvider.future);
+                  },
+                  child: ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    itemCount: pendingRequests.length,
+                    separatorBuilder: (context, index) => const SizedBox(height: 16),
+                    itemBuilder: (context, index) {
+                      final req = pendingRequests[index];
+                      return _buildRequestCard(context, req);
+                    },
+                  ),
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => Center(child: Text('خطأ في جلب الطلبات: $err')),
+            ),
+            
+            // Tab 2: Orders
+            ordersAsync.when(
               data: (orders) {
-                // Filter logic
-                List<OrderModel> filteredOrders = [];
-                if (_selectedFilterIndex == 0) {
-                  // Active (pending, accepted, in_progress)
-                  filteredOrders = orders.where((o) => ['pending', 'accepted', 'in_progress'].contains(o.status)).toList();
-                } else if (_selectedFilterIndex == 1) {
-                  // Completed
-                  filteredOrders = orders.where((o) => o.status == 'completed').toList();
-                } else if (_selectedFilterIndex == 2) {
-                  // Cancelled
-                  filteredOrders = orders.where((o) => o.status == 'cancelled').toList();
+                if (orders.isEmpty) {
+                  return _buildEmptyState(context, 'لا توجد طلبات سابقة');
                 }
-
-                if (filteredOrders.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.assignment_outlined, size: 80, color: AppColors.outline.withOpacity(0.5)),
-                        const SizedBox(height: 16),
-                        Text(
-                          'لا توجد طلبات في هذا القسم',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: AppColors.onSurfaceVariant,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'تظهر هنا طلباتك عند توفرها',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.outline,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
+                
                 return RefreshIndicator(
                   onRefresh: () async {
                     return ref.refresh(myOrdersStreamProvider.future);
                   },
                   child: ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    itemCount: filteredOrders.length,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    itemCount: orders.length,
                     separatorBuilder: (context, index) => const SizedBox(height: 16),
                     itemBuilder: (context, index) {
-                      final order = filteredOrders[index];
+                      final order = orders[index];
                       return _buildOrderCard(context, order);
                     },
                   ),
@@ -141,11 +106,38 @@ class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, stack) => Center(child: Text('خطأ في جلب الطلبات: $err')),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context, String title) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.assignment_outlined, size: 80, color: AppColors.outline.withOpacity(0.5)),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: AppColors.onSurfaceVariant,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'تظهر هنا طلباتك عند توفرها',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: AppColors.outline,
+            ),
           ),
         ],
       ),
     );
   }
+
 
   Widget _buildOrderCard(BuildContext context, OrderModel order) {
     String statusAr = order.status;
@@ -293,4 +285,85 @@ class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
       ),
     );
   }
+
+  Widget _buildRequestCard(BuildContext context, Map<String, dynamic> req) {
+    final statusAr = 'قيد الانتظار (في انتظار العروض)';
+    final statusColor = Colors.orange;
+    final statusBg = Colors.orange.withOpacity(0.1);
+    final statusIcon = Icons.sensors; // Broadcast icon
+    
+    final desc = req['description'] ?? 'بدون وصف';
+    final dateStr = req['created_at'] != null ? req['created_at'].toString().split('T')[0] : '';
+    
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.surfaceVariant),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 4),
+          )
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.surfaceContainerHigh,
+                ),
+                alignment: Alignment.center,
+                child: const Icon(Icons.campaign, color: AppColors.primary),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('طلب عام مخصص', style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold)),
+                    if (dateStr.isNotEmpty)
+                      Text('تاريخ النشر: $dateStr', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.onSurfaceVariant)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            desc,
+            style: Theme.of(context).textTheme.bodyMedium,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: statusBg,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(statusIcon, size: 16, color: statusColor),
+                const SizedBox(width: 6),
+                Text(statusAr, style: TextStyle(color: statusColor, fontSize: 13, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
