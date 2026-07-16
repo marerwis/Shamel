@@ -18,34 +18,32 @@ class _ProvidersManagementScreenState extends ConsumerState<ProvidersManagementS
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'إدارة مزودي الخدمة',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.onSurface,
-                  ),
-            ),
-            ElevatedButton.icon(
-              onPressed: () => _showAddProviderDialog(context),
-              icon: const Icon(Icons.person_add),
-              label: const Text('إضافة مزود جديد'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                elevation: 2,
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'add_provider',
+        onPressed: () => _showAddProviderDialog(context),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.person_add),
+        label: const Text('إضافة مزود جديد', style: TextStyle(fontWeight: FontWeight.bold)),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'إدارة مزودي الخدمة',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.onSurface,
+                    ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 32),
+            ],
+          ),
+          const SizedBox(height: 32),
         
         // Search & Filters
         Container(
@@ -106,6 +104,7 @@ class _ProvidersManagementScreenState extends ConsumerState<ProvidersManagementS
           child: _buildProvidersList(),
         ),
       ],
+      ),
     );
   }
 

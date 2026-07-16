@@ -11,41 +11,37 @@ class FinanceManagementScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final requestsAsync = ref.watch(financeRequestsProvider);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'المعاملات المالية وطلبات السحب',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.onSurface,
-                  ),
-            ),
-            Row(
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () => _showAddFundsDialog(context, ref),
-                  icon: const Icon(Icons.account_balance_wallet),
-                  label: const Text('شحن رصيد'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.secondary,
-                    foregroundColor: Colors.white,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                OutlinedButton.icon(
-                  onPressed: () => ref.refresh(financeRequestsProvider),
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('تحديث'),
-                ),
-              ],
-            ),
-          ],
-        ),
-        const SizedBox(height: 32),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'add_funds_finance',
+        onPressed: () => _showAddFundsDialog(context, ref),
+        backgroundColor: Colors.green,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.account_balance_wallet),
+        label: const Text('شحن رصيد', style: TextStyle(fontWeight: FontWeight.bold)),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'المعاملات المالية وطلبات السحب',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.onSurface,
+                    ),
+              ),
+              OutlinedButton.icon(
+                onPressed: () => ref.refresh(financeRequestsProvider),
+                icon: const Icon(Icons.refresh),
+                label: const Text('تحديث'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
         
         // Stats Cards
         Consumer(
@@ -146,6 +142,7 @@ class FinanceManagementScreen extends ConsumerWidget {
           ),
         ),
       ],
+      ),
     );
   }
 

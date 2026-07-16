@@ -18,34 +18,47 @@ class _MembersManagementScreenState extends ConsumerState<MembersManagementScree
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'إدارة العملاء',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.onSurface,
-                  ),
-            ),
-            ElevatedButton.icon(
-              onPressed: () => _showAddMemberDialog(context),
-              icon: const Icon(Icons.person_add),
-              label: const Text('إضافة عضو جديد'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                elevation: 2,
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: 'add_member',
+            onPressed: () => _showAddMemberDialog(context),
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            icon: const Icon(Icons.person_add),
+            label: const Text('إضافة عضو جديد', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          const SizedBox(height: 16),
+          FloatingActionButton.extended(
+            heroTag: 'add_funds',
+            onPressed: () => _showAddFundsDialog(context, ref),
+            backgroundColor: Colors.green,
+            foregroundColor: Colors.white,
+            icon: const Icon(Icons.account_balance_wallet),
+            label: const Text('شحن رصيد', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'إدارة العملاء',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.onSurface,
+                    ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 32),
+            ],
+          ),
+          const SizedBox(height: 32),
         
         // Search & Filters
         Container(
@@ -105,6 +118,7 @@ class _MembersManagementScreenState extends ConsumerState<MembersManagementScree
           child: _buildMembersTab(),
         ),
       ],
+      ),
     );
   }
 
@@ -417,5 +431,116 @@ class _MembersManagementScreenState extends ConsumerState<MembersManagementScree
       ),
     );
   }
-}
+  
+  void _showAddFundsDialog(BuildContext context, WidgetRef ref) {
+    final emailCtrl = TextEditingController();
+    final amountCtrl = TextEditingController();
+    bool isLoading = false;
 
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: const Row(
+              children: [
+                Icon(Icons.account_balance_wallet, color: AppColors.secondary),
+                SizedBox(width: 8),
+                Text('شحن رصيد مستخدم'),
+              ],
+            ),
+            content: SizedBox(
+              width: 400,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: emailCtrl,
+                    decoration: InputDecoration(
+                      labelText: 'البريد الإلكتروني للمستخدم',
+                      prefixIcon: const Icon(Icons.email),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: amountCtrl,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'المبلغ (د.ل)',
+                      prefixIcon: const Icon(Icons.attach_money),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: isLoading ? null : () => Navigator.pop(ctx),
+                child: const Text('إلغاء'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.secondary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: isLoading
+                    ? null
+                    : () async {
+                        final amount = double.tryParse(amountCtrl.text.trim());
+                        if (emailCtrl.text.isEmpty || amount == null || amount <= 0) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('الرجاء إدخال بريد إلكتروني صالح ومبلغ صحيح')),
+                          );
+                          return;
+                        }
+                        
+                        setState(() => isLoading = true);
+                        try {
+                          await Supabase.instance.client.rpc('admin_add_funds_by_email', params: {
+                            'target_email': emailCtrl.text.trim(),
+                            'amount_to_add': amount,
+                          });
+                          
+                          if (ctx.mounted) {
+                            Navigator.pop(ctx);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Row(
+                                  children: [
+                                    const Icon(Icons.check_circle, color: Colors.white),
+                                    const SizedBox(width: 8),
+                                    Text('تم شحن رصيد ${emailCtrl.text} بمبلغ $amount بنجاح!'),
+                                  ],
+                                ),
+                                backgroundColor: Colors.green,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          if (ctx.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('خطأ: $e')),
+                            );
+                          }
+                        } finally {
+                          if (ctx.mounted) {
+                            setState(() => isLoading = false);
+                          }
+                        }
+                      },
+                child: isLoading
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : const Text('إضافة الرصيد'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
