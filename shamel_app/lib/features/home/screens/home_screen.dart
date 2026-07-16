@@ -43,10 +43,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       error: (e, s) => Scaffold(body: Center(child: Text('Error: $e'))),
       data: (profile) {
         if (profile != null && profile['role'] == 'provider') {
-           final categoryId = profile['provider_details'] != null && profile['provider_details'].isNotEmpty 
-               ? profile['provider_details'][0]['category_id'] 
-               : '';
-           return ProviderRequestsScreen(categoryId: categoryId);
+         final pDetails = profile['provider_details'];
+         String categoryId = '';
+         if (pDetails is List && pDetails.isNotEmpty) {
+           categoryId = pDetails[0]['category_id'] ?? '';
+         } else if (pDetails is Map) {
+           categoryId = pDetails['category_id'] ?? '';
+         }
+         return ProviderRequestsScreen(categoryId: categoryId);
         }
 
         return Scaffold(

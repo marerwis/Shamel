@@ -36,7 +36,7 @@ class OrderModel {
       providerId: json['provider_id'],
       userId: json['user_id'],
       status: json['status'],
-      price: (json['price'] as num).toDouble(),
+      price: (json['total_amount'] as num?)?.toDouble() ?? 0.0,
       serviceId: json['service_id'],
       createdAt: DateTime.parse(json['created_at']),
       scheduledAt: json['scheduled_at'] != null ? DateTime.parse(json['scheduled_at']) : null,

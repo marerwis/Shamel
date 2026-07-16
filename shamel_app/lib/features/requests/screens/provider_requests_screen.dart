@@ -34,7 +34,8 @@ class _ProviderRequestsScreenState extends ConsumerState<ProviderRequestsScreen>
             itemCount: requests.length,
             itemBuilder: (context, index) {
               final req = requests[index];
-              final createdAt = DateTime.parse(req['created_at']);
+              final createdAtRaw = req['created_at'];
+              final createdAt = createdAtRaw != null ? DateTime.tryParse(createdAtRaw.toString()) ?? DateTime.now() : DateTime.now();
               final timeAgoStr = timeago.format(createdAt, locale: 'ar');
 
               return Card(

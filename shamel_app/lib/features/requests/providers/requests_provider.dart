@@ -113,7 +113,8 @@ final providerRequestsProvider = StreamProvider.family<List<Map<String, dynamic>
           final now = DateTime.now();
           bool hasDelayed = false;
           final filtered = requests.where((req) {
-            final createdAt = DateTime.parse(req['created_at']);
+            final createdAtRaw = req['created_at'];
+            final createdAt = createdAtRaw != null ? DateTime.tryParse(createdAtRaw.toString()) ?? DateTime.now() : DateTime.now();
             if (now.difference(createdAt).inSeconds >= 5) {
               return true;
             } else {
