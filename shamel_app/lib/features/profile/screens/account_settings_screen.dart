@@ -20,6 +20,7 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
   bool _isUploading = false;
   final TextEditingController _addressController = TextEditingController();
   bool _isSavingAddress = false;
+  bool _isEditingAddress = false;
 
   @override
   void dispose() {
@@ -37,9 +38,10 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
           .from('profiles')
           .update({'address': _addressController.text})
           .eq('id', user.id);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ العنوان بنجاح!'), backgroundColor: Colors.green));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحديث العنوان بنجاح'), backgroundColor: Colors.green));
         ref.invalidate(userProfileProvider);
+        FocusScope.of(context).unfocus();
+        setState(() { _isEditingAddress = false; });
       }
     } catch(e) {
       if (mounted) {
@@ -271,30 +273,69 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
                       _buildSectionHeader(context, 'العنوان'),
                       Padding(
                         padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: _addressController,
-                                decoration: InputDecoration(
-                                  hintText: 'اكتب عنوانك بالتفصيل هنا...',
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                ),
+                        child: _isEditingAddress || _addressController.text.isEmpty
+                            ? Row(
+                                children: [
+                                  Expanded(
+                                    child: DropdownButtonFormField<String>(
+                                      value: _addressController.text.isNotEmpty && const ['سيدي حسين', 'الكيش', 'الفويهات', 'الماجوري', 'الحدائق', 'بوعطني', 'شبنة', 'بلعون', 'طريق النهر', 'وسط البلاد'].contains(_addressController.text) 
+                                          ? _addressController.text 
+                                          : null,
+                                      items: const ['سيدي حسين', 'الكيش', 'الفويهات', 'الماجوري', 'الحدائق', 'بوعطني', 'شبنة', 'بلعون', 'طريق النهر', 'وسط البلاد']
+                                          .map((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value),
+                                        );
+                                      }).toList(),
+                                      onChanged: (newValue) {
+                                        if (newValue != null) {
+                                          _addressController.text = newValue;
+                                        }
+                                      },
+                                      decoration: InputDecoration(
+                                        hintText: 'اختر منطقتك',
+                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  _isSavingAddress 
+                                    ? const Padding(
+                                        padding: EdgeInsets.all(12.0),
+                                        child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
+                                      )
+                                    : IconButton(
+                                        icon: const Icon(Icons.save, color: AppColors.primary),
+                                        onPressed: () {
+                                          if (_addressController.text.isNotEmpty) {
+                                            _saveAddress();
+                                          }
+                                        },
+                                      ),
+                                ],
+                              )
+                            : Row(
+                                children: [
+                                  const Icon(Icons.location_on, color: AppColors.primary),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      _addressController.text,
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.edit, color: AppColors.outline),
+                                    onPressed: () {
+                                      setState(() {
+                                        _isEditingAddress = true;
+                                      });
+                                    },
+                                  ),
+                                ],
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            _isSavingAddress 
-                              ? const Padding(
-                                  padding: EdgeInsets.all(12.0),
-                                  child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
-                                )
-                              : IconButton(
-                                  icon: const Icon(Icons.save, color: AppColors.primary),
-                                  onPressed: _saveAddress,
-                                ),
-                          ],
-                        ),
                       ),
                       
                       _buildSectionHeader(context, 'الأمان والتفضيلات'),

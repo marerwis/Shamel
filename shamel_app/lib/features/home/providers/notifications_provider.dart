@@ -2,15 +2,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../auth/providers/auth_provider.dart';
 
-final notificationsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+final notificationsProvider = StreamProvider<List<Map<String, dynamic>>>((ref) async* {
   final user = ref.watch(currentUserProvider);
-  if (user == null) return [];
+  if (user == null) {
+    yield [];
+    return;
+  }
 
-  final response = await Supabase.instance.client
+  final stream = Supabase.instance.client
       .from('notifications')
-      .select()
+      .stream(primaryKey: ['id'])
       .eq('user_id', user.id)
       .order('created_at', ascending: false);
       
-  return List<Map<String, dynamic>>.from(response);
+  await for (final data in stream) {
+    yield List<Map<String, dynamic>>.from(data);
+  }
 });

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../models/category_model.dart';
@@ -35,11 +36,18 @@ class ServicesScreen extends ConsumerWidget {
         title: Text('خدمات ${category.name}'),
         centerTitle: true,
       ),
-      body: servicesAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('حدث خطأ: $error')),
-        data: (allServices) {
-          final services = allServices.where((s) => s.categoryId == category.id || s.subCategoryId == category.id).toList();
+      body: FutureBuilder(
+        future: Supabase.instance.client.from('services').select().eq('category_id', category.id),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('حدث خطأ: ${snapshot.error}'));
+          }
+
+          final data = snapshot.data as List<dynamic>? ?? [];
+          final services = data.map((e) => ServiceModel.fromJson(e)).toList();
 
           if (services.isEmpty) {
             return Center(

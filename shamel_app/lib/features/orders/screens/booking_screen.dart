@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../home/providers/services_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/orders_provider.dart';
+import '../../requests/providers/requests_provider.dart';
 
 class BookingScreen extends ConsumerStatefulWidget {
   final ServiceModel? service;
@@ -21,7 +22,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   int _selectedTimeIndex = -1;
   bool _isLoading = false;
 
-  final TextEditingController _addressController = TextEditingController(text: 'الرياض, حي العليا, شارع 15');
+  final TextEditingController _addressController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
 
   final List<String> _dates = ['اليوم', 'غداً', 'بعد غد'];
@@ -50,14 +51,13 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     }
 
     final providerId = widget.provider?['id'];
-    if (providerId == null) {
+    
+    if (_selectedTimeIndex == -1) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('بيانات مزود الخدمة مفقودة')),
+        const SnackBar(content: Text('الرجاء اختيار وقت الخدمة')),
       );
       return;
     }
-
-    if (_selectedTimeIndex == -1) return;
 
     setState(() {
       _isLoading = true;
@@ -74,20 +74,44 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       
       DateTime finalScheduledAt = DateTime(scheduledDate.year, scheduledDate.month, scheduledDate.day, hour);
 
-      await ref.read(ordersProvider.notifier).createOrder(
-        providerId: providerId,
-        serviceId: widget.service?.id,
-        price: widget.service?.price ?? 50.0, // Default price if no specific service selected
-        address: _addressController.text,
-        scheduledAt: finalScheduledAt,
-        notes: _notesController.text,
-      );
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم تأكيد الحجز بنجاح!'), backgroundColor: Colors.green),
+      if (providerId == null) {
+        // Broadcast request logic
+        final desc = '''
+خدمة: ${widget.service?.title ?? 'عام'}
+الموقع: ${_addressController.text}
+التاريخ المفضل: $finalScheduledAt
+السعر المتوقع: ${widget.service?.price ?? 50.0} د.ل
+ملاحظات: ${_notesController.text}
+''';
+        await ref.read(requestsProvider.notifier).createRequest(
+          categoryId: widget.service?.categoryId ?? '',
+          description: desc,
+          imageFiles: [],
         );
-        context.go('/orders');
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('تم إنشاء طلب عام بنجاح! بانتظار عروض المزودين.'), backgroundColor: Colors.green),
+          );
+          context.go('/orders'); // Go to orders or requests
+        }
+      } else {
+        // Direct order logic
+        await ref.read(ordersProvider.notifier).createOrder(
+          providerId: providerId,
+          serviceId: widget.service?.id,
+          price: widget.service?.price ?? 50.0,
+          address: _addressController.text,
+          scheduledAt: finalScheduledAt,
+          notes: _notesController.text,
+        );
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('تم تأكيد الحجز بنجاح!'), backgroundColor: Colors.green),
+          );
+          context.go('/orders');
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -119,6 +143,18 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     final displayName = srv?.title ?? prov?['first_name'] ?? 'طلب خدمة';
     final displayCategory = srv?.categoryId ?? prov?['provider_details']?[0]?['title'] ?? 'عام';
     final displayPrice = srv?.price.toString() ?? 'حسب الاتفاق';
+
+    final profileAsync = ref.watch(userProfileProvider);
+    profileAsync.whenData((profile) {
+      if (profile != null && _addressController.text.isEmpty && profile['address'] != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && _addressController.text.isEmpty) {
+            _addressController.text = profile['address'];
+            setState((){});
+          }
+        });
+      }
+    });
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -183,11 +219,24 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 // Location
                 Text('مكان الطلب', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
-                TextField(
-                  controller: _addressController,
+                DropdownButtonFormField<String>(
+                  value: _addressController.text.isNotEmpty && const ['سيدي حسين', 'الكيش', 'الفويهات', 'الماجوري', 'الحدائق', 'بوعطني', 'شبنة', 'بلعون', 'طريق النهر', 'وسط البلاد'].contains(_addressController.text) 
+                      ? _addressController.text 
+                      : null,
+                  items: const ['سيدي حسين', 'الكيش', 'الفويهات', 'الماجوري', 'الحدائق', 'بوعطني', 'شبنة', 'بلعون', 'طريق النهر', 'وسط البلاد']
+                      .map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    if (newValue != null) {
+                      _addressController.text = newValue;
+                    }
+                  },
                   decoration: InputDecoration(
-                    hintText: 'بنغازي، شارع جمال...',
-                    hintStyle: const TextStyle(color: Colors.grey),
+                    hintText: 'اختر منطقتك',
                     prefixIcon: const Icon(Icons.location_on, color: AppColors.primary),
                     filled: true,
                     fillColor: AppColors.surface,
