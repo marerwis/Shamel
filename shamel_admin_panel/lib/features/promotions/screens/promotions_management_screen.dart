@@ -29,6 +29,53 @@ class PromotionsManagementScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    GestureDetector(
+                      onTap: () async {
+                        final picker = ImagePicker();
+                        final file = await picker.pickImage(source: ImageSource.gallery);
+                        if (file != null) {
+                          final bytes = await file.readAsBytes();
+                          setState(() {
+                            selectedImage = file;
+                            imageBytes = bytes;
+                          });
+                        }
+                      },
+                      child: Container(
+                        height: 150,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: imageBytes != null ? AppColors.primary : Colors.grey.shade400,
+                            width: 2,
+                          ),
+                        ),
+                        child: imageBytes != null
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(14),
+                                child: Image.memory(imageBytes!, fit: BoxFit.cover, width: double.infinity),
+                              )
+                            : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.cloud_upload_outlined, size: 48, color: Colors.grey.shade600),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'اضغط لرفع صورة العرض',
+                                    style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'يفضل أن تكون بأبعاد 16:9',
+                                    style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
                     TextField(
                       controller: titleController,
                       decoration: const InputDecoration(labelText: 'عنوان العرض (مطلوب)'),
@@ -38,31 +85,6 @@ class PromotionsManagementScreen extends ConsumerWidget {
                       controller: descriptionController,
                       decoration: const InputDecoration(labelText: 'وصف العرض'),
                       maxLines: 2,
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        ElevatedButton.icon(
-                          onPressed: () async {
-                            final picker = ImagePicker();
-                            final file = await picker.pickImage(source: ImageSource.gallery);
-                            if (file != null) {
-                              final bytes = await file.readAsBytes();
-                              setState(() {
-                                selectedImage = file;
-                                imageBytes = bytes;
-                              });
-                            }
-                          },
-                          icon: const Icon(Icons.image),
-                          label: const Text('اختيار صورة العرض'),
-                        ),
-                        const SizedBox(width: 16),
-                        if (imageBytes != null)
-                          Image.memory(imageBytes!, width: 60, height: 60, fit: BoxFit.cover)
-                        else
-                          const Text('مطلوب'),
-                      ],
                     ),
                     const SizedBox(height: 16),
                     FutureBuilder<List<dynamic>>(
