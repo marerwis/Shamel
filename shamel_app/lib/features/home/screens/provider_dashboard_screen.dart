@@ -97,7 +97,7 @@ class ProviderDashboardScreen extends StatelessWidget {
                 return isWide
                     ? Row(
                         children: [
-                          Expanded(child: _buildStatCard(context, 'إجمالي الأرباح', '2,450', 'ر.س', Icons.payments, AppColors.primary, '+12%')),
+                          Expanded(child: _buildStatCard(context, 'إجمالي الأرباح', '2,450', 'د.ل', Icons.payments, AppColors.primary, '+12%')),
                           const SizedBox(width: 16),
                           Expanded(child: _buildStatCard(context, 'الطلبات النشطة', '3', '', Icons.work_history, AppColors.secondary, null)),
                           const SizedBox(width: 16),
@@ -106,7 +106,7 @@ class ProviderDashboardScreen extends StatelessWidget {
                       )
                     : Column(
                         children: [
-                          _buildStatCard(context, 'إجمالي الأرباح', '2,450', 'ر.س', Icons.payments, AppColors.primary, '+12%'),
+                          _buildStatCard(context, 'إجمالي الأرباح', '2,450', 'د.ل', Icons.payments, AppColors.primary, '+12%'),
                           const SizedBox(height: 16),
                           _buildStatCard(context, 'الطلبات النشطة', '3', '', Icons.work_history, AppColors.secondary, null),
                           const SizedBox(height: 16),

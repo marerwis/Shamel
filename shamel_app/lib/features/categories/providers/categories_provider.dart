@@ -27,3 +27,18 @@ final subcategoriesProvider = FutureProvider.family<List<CategoryModel>, String>
       
   return (response as List).map((e) => CategoryModel.fromJson(e)).toList();
 });
+// Provider to search categories using ilike
+final searchCategoriesProvider = FutureProvider.family<List<CategoryModel>, String>((ref, query) async {
+  if (query.isEmpty) {
+    return ref.watch(rootCategoriesProvider.future);
+  }
+
+  final supabase = Supabase.instance.client;
+  final response = await supabase
+      .from('categories')
+      .select()
+      .ilike('name', '%$query%')
+      .order('created_at', ascending: true);
+      
+  return (response as List).map((e) => CategoryModel.fromJson(e)).toList();
+});

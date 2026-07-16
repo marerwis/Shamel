@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 
 class ProviderProfileScreen extends StatelessWidget {
@@ -60,8 +61,10 @@ class ProviderProfileScreen extends StatelessWidget {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(color: AppColors.surface, width: 4),
-                              image: const DecorationImage(
-                                image: NetworkImage('https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop'),
+                            ),
+                            child: ClipOval(
+                              child: CachedNetworkImage(
+                                imageUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop',
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -203,7 +206,7 @@ class ProviderProfileScreen extends StatelessWidget {
                   context,
                   title: 'كشف تسربات المياه',
                   subtitle: 'فحص شامل بأجهزة إلكترونية',
-                  price: '150 ر.س',
+                  price: '150 د.ل',
                   icon: Icons.water_drop,
                 ),
                 const SizedBox(height: 12),
@@ -211,7 +214,7 @@ class ProviderProfileScreen extends StatelessWidget {
                   context,
                   title: 'تركيب أدوات صحية',
                   subtitle: 'مغاسل، مراحيض، خلاطات',
-                  price: '80 ر.س',
+                  price: '80 د.ل',
                   icon: Icons.bathtub,
                 ),
                 const SizedBox(height: 32),
@@ -373,9 +376,11 @@ class ProviderProfileScreen extends StatelessWidget {
   Widget _buildPortfolioImage(String url) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
-      child: Image.network(
-        url,
+      child: CachedNetworkImage(
+        imageUrl: url,
         fit: BoxFit.cover,
+        errorWidget: (context, url, error) => const Icon(Icons.image, size: 64, color: AppColors.onSurfaceVariant),
+        placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
       ),
     );
   }

@@ -25,7 +25,13 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   final TextEditingController _notesController = TextEditingController();
 
   final List<String> _dates = ['اليوم', 'غداً', 'بعد غد'];
-  final List<String> _times = ['09:00 ص', '10:00 ص', '11:00 ص', '01:00 م', '03:00 م', '05:00 م'];
+  late List<String> _times;
+
+  @override
+  void initState() {
+    super.initState();
+    _times = widget.service?.availableSlots ?? ['09:00 ص', '10:00 ص', '11:00 ص', '01:00 م', '03:00 م', '05:00 م'];
+  }
 
   @override
   void dispose() {
@@ -168,19 +174,20 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                           ],
                         ),
                       ),
-                      Text(srv != null ? 'SAR $displayPrice' : displayPrice, style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                      Text(srv != null ? 'د.ل $displayPrice' : displayPrice, style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
                 const SizedBox(height: 32),
 
                 // Location
-                Text('موقع الخدمة', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                Text('مكان الطلب', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
                 TextField(
                   controller: _addressController,
                   decoration: InputDecoration(
-                    hintText: 'أدخل تفاصيل العنوان...',
+                    hintText: 'بنغازي، شارع جمال...',
+                    hintStyle: const TextStyle(color: Colors.grey),
                     prefixIcon: const Icon(Icons.location_on, color: AppColors.primary),
                     filled: true,
                     fillColor: AppColors.surface,
@@ -235,10 +242,17 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 // Time Selection
                 Text('الوقت المتاح', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: List.generate(_times.length, (index) {
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 2.5,
+                  ),
+                  itemCount: _times.length,
+                  itemBuilder: (context, index) {
                     final isSelected = _selectedTimeIndex == index;
                     return InkWell(
                       onTap: () {
@@ -248,14 +262,12 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
-                        width: (MediaQuery.of(context).size.width - 44) / 3, // 3 columns
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        alignment: Alignment.center,
                         decoration: BoxDecoration(
                           color: isSelected ? AppColors.primaryContainer : AppColors.surface,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: isSelected ? AppColors.primary : AppColors.outlineVariant),
                         ),
-                        alignment: Alignment.center,
                         child: Text(
                           _times[index],
                           style: TextStyle(
@@ -265,12 +277,12 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                         ),
                       ),
                     );
-                  }),
+                  },
                 ),
                 const SizedBox(height: 32),
 
                 // Problem Description
-                Text('وصف المشكلة والملاحظات (اختياري)', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                Text('وصف الطلب بدقة', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
                 TextField(
                   controller: _notesController,

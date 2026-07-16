@@ -3,10 +3,13 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_drawer.dart';
 import '../../categories/providers/categories_provider.dart';
 import '../providers/services_provider.dart';
+import '../providers/promotions_provider.dart';
 
 final searchProvider = StateProvider<String>((ref) => '');
 
@@ -79,7 +82,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             TextField(
               onChanged: (val) {
                 if (_debounce?.isActive ?? false) _debounce!.cancel();
-                _debounce = Timer(const Duration(milliseconds: 500), () {
+                _debounce = Timer(const Duration(milliseconds: 300), () {
                   ref.read(searchProvider.notifier).state = val;
                 });
               },
@@ -98,41 +101,82 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const SizedBox(height: 24),
 
             // Promos
-            SizedBox(
-              height: 180,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                clipBehavior: Clip.none,
-                children: [
-                  _buildPromoCard(
-                    context,
-                    color: AppColors.primaryContainer,
-                    onColor: AppColors.onPrimaryContainer,
-                    title: 'خصم 20% على خدمات التنظيف',
-                    subtitle: 'استخدم كود CLEAN20',
-                    tag: 'عرض خاص',
-                    tagColor: AppColors.secondary,
-                    tagOnColor: AppColors.onSecondary,
-                    imageUrl: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=600&auto=format&fit=crop',
-                    btnColor: AppColors.onPrimaryContainer,
-                    btnOnColor: AppColors.primaryContainer,
-                  ),
-                  const SizedBox(width: 16),
-                  _buildPromoCard(
-                    context,
-                    color: AppColors.tertiaryContainer,
-                    onColor: AppColors.onTertiaryContainer,
-                    title: 'صيانة المكيفات الدورية',
-                    subtitle: 'حافظ على برودة صيفك',
-                    tag: 'باقة التوفير',
-                    tagColor: AppColors.surface,
-                    tagOnColor: AppColors.onSurface,
-                    imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=600&auto=format&fit=crop',
-                    btnColor: AppColors.onTertiaryContainer,
-                    btnOnColor: AppColors.tertiaryContainer,
-                  ),
-                ],
+            ref.watch(activePromotionsProvider).when(
+              loading: () => const SizedBox(
+                height: 180,
+                child: Center(child: CircularProgressIndicator()),
               ),
+              error: (err, stack) => SizedBox(
+                height: 180,
+                child: Center(child: Text('خطأ في جلب العروض: $err')),
+              ),
+              data: (promotions) {
+                if (promotions.isEmpty) return const SizedBox.shrink();
+
+                return CarouselSlider(
+                  options: CarouselOptions(
+                    height: 180.0,
+                    autoPlay: true,
+                    enlargeCenterPage: true,
+                    aspectRatio: 16 / 9,
+                    autoPlayCurve: Curves.fastOutSlowIn,
+                    enableInfiniteScroll: true,
+                    autoPlayAnimationDuration: const Duration(milliseconds: 800),
+                    viewportFraction: 0.85,
+                  ),
+                  items: promotions.map((promo) {
+                    return Builder(
+                      builder: (BuildContext context) {
+                        return Container(
+                          width: MediaQuery.of(context).size.width,
+                          margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            color: AppColors.primaryContainer,
+                            image: DecorationImage(
+                              image: CachedNetworkImageProvider(promo.imageUrl),
+                              fit: BoxFit.cover,
+                              colorFilter: ColorFilter.mode(
+                                Colors.black.withValues(alpha: 0.3),
+                                BlendMode.darken,
+                              ),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  promo.title,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                if (promo.description != null) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    promo.description!,
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 14.0,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }).toList(),
+                );
+              },
             ),
             const SizedBox(height: 32),
 
@@ -154,15 +198,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             const SizedBox(height: 16),
             // Categories Grid
-            ref.watch(rootCategoriesProvider).when(
+            ref.watch(searchCategoriesProvider(ref.watch(searchProvider))).when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, stack) => Center(child: Text('خطأ في جلب التصنيفات\n$err')),
-              data: (allCategories) {
-                final query = ref.watch(searchProvider).toLowerCase();
-                final categories = allCategories.where((c) {
-                  return c.name.toLowerCase().contains(query);
-                }).toList();
-
+              data: (categories) {
                 if (categories.isEmpty) {
                   return const Center(child: Text('لا توجد نتائج مطابقة للبحث'));
                 }
@@ -244,28 +283,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 16),
-            _buildRecentOrderItem(
-              context,
-              title: 'إصلاح تسريب مياه',
-              date: 'اليوم، 10:30 صباحاً',
-              status: 'مكتمل',
-              icon: Icons.plumbing,
-              iconColor: AppColors.onPrimaryContainer,
-              iconBg: AppColors.primaryContainer,
-              statusColor: AppColors.onSecondaryContainer,
-              statusBg: AppColors.secondaryContainer.withValues(alpha: 0.3),
-            ),
-            const SizedBox(height: 12),
-            _buildRecentOrderItem(
-              context,
-              title: 'كي ملابس',
-              date: 'أمس، 04:00 مساءً',
-              status: 'قيد التنفيذ',
-              icon: Icons.iron,
-              iconColor: AppColors.onTertiaryContainer,
-              iconBg: AppColors.tertiaryContainer,
-              statusColor: AppColors.primary,
-              statusBg: AppColors.primaryContainer.withValues(alpha: 0.2),
+            ref.watch(myOrdersStreamProvider).when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => Center(child: Text('خطأ في جلب الطلبات: $err')),
+              data: (orders) {
+                if (orders.isEmpty) {
+                  return const Center(child: Text('لا توجد طلبات حديثة'));
+                }
+                // Show max 3 recent orders
+                final recentOrders = orders.take(3).toList();
+                return Column(
+                  children: recentOrders.map((order) {
+                    final serviceTitle = order.service?['title'] ?? order.service?['name'] ?? 'خدمة غير معروفة';
+                    // Format date
+                    final dateStr = '${order.createdAt.year}-${order.createdAt.month.toString().padLeft(2, '0')}-${order.createdAt.day.toString().padLeft(2, '0')}';
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: _buildRecentOrderItem(
+                        context,
+                        title: serviceTitle,
+                        date: dateStr,
+                        status: order.status,
+                        price: '${order.price} د.ل',
+                        order: order,
+                      ),
+                    );
+                  }).toList(),
+                );
+              }
             ),
           ],
         ),
@@ -420,20 +465,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildRecentOrderItem(
-    BuildContext context, {
+  Widget _buildRecentOrderItem(BuildContext context, {
     required String title,
     required String date,
     required String status,
-    required IconData icon,
-    required Color iconColor,
-    required Color iconBg,
-    required Color statusColor,
-    required Color statusBg,
+    required String price,
+    OrderModel? order,
   }) {
+    final iconColor = AppColors.onPrimaryContainer;
+    final iconBg = AppColors.primaryContainer;
+    final statusColor = AppColors.onSecondaryContainer;
+    final statusBg = AppColors.secondaryContainer.withValues(alpha: 0.3);
+
     return InkWell(
       onTap: () {
-        context.push('/order_details/1');
+        if (order != null) {
+          context.push('/order_details_no_id', extra: order);
+        }
       },
       borderRadius: BorderRadius.circular(16),
       child: ClipRRect(

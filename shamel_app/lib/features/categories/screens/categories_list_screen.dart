@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/categories_provider.dart';
 import '../../../core/theme/app_colors.dart';
 
@@ -45,7 +46,12 @@ class CategoriesListScreen extends ConsumerWidget {
                     fit: StackFit.expand,
                     children: [
                       cat.icon != null && cat.icon!.isNotEmpty
-                          ? Image.network(cat.icon!, fit: BoxFit.cover, errorBuilder: (_,__,___) => const Icon(Icons.broken_image))
+                          ? CachedNetworkImage(
+                              imageUrl: cat.icon!,
+                              fit: BoxFit.cover,
+                              errorWidget: (context, url, error) => const Icon(Icons.broken_image),
+                              placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                            )
                           : const Center(child: Icon(Icons.category, color: AppColors.primary, size: 50)),
                       Container(
                         decoration: BoxDecoration(

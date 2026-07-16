@@ -1,5 +1,8 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../providers/services_provider.dart';
@@ -193,81 +196,153 @@ class ServicesManagementScreen extends ConsumerWidget {
   void _showAddServiceDialog(BuildContext context, WidgetRef ref) {
     final titleController = TextEditingController();
     final priceController = TextEditingController();
+    final slotsController = TextEditingController();
     String? selectedCategoryId;
     
     showDialog(
       context: context,
       builder: (ctx) {
+        XFile? selectedImage;
+        Uint8List? imageBytes;
+        bool isUploading = false;
+        
         return Consumer(
           builder: (context, ref, child) {
             final categoriesState = ref.watch(categoriesProvider);
             
             return AlertDialog(
               title: const Text('إضافة خدمة جديدة'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: titleController,
-                      decoration: const InputDecoration(labelText: 'اسم الخدمة'),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: priceController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'السعر (د.ل)'),
-                    ),
-                    const SizedBox(height: 16),
-                    categoriesState.when(
-                      data: (categories) {
-                        final subCategories = categories.where((c) => c.parentId != null).toList();
-                        return DropdownButtonFormField<String>(
-                          decoration: const InputDecoration(labelText: 'التصنيف الفرعي'),
-                          value: selectedCategoryId,
-                          items: subCategories.map((c) {
-                            final parent = categories.firstWhere((p) => p.id == c.parentId, orElse: () => c);
-                            return DropdownMenuItem(
-                              value: c.id,
-                              child: Text('${parent.name} - ${c.name}'),
+              content: StatefulBuilder(
+                builder: (context, setState) {
+                  return SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: titleController,
+                          decoration: const InputDecoration(labelText: 'اسم الخدمة'),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: priceController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(labelText: 'السعر (د.ل)'),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: slotsController,
+                          decoration: const InputDecoration(
+                            labelText: 'الأوقات المتاحة',
+                            hintText: 'مثال: 09:00 ص، 10:30 ص، 02:00 م (مفصولة بفاصلة)',
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        categoriesState.when(
+                          data: (categories) {
+                            final subCategories = categories.where((c) => c.parentId != null).toList();
+                            return DropdownButtonFormField<String>(
+                              decoration: const InputDecoration(labelText: 'التصنيف الفرعي'),
+                              value: selectedCategoryId,
+                              items: subCategories.map((c) {
+                                final parent = categories.firstWhere((p) => p.id == c.parentId, orElse: () => c);
+                                return DropdownMenuItem(
+                                  value: c.id,
+                                  child: Text('${parent.name} - ${c.name}'),
+                                );
+                              }).toList(),
+                              onChanged: (val) {
+                                selectedCategoryId = val;
+                              },
                             );
-                          }).toList(),
-                          onChanged: (val) {
-                            selectedCategoryId = val;
                           },
-                        );
-                      },
-                      loading: () => const CircularProgressIndicator(),
-                      error: (err, stack) => const Text('خطأ في جلب التصنيفات'),
+                          loading: () => const CircularProgressIndicator(),
+                          error: (err, stack) => const Text('خطأ في جلب التصنيفات'),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            ElevatedButton.icon(
+                              onPressed: () async {
+                                final picker = ImagePicker();
+                                final file = await picker.pickImage(source: ImageSource.gallery);
+                                if (file != null) {
+                                  final bytes = await file.readAsBytes();
+                                  setState(() {
+                                    selectedImage = file;
+                                    imageBytes = bytes;
+                                  });
+                                }
+                              },
+                              icon: const Icon(Icons.image),
+                              label: const Text('اختيار صورة'),
+                            ),
+                            const SizedBox(width: 16),
+                            if (imageBytes != null)
+                              Image.memory(imageBytes!, width: 60, height: 60, fit: BoxFit.cover)
+                            else
+                              const Text('لم يتم اختيار صورة'),
+                          ],
+                        ),
+                        if (isUploading) ...[
+                          const SizedBox(height: 16),
+                          const LinearProgressIndicator(),
+                        ]
+                      ],
                     ),
-                  ],
-                ),
+                  );
+                }
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
                   child: const Text('إلغاء'),
                 ),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (titleController.text.isEmpty || priceController.text.isEmpty) return;
-                    
-                    final price = double.tryParse(priceController.text) ?? 0.0;
-                    
-                    final errorMsg = await ref.read(servicesProvider.notifier).addService(
-                      title: titleController.text.trim(),
-                      price: price,
-                      categoryId: selectedCategoryId,
+                StatefulBuilder(
+                  builder: (context, setBtnState) {
+                    bool isLoading = false;
+                    return ElevatedButton(
+                      onPressed: isLoading ? null : () async {
+                        if (titleController.text.isEmpty || priceController.text.isEmpty) return;
+                        
+                        setBtnState(() => isLoading = true);
+                        final price = double.tryParse(priceController.text) ?? 0.0;
+                        
+                        List<String>? slots;
+                        if (slotsController.text.trim().isNotEmpty) {
+                          slots = slotsController.text.split('،').expand((s) => s.split(',')).map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+                        }
+                        
+                        // Upload image if selected
+                        String? imageUrl;
+                        if (imageBytes != null) {
+                          try {
+                            final fileName = '${DateTime.now().millisecondsSinceEpoch}.png';
+                            await Supabase.instance.client.storage.from('app_assets').uploadBinary('services/$fileName', imageBytes!);
+                            imageUrl = Supabase.instance.client.storage.from('app_assets').getPublicUrl('services/$fileName');
+                          } catch (e) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('خطأ في رفع الصورة: $e')));
+                          }
+                        }
+                        
+                        final errorMsg = await ref.read(servicesProvider.notifier).addService(
+                          title: titleController.text.trim(),
+                          price: price,
+                          categoryId: selectedCategoryId,
+                          availableSlots: slots,
+                          imageUrl: imageUrl,
+                        );
+                        
+                        if (errorMsg == null && ctx.mounted) {
+                          Navigator.pop(ctx);
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إضافة الخدمة بنجاح')));
+                        } else if (ctx.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('فشل في الإضافة: $errorMsg')));
+                          setBtnState(() => isLoading = false);
+                        }
+                      },
+                      child: isLoading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('إضافة'),
                     );
-                    
-                    if (errorMsg == null && ctx.mounted) {
-                      Navigator.pop(ctx);
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إضافة الخدمة بنجاح')));
-                    } else if (ctx.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('فشل في الإضافة: $errorMsg')));
-                    }
-                  },
-                  child: const Text('إضافة'),
+                  }
                 ),
               ],
             );

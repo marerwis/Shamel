@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../models/category_model.dart';
@@ -37,7 +39,7 @@ class ServicesScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(child: Text('حدث خطأ: $error')),
         data: (allServices) {
-          final services = allServices.where((s) => s.categoryId == category.id).toList();
+          final services = allServices.where((s) => s.categoryId == category.id || s.subCategoryId == category.id).toList();
 
           if (services.isEmpty) {
             return Center(
@@ -91,12 +93,21 @@ class ServicesScreen extends ConsumerWidget {
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(12),
+                            width: 60,
+                            height: 60,
                             decoration: BoxDecoration(
                               color: AppColors.primaryContainer,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.home_repair_service, color: AppColors.onPrimaryContainer),
+                            clipBehavior: Clip.antiAlias,
+                            child: service.imageUrl != null && service.imageUrl!.isNotEmpty
+                                ? CachedNetworkImage(
+                                    imageUrl: service.imageUrl!,
+                                    fit: BoxFit.cover,
+                                    errorWidget: (context, url, error) => const Icon(Icons.home_repair_service, color: AppColors.onPrimaryContainer),
+                                    placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                                  )
+                                : const Center(child: Icon(Icons.home_repair_service, color: AppColors.onPrimaryContainer)),
                           ),
                           const SizedBox(width: 16),
                           Expanded(

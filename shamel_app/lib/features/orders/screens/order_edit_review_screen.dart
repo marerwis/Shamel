@@ -147,11 +147,11 @@ class OrderEditReviewScreen extends StatelessWidget {
               title: 'ملخص الطلب',
               child: Column(
                 children: [
-                  _buildSummaryRow(context, 'تكلفة الخدمة (تقديرية)', '150 ر.س'),
+                  _buildSummaryRow(context, 'تكلفة الخدمة (تقديرية)', '150 د.ل'),
                   const SizedBox(height: 12),
-                  _buildSummaryRow(context, 'رسوم الزيارة', '50 ر.س'),
+                  _buildSummaryRow(context, 'رسوم الزيارة', '50 د.ل'),
                   const SizedBox(height: 12),
-                  _buildSummaryRow(context, 'الضريبة (15%)', '30 ر.س'),
+                  _buildSummaryRow(context, 'الضريبة (15%)', '30 د.ل'),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),
                     child: Divider(color: AppColors.outlineVariant),
@@ -160,7 +160,7 @@ class OrderEditReviewScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('الإجمالي', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
-                      Text('230 ر.س', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                      Text('230 د.ل', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ],

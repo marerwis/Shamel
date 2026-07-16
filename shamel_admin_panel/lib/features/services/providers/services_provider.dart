@@ -11,6 +11,8 @@ class ServiceModel {
   final String? categoryName;
   final String providerId;
   final String? providerName;
+  final List<String>? availableSlots;
+  final String? imageUrl;
 
   ServiceModel({
     required this.id,
@@ -21,6 +23,8 @@ class ServiceModel {
     this.categoryName,
     required this.providerId,
     this.providerName,
+    this.availableSlots,
+    this.imageUrl,
   });
 
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
@@ -33,6 +37,8 @@ class ServiceModel {
       categoryName: json['categories'] != null ? json['categories']['name'] : null,
       providerId: json['provider_id'],
       providerName: json['profiles'] != null ? json['profiles']['full_name'] : null,
+      availableSlots: json['available_slots'] != null ? List<String>.from(json['available_slots']) : null,
+      imageUrl: json['image_url'],
     );
   }
 }
@@ -62,6 +68,8 @@ class ServicesNotifier extends AsyncNotifier<List<ServiceModel>> {
     required double price,
     String? categoryId,
     String? providerId,
+    List<String>? availableSlots,
+    String? imageUrl,
   }) async {
     try {
       final currentUserId = Supabase.instance.client.auth.currentUser!.id;
@@ -70,6 +78,8 @@ class ServicesNotifier extends AsyncNotifier<List<ServiceModel>> {
         'price': price,
         'category_id': categoryId,
         'provider_id': providerId ?? currentUserId,
+        if (availableSlots != null) 'available_slots': availableSlots,
+        if (imageUrl != null) 'image_url': imageUrl,
       });
       ref.invalidateSelf();
       return null;

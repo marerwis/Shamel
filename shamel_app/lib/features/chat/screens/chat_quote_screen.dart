@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 
 class ChatQuoteScreen extends StatelessWidget {
@@ -231,11 +232,13 @@ class ChatQuoteScreen extends StatelessWidget {
                   if (imageUrl != null) ...[
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        imageUrl,
+                      child: CachedNetworkImage(
+                        imageUrl: imageUrl,
                         width: double.infinity,
                         height: 150,
                         fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(color: AppColors.outlineVariant.withOpacity(0.2)),
+                        errorWidget: (context, url, error) => const Icon(Icons.error),
                       ),
                     ),
                     const SizedBox(height: 8),

@@ -154,7 +154,7 @@ final myOrdersStreamProvider = StreamProvider<List<OrderModel>>((ref) async* {
     // This is a naive merge if the user can be both, 
     // but in Supabase flutter, stream builder with multiple eq is limited.
     // For simplicity, we just fetch from DB directly if we want a realtime view of both,
-    final res = await supabase.from('orders').select().or('customer_id.eq.$userId,provider_id.eq.$userId').order('created_at', ascending: false);
+    final res = await supabase.from('orders').select('*, service:services(*), provider:profiles!orders_provider_id_fkey(*), customer:profiles!orders_customer_id_fkey(*)').or('customer_id.eq.$userId,provider_id.eq.$userId').order('created_at', ascending: false);
     yield res.map((e) => OrderModel.fromJson(e)).toList();
   }
 });

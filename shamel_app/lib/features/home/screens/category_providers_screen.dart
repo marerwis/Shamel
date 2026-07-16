@@ -166,7 +166,7 @@ class CategoryProvidersScreen extends StatelessWidget {
                           const SizedBox(width: 16),
                           Icon(Icons.attach_money, size: 14, color: AppColors.outline),
                           const SizedBox(width: 4),
-                          Text('${50 + (index * 10)} ر.س / ساعة', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.outline)),
+                          Text('${50 + (index * 10)} د.ل / ساعة', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.outline)),
                         ],
                       ),
                     ],

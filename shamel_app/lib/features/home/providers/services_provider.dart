@@ -5,17 +5,23 @@ class ServiceModel {
   final String id;
   final String title;
   final String? categoryId;
+  final String? subCategoryId;
   final String? description;
   final double price;
   final String? providerId;
+  final List<String>? availableSlots;
+  final String? imageUrl;
 
   ServiceModel({
     required this.id,
     required this.title,
     this.categoryId,
+    this.subCategoryId,
     this.description,
     required this.price,
     this.providerId,
+    this.availableSlots,
+    this.imageUrl,
   });
 
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
@@ -23,9 +29,12 @@ class ServiceModel {
       id: json['id'] ?? '',
       title: json['title'] ?? json['name'] ?? 'بدون اسم',
       categoryId: json['category_id'],
+      subCategoryId: json['sub_category_id'],
       description: json['description'],
       price: json['price'] != null ? (json['price'] as num).toDouble() : (json['base_price'] != null ? (json['base_price'] as num).toDouble() : 0.0),
       providerId: json['provider_id'],
+      availableSlots: json['available_slots'] != null ? List<String>.from(json['available_slots']) : null,
+      imageUrl: json['image_url'],
     );
   }
 }

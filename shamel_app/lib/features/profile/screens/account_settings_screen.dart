@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/app_drawer.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -17,6 +18,37 @@ class AccountSettingsScreen extends ConsumerStatefulWidget {
 
 class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
   bool _isUploading = false;
+  final TextEditingController _addressController = TextEditingController();
+  bool _isSavingAddress = false;
+
+  @override
+  void dispose() {
+    _addressController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveAddress() async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+    
+    setState(() { _isSavingAddress = true; });
+    try {
+      await Supabase.instance.client
+          .from('profiles')
+          .update({'address': _addressController.text})
+          .eq('id', user.id);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ العنوان بنجاح!'), backgroundColor: Colors.green));
+        ref.invalidate(userProfileProvider);
+      }
+    } catch(e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $e'), backgroundColor: Colors.red));
+      }
+    } finally {
+      if (mounted) setState(() { _isSavingAddress = false; });
+    }
+  }
 
   Future<void> _pickAndUploadImage() async {
     final user = ref.read(currentUserProvider);
@@ -79,6 +111,17 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
   Widget build(BuildContext context) {
     final profileAsync = ref.watch(userProfileProvider);
     final user = ref.watch(currentUserProvider);
+
+    profileAsync.whenData((profile) {
+      if (profile != null && _addressController.text.isEmpty && profile['address'] != null) {
+        // We use Future.microtask or just schedule it to avoid modifying state during build
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && _addressController.text.isEmpty) {
+            _addressController.text = profile['address'];
+          }
+        });
+      }
+    });
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -154,8 +197,13 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
                             ),
                             clipBehavior: Clip.antiAlias,
                             child: avatarUrl != null && avatarUrl.isNotEmpty
-                                ? Image.network(avatarUrl, fit: BoxFit.cover)
-                                : const Icon(Icons.person, size: 48, color: AppColors.outline),
+                                ? CachedNetworkImage(
+                                    imageUrl: avatarUrl,
+                                    fit: BoxFit.cover,
+                                    errorWidget: (context, url, error) => const Icon(Icons.person, size: 50, color: AppColors.onSurfaceVariant),
+                                    placeholder: (context, url) => const CircularProgressIndicator(),
+                                  )
+                                : const Icon(Icons.person, size: 50, color: AppColors.onSurfaceVariant),
                           ),
                           Positioned(
                             bottom: 0,
@@ -220,12 +268,33 @@ class _AccountSettingsScreenState extends ConsumerState<AccountSettingsScreen> {
                         iconBg: AppColors.primaryFixed.withOpacity(0.2),
                       ),
                       const Divider(height: 1),
-                      _buildSettingsTile(
-                        context,
-                        title: 'عناويننا المحفوظة',
-                        icon: Icons.location_on,
-                        iconColor: AppColors.secondary,
-                        iconBg: AppColors.secondaryFixed.withOpacity(0.2),
+                      _buildSectionHeader(context, 'العنوان'),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: _addressController,
+                                decoration: InputDecoration(
+                                  hintText: 'اكتب عنوانك بالتفصيل هنا...',
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            _isSavingAddress 
+                              ? const Padding(
+                                  padding: EdgeInsets.all(12.0),
+                                  child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
+                                )
+                              : IconButton(
+                                  icon: const Icon(Icons.save, color: AppColors.primary),
+                                  onPressed: _saveAddress,
+                                ),
+                          ],
+                        ),
                       ),
                       
                       _buildSectionHeader(context, 'الأمان والتفضيلات'),
