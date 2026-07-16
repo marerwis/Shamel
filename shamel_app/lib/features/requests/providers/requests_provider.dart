@@ -36,10 +36,18 @@ class RequestsNotifier extends StateNotifier<bool> {
           print('Error uploading image: $e');
         }
       }
+      
+      String targetCategoryId = categoryId;
+      try {
+        final catRes = await _client.from('categories').select('parent_id').eq('id', categoryId).maybeSingle();
+        if (catRes != null && catRes['parent_id'] != null) {
+          targetCategoryId = catRes['parent_id'];
+        }
+      } catch (_) {}
 
       await _client.from('requests').insert({
         'user_id': userId,
-        'category_id': categoryId,
+        'category_id': targetCategoryId,
         'service_id': serviceId,
         'description': description,
         'images': imageUrls,
