@@ -89,45 +89,73 @@ class RequestsScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 16, right: 16, top: 16,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('تفاصيل الطلب', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              const Divider(),
-              Text('وصف العميل:', style: TextStyle(fontWeight: FontWeight.bold)),
-              Text(req['description'] ?? ''),
-              const SizedBox(height: 16),
-              
-              if (images.isNotEmpty) ...[
-                const Text('الصور المرفقة:', style: TextStyle(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
-                SizedBox(
-                  height: 100,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: images.length,
-                    itemBuilder: (context, i) => Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: Image.network(images[i], width: 100, height: 100, fit: BoxFit.cover),
+        return DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          maxChildSize: 0.9,
+          minChildSize: 0.4,
+          expand: false,
+          builder: (context, scrollController) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 16, right: 16, top: 16,
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('تفاصيل الطلب', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  Expanded(
+                    child: ListView(
+                      controller: scrollController,
+                      children: [
+                        const Text('وصف العميل:', style: TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        Text(req['description'] ?? ''),
+                        const SizedBox(height: 16),
+                        
+                        if (images.isNotEmpty) ...[
+                          const Text('الصور المرفقة:', style: TextStyle(fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            height: 120,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: images.length,
+                              itemBuilder: (context, i) => Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.network(images[i], width: 120, height: 120, fit: BoxFit.cover),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                        
+                        // In the future, this is where we will fetch the providers who received this broadcast.
+                        const Text('سجل البث (Logs):', style: TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        const Text('سيتم إضافة سجل المزودين الذين وصلهم الطلب لاحقاً.', style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey)),
+                        const SizedBox(height: 32),
+                      ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-              ],
-              
-              // In the future, this is where we will fetch the providers who received this broadcast.
-              const Text('سجل البث (Logs):', style: TextStyle(fontWeight: FontWeight.bold)),
-              const Text('سيتم إضافة سجل المزودين الذين وصلهم الطلب لاحقاً.', style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey)),
-              const SizedBox(height: 32),
-            ],
-          ),
+                ],
+              ),
+            );
+          },
         );
       }
     );

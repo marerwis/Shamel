@@ -15,6 +15,16 @@ class MyOrdersScreen extends ConsumerStatefulWidget {
 
 class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
   @override
+  void initState() {
+    super.initState();
+    // Force refresh the streams to ensure we don't see stale cache from before booking
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(myRequestsStreamProvider);
+      ref.invalidate(myOrdersStreamProvider);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final ordersAsync = ref.watch(myOrdersStreamProvider);
     final requestsAsync = ref.watch(myRequestsStreamProvider);
