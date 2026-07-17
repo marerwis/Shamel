@@ -36,7 +36,7 @@ class OrderModel {
       providerId: json['provider_id'],
       userId: json['user_id'],
       status: json['status'],
-      price: (json['total_amount'] as num?)?.toDouble() ?? 0.0,
+      price: (json['price'] as num?)?.toDouble() ?? 0.0,
       serviceId: json['service_id'],
       createdAt: DateTime.parse(json['created_at']),
       scheduledAt: json['scheduled_at'] != null ? DateTime.parse(json['scheduled_at']) : null,
@@ -95,9 +95,12 @@ class OrdersNotifier extends StateNotifier<bool> {
       
       state = false;
       return orderId;
+    } on PostgrestException catch (e) {
+      state = false;
+      throw Exception('خطأ في قاعدة البيانات: ${e.message}');
     } catch (e) {
       state = false;
-      rethrow;
+      throw Exception('حدث خطأ غير متوقع: $e');
     }
   }
 
@@ -110,9 +113,12 @@ class OrdersNotifier extends StateNotifier<bool> {
         'p_amount': amount,
         'p_provider_id': providerId,
       });
+    } on PostgrestException catch (e) {
+      state = false;
+      throw Exception('خطأ في قاعدة البيانات: ${e.message}');
     } catch (e) {
       state = false;
-      rethrow;
+      throw Exception('حدث خطأ غير متوقع: $e');
     }
     state = false;
   }
@@ -128,9 +134,12 @@ class OrdersNotifier extends StateNotifier<bool> {
         'status': 'Open',
       });
       await _client.from('orders').update({'status': 'Disputed'}).eq('id', orderId);
+    } on PostgrestException catch (e) {
+      state = false;
+      throw Exception('خطأ في قاعدة البيانات: ${e.message}');
     } catch (e) {
       state = false;
-      rethrow;
+      throw Exception('حدث خطأ غير متوقع: $e');
     }
     state = false;
   }
@@ -139,9 +148,12 @@ class OrdersNotifier extends StateNotifier<bool> {
     state = true;
     try {
       await _client.from('orders').update({'status': newStatus}).eq('id', orderId);
+    } on PostgrestException catch (e) {
+      state = false;
+      throw Exception('خطأ في قاعدة البيانات: ${e.message}');
     } catch (e) {
       state = false;
-      rethrow;
+      throw Exception('حدث خطأ غير متوقع: $e');
     }
     state = false;
   }
@@ -154,15 +166,18 @@ class OrdersNotifier extends StateNotifier<bool> {
         await _client.rpc('process_wallet_transaction', params: {
           'p_user_id': providerId,
           'p_amount': price,
-          'p_type': 'credit',
+          'p_transaction_type': 'credit',
           'p_description': 'استلام أرباح طلب توصيل'
         });
       }
       // Update status to completed
       await _client.from('orders').update({'status': 'completed'}).eq('id', orderId);
+    } on PostgrestException catch (e) {
+      state = false;
+      throw Exception('خطأ في قاعدة البيانات: ${e.message}');
     } catch (e) {
       state = false;
-      rethrow;
+      throw Exception('حدث خطأ غير متوقع: $e');
     }
     state = false;
   }

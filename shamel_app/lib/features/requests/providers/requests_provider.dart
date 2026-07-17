@@ -48,12 +48,11 @@ class RequestsNotifier extends StateNotifier<bool> {
         }
       } catch (_) {}
 
-      // Execute Wallet Deduction (Throws Exception if insufficient balance)
       if (price > 0) {
         await _client.rpc('process_wallet_transaction', params: {
           'p_user_id': userId,
           'p_amount': price,
-          'p_type': 'debit',
+          'p_transaction_type': 'debit',
           'p_description': 'دفع قيمة الطلب لخدمة التوصيل'
         });
       }
@@ -71,9 +70,12 @@ class RequestsNotifier extends StateNotifier<bool> {
         'notes': notes,
       });
 
+    } on PostgrestException catch (e) {
+      state = false;
+      throw Exception('خطأ في قاعدة البيانات: ${e.message}');
     } catch (e) {
       state = false;
-      throw e;
+      throw Exception('حدث خطأ غير متوقع: $e');
     }
     state = false;
   }
@@ -89,9 +91,12 @@ class RequestsNotifier extends StateNotifier<bool> {
       if (response == false) {
         throw Exception('عذراً، لقد تم قبول هذا الطلب من قبل مزود آخر.');
       }
+    } on PostgrestException catch (e) {
+      state = false;
+      throw Exception('خطأ في قاعدة البيانات: ${e.message}');
     } catch (e) {
       state = false;
-      throw e;
+      throw Exception('حدث خطأ غير متوقع: $e');
     }
     state = false;
   }

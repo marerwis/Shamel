@@ -83,9 +83,12 @@ class ServicesNotifier extends AsyncNotifier<List<ServiceModel>> {
       });
       ref.invalidateSelf();
       return null;
+    } on PostgrestException catch (e) {
+      print('Add Service Database Error: $e');
+      return 'خطأ في قاعدة البيانات: ${e.message}';
     } catch (e) {
       print('Add Service Error: $e');
-      return e.toString();
+      return 'حدث خطأ غير متوقع: $e';
     }
   }
 

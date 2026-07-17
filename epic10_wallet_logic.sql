@@ -3,7 +3,7 @@
 CREATE OR REPLACE FUNCTION public.process_wallet_transaction(
   p_user_id uuid,
   p_amount numeric,
-  p_type text,
+  p_transaction_type text,
   p_description text,
   p_order_id uuid DEFAULT NULL
 )
@@ -21,7 +21,7 @@ BEGIN
   END IF;
 
   -- 2. التحقق من الرصيد الحالي للمستخدم في حالة الخصم (debit)
-  IF p_type = 'debit' THEN
+  IF p_transaction_type = 'debit' THEN
     SELECT wallet_balance INTO v_current_balance
     FROM public.profiles
     WHERE id = p_user_id;
@@ -35,7 +35,7 @@ BEGIN
     SET wallet_balance = COALESCE(wallet_balance, 0) - p_amount
     WHERE id = p_user_id;
 
-  ELSIF p_type = 'credit' THEN
+  ELSIF p_transaction_type = 'credit' THEN
     -- إضافة المبلغ
     UPDATE public.profiles
     SET wallet_balance = COALESCE(wallet_balance, 0) + p_amount
@@ -46,8 +46,8 @@ BEGIN
   END IF;
 
   -- 3. تسجيل العملية في جدول المعاملات المالية
-  INSERT INTO public.wallet_transactions (user_id, amount, type, description, order_id, created_at)
-  VALUES (p_user_id, p_amount, p_type, p_description, p_order_id, now());
+  INSERT INTO public.wallet_transactions (user_id, amount, transaction_type, description, order_id, created_at)
+  VALUES (p_user_id, p_amount, p_transaction_type, p_description, p_order_id, now());
 
 END;
 $$;

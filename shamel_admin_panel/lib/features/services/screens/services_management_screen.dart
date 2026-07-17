@@ -196,8 +196,9 @@ class ServicesManagementScreen extends ConsumerWidget {
   void _showAddServiceDialog(BuildContext context, WidgetRef ref) {
     final titleController = TextEditingController();
     final priceController = TextEditingController();
-    final slotsController = TextEditingController();
     String? selectedCategoryId;
+    final List<String> standardSlots = ['08:00 ص', '09:00 ص', '10:00 ص', '11:00 ص', '12:00 م', '01:00 م', '02:00 م', '03:00 م', '04:00 م', '05:00 م', '06:00 م', '07:00 م', '08:00 م', '09:00 م', '10:00 م'];
+    List<String> selectedSlots = [];
     
     showDialog(
       context: context,
@@ -229,12 +230,30 @@ class ServicesManagementScreen extends ConsumerWidget {
                           decoration: const InputDecoration(labelText: 'السعر (د.ل)'),
                         ),
                         const SizedBox(height: 16),
-                        TextField(
-                          controller: slotsController,
-                          decoration: const InputDecoration(
-                            labelText: 'الأوقات المتاحة',
-                            hintText: 'مثال: 09:00 ص، 10:30 ص، 02:00 م (مفصولة بفاصلة)',
-                          ),
+                        const Align(
+                          alignment: Alignment.centerRight,
+                          child: Text('الأوقات المتاحة:', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8.0,
+                          runSpacing: 4.0,
+                          children: standardSlots.map((slot) {
+                            final isSelected = selectedSlots.contains(slot);
+                            return FilterChip(
+                              label: Text(slot),
+                              selected: isSelected,
+                              onSelected: (bool selected) {
+                                setState(() {
+                                  if (selected) {
+                                    selectedSlots.add(slot);
+                                  } else {
+                                    selectedSlots.remove(slot);
+                                  }
+                                });
+                              },
+                            );
+                          }).toList(),
                         ),
                         const SizedBox(height: 16),
                         categoriesState.when(
@@ -307,10 +326,7 @@ class ServicesManagementScreen extends ConsumerWidget {
                         setBtnState(() => isLoading = true);
                         final price = double.tryParse(priceController.text) ?? 0.0;
                         
-                        List<String>? slots;
-                        if (slotsController.text.trim().isNotEmpty) {
-                          slots = slotsController.text.split('،').expand((s) => s.split(',')).map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
-                        }
+                        List<String>? slots = selectedSlots.isNotEmpty ? List.from(selectedSlots) : null;
                         
                         // Upload image if selected
                         String? imageUrl;

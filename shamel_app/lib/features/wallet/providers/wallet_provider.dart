@@ -27,7 +27,7 @@ class WalletTransaction {
       id: json['id'],
       userId: json['user_id'],
       amount: json['amount'],
-      type: json['type'],
+      type: json['transaction_type'],
       description: json['description'],
       orderId: json['order_id'],
       createdAt: DateTime.parse(json['created_at']),
@@ -134,9 +134,10 @@ class WalletNotifier extends AsyncNotifier<WalletState> {
       // In production, we'd wait for DB trigger or handle server-side
       await refresh();
       return true;
+    } on PostgrestException catch (e) {
+      throw Exception('خطأ في قاعدة البيانات: ${e.message}');
     } catch (e) {
-      print('Withdrawal request error: $e');
-      return false;
+      throw Exception('حدث خطأ غير متوقع: $e');
     }
   }
 }

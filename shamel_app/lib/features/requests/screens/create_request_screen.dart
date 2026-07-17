@@ -50,7 +50,8 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إرسال طلبك بنجاح وسوف يصل للمزودين المتاحين!')));
       context.pop(); // Go back
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('حدث خطأ: $e')));
+      final msg = e.toString().replaceAll('Exception: ', '');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('حدث خطأ: $msg')));
     }
   }
 

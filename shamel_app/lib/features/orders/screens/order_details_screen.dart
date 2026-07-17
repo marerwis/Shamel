@@ -141,7 +141,8 @@ class OrderDetailsScreen extends ConsumerWidget {
                           await ref.read(ordersProvider.notifier).updateOrderStatus(orderId, 'in_progress');
                           if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحديث الحالة إلى: جاري التوصيل')));
                         } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $e')));
+                          final msg = e.toString().replaceAll('Exception: ', '');
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $msg')));
                         }
                       },
                       icon: const Icon(Icons.motorcycle),
@@ -177,7 +178,8 @@ class OrderDetailsScreen extends ConsumerWidget {
                               Navigator.pop(context); // Go back after completion
                             }
                           } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $e')));
+                            final msg = e.toString().replaceAll('Exception: ', '');
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $msg')));
                           }
                         }
                       },
