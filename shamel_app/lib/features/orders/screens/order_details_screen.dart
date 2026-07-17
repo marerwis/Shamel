@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../providers/orders_provider.dart';
 
@@ -37,6 +38,57 @@ class OrderDetailsScreen extends ConsumerWidget {
           ),
           
           if (isProcessing) const LinearProgressIndicator(),
+
+          if ((order.status == 'accepted' || order.status == 'in_progress') && 
+              ((isCustomer && order.provider?['phone'] != null) || (!isCustomer && order.customer?['phone'] != null)))
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
+                      onPressed: () async {
+                        final phone = isCustomer ? order.provider?['phone'] : order.customer?['phone'];
+                        if (phone != null) {
+                          final url = Uri.parse('whatsapp://send?phone=$phone');
+                          if (await canLaunchUrl(url)) {
+                            await launchUrl(url);
+                          } else {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('لا يمكن فتح واتساب')));
+                            }
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.chat),
+                      label: const Text('واتساب'),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
+                      onPressed: () async {
+                        final phone = isCustomer ? order.provider?['phone'] : order.customer?['phone'];
+                        if (phone != null) {
+                          final url = Uri.parse('tel:$phone');
+                          if (await canLaunchUrl(url)) {
+                            await launchUrl(url);
+                          } else {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('لا يمكن إجراء المكالمة')));
+                            }
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.call),
+                      label: const Text('اتصال'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
           // Milestones List
           Expanded(

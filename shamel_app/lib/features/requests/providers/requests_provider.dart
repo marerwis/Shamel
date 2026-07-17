@@ -18,6 +18,9 @@ class RequestsNotifier extends StateNotifier<bool> {
     required String description,
     required List<File> imageFiles,
     double price = 0,
+    String? address,
+    DateTime? scheduledAt,
+    String? notes,
   }) async {
     state = true;
     try {
@@ -53,6 +56,9 @@ class RequestsNotifier extends StateNotifier<bool> {
         'images': imageUrls,
         'price': price,
         'status': 'Pending_Broadcast',
+        'address': address,
+        'scheduled_at': scheduledAt?.toIso8601String(),
+        'notes': notes,
       });
 
     } catch (e) {

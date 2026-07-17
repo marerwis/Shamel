@@ -95,6 +95,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
           description: desc,
           imageFiles: [],
           price: widget.service?.price ?? 50.0,
+          address: _addressController.text,
+          scheduledAt: finalScheduledAt,
+          notes: _notesController.text,
         );
 
         if (mounted) {

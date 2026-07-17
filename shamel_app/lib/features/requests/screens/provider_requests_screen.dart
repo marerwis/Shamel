@@ -5,6 +5,7 @@ import 'package:timeago/timeago.dart' as timeago;
 
 import '../providers/requests_provider.dart';
 import '../providers/commission_provider.dart';
+import '../../../core/providers/shared_prefs_provider.dart';
 
 class ProviderRequestsScreen extends ConsumerStatefulWidget {
   final String categoryId;
@@ -15,7 +16,32 @@ class ProviderRequestsScreen extends ConsumerStatefulWidget {
 }
 
 class _ProviderRequestsScreenState extends ConsumerState<ProviderRequestsScreen> {
-  String? _loadingRequestId;
+  final Set<String> _loadingRequestIds = {};
+  final Set<String> _hiddenRequestIds = {};
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => _loadHiddenRequests());
+  }
+
+  Future<void> _loadHiddenRequests() async {
+    final prefs = ref.read(sharedPrefsProvider);
+    final hidden = prefs.getStringList('hidden_requests') ?? [];
+    if (mounted) {
+      setState(() {
+        _hiddenRequestIds.addAll(hidden);
+      });
+    }
+  }
+
+  Future<void> _hideRequest(String id) async {
+    setState(() {
+      _hiddenRequestIds.add(id);
+    });
+    final prefs = ref.read(sharedPrefsProvider);
+    await prefs.setStringList('hidden_requests', _hiddenRequestIds.toList());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +53,9 @@ class _ProviderRequestsScreenState extends ConsumerState<ProviderRequestsScreen>
       ),
       body: requestsStream.when(
         data: (requests) {
-          if (requests.isEmpty) {
+          final visibleRequests = requests.where((req) => !_hiddenRequestIds.contains(req['id'])).toList();
+
+          if (visibleRequests.isEmpty) {
             return const Center(child: Text('لا يوجد طلبات متاحة حالياً في تخصصك.'));
           }
 
@@ -37,17 +65,29 @@ class _ProviderRequestsScreenState extends ConsumerState<ProviderRequestsScreen>
             },
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: requests.length,
+              itemCount: visibleRequests.length,
               itemBuilder: (context, index) {
-                final req = requests[index];
+                final req = visibleRequests[index];
                 final createdAtRaw = req['created_at'];
                 final createdAt = createdAtRaw != null ? DateTime.tryParse(createdAtRaw.toString()) ?? DateTime.now() : DateTime.now();
                 final timeAgoStr = timeago.format(createdAt, locale: 'ar');
 
-                return Card(
-                  elevation: 3,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: Padding(
+                return Dismissible(
+                  key: Key(req['id']),
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 20.0),
+                    color: Colors.red,
+                    child: const Icon(Icons.delete, color: Colors.white),
+                  ),
+                  onDismissed: (direction) {
+                    _hideRequest(req['id']);
+                  },
+                  child: Card(
+                    elevation: 3,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,12 +111,12 @@ class _ProviderRequestsScreenState extends ConsumerState<ProviderRequestsScreen>
                           child: Consumer(
                           builder: (context, ref, _) {
                             final isLoadingGlobal = ref.watch(requestsProvider);
-                            final isThisLoading = _loadingRequestId == req['id'];
+                            final isThisLoading = _loadingRequestIds.contains(req['id']);
                             
                             return ElevatedButton.icon(
                               onPressed: isLoadingGlobal ? null : () async {
                                 setState(() {
-                                  _loadingRequestId = req['id'];
+                                  _loadingRequestIds.add(req['id']);
                                 });
                                 try {
                                   await ref.read(requestsProvider.notifier).acceptRequestDirectly(req['id']);
@@ -95,7 +135,7 @@ class _ProviderRequestsScreenState extends ConsumerState<ProviderRequestsScreen>
                                 } finally {
                                   if (mounted) {
                                     setState(() {
-                                      _loadingRequestId = null;
+                                      _loadingRequestIds.remove(req['id']);
                                     });
                                   }
                                 }
@@ -127,7 +167,7 @@ class _ProviderRequestsScreenState extends ConsumerState<ProviderRequestsScreen>
                       ],
                     ),
                   ),
-                );
+                ));
               },
             ),
           );

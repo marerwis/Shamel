@@ -30,7 +30,7 @@ class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
     final requestsAsync = ref.watch(myRequestsStreamProvider);
 
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         backgroundColor: AppColors.background,
         drawer: const AppDrawer(),
@@ -55,46 +55,60 @@ class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
             unselectedLabelColor: Colors.grey,
             indicatorColor: AppColors.primary,
             tabs: [
-              Tab(text: 'طلبات قيد الانتظار'),
-              Tab(text: 'طلبات حالية/مكتملة'),
+              Tab(text: 'قيد الانتظار'),
+              Tab(text: 'قيد التنفيذ'),
+              Tab(text: 'مكتملة'),
             ],
           ),
         ),
         body: TabBarView(
           children: [
-            // Tab 1: Pending Requests
-            requestsAsync.when(
-              data: (requests) {
-                final pendingRequests = requests.where((r) => r['status'] == 'Pending_Broadcast').toList();
+            // Tab 1: Pending Requests & Pending Orders
+            Builder(
+              builder: (context) {
+                final isLoading = requestsAsync.isLoading || ordersAsync.isLoading;
+                final requests = requestsAsync.value ?? [];
+                final orders = ordersAsync.value ?? [];
                 
-                if (pendingRequests.isEmpty) {
+                final pendingRequests = requests.where((r) => r['status'] == 'Pending_Broadcast').toList();
+                final pendingOrders = orders.where((o) => o.status == 'pending').toList();
+                
+                if (isLoading && pendingRequests.isEmpty && pendingOrders.isEmpty) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                
+                if (pendingRequests.isEmpty && pendingOrders.isEmpty) {
                   return _buildEmptyState(context, 'لا توجد طلبات معلقة');
                 }
                 
                 return RefreshIndicator(
                   onRefresh: () async {
-                    return ref.refresh(myRequestsStreamProvider.future);
+                    ref.invalidate(myRequestsStreamProvider);
+                    ref.invalidate(myOrdersStreamProvider);
                   },
-                  child: ListView.separated(
+                  child: ListView(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                    itemCount: pendingRequests.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 16),
-                    itemBuilder: (context, index) {
-                      final req = pendingRequests[index];
-                      return _buildRequestCard(context, req);
-                    },
+                    children: [
+                      ...pendingRequests.map((req) => Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: _buildRequestCard(context, req),
+                      )),
+                      ...pendingOrders.map((order) => Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: _buildOrderCard(context, order),
+                      )),
+                    ],
                   ),
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('خطأ في جلب الطلبات: $err')),
             ),
             
-            // Tab 2: Orders
+            // Tab 2: Active Orders (accepted, in_progress)
             ordersAsync.when(
               data: (orders) {
-                if (orders.isEmpty) {
-                  return _buildEmptyState(context, 'لا توجد طلبات سابقة');
+                final activeOrders = orders.where((o) => ['accepted', 'in_progress'].contains(o.status)).toList();
+                if (activeOrders.isEmpty) {
+                  return _buildEmptyState(context, 'لا توجد طلبات قيد التنفيذ');
                 }
                 
                 return RefreshIndicator(
@@ -103,10 +117,37 @@ class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
                   },
                   child: ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                    itemCount: orders.length,
+                    itemCount: activeOrders.length,
                     separatorBuilder: (context, index) => const SizedBox(height: 16),
                     itemBuilder: (context, index) {
-                      final order = orders[index];
+                      final order = activeOrders[index];
+                      return _buildOrderCard(context, order);
+                    },
+                  ),
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => Center(child: Text('خطأ في جلب الطلبات: $err')),
+            ),
+            
+            // Tab 3: Completed/Cancelled Orders (completed, cancelled, disputed)
+            ordersAsync.when(
+              data: (orders) {
+                final completedOrders = orders.where((o) => ['completed', 'cancelled', 'disputed'].contains(o.status)).toList();
+                if (completedOrders.isEmpty) {
+                  return _buildEmptyState(context, 'لا توجد طلبات مكتملة');
+                }
+                
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    return ref.refresh(myOrdersStreamProvider.future);
+                  },
+                  child: ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    itemCount: completedOrders.length,
+                    separatorBuilder: (context, index) => const SizedBox(height: 16),
+                    itemBuilder: (context, index) {
+                      final order = completedOrders[index];
                       return _buildOrderCard(context, order);
                     },
                   ),
@@ -187,8 +228,8 @@ class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
         break;
     }
 
-    final serviceName = order.service?['name'] ?? 'خدمة غير معروفة';
-    final categoryName = order.service?['category'] ?? 'عام';
+    final serviceName = order.service?['name'] ?? 'طلب عام مخصص';
+    final categoryName = order.service?['category'] ?? 'حسب العرض';
     // Format date properly in a real app, here simple slice
     final dateStr = order.scheduledAt != null 
         ? '${order.scheduledAt!.year}-${order.scheduledAt!.month.toString().padLeft(2, '0')}-${order.scheduledAt!.day.toString().padLeft(2, '0')}'
