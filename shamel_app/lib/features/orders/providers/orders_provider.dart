@@ -134,6 +134,38 @@ class OrdersNotifier extends StateNotifier<bool> {
     }
     state = false;
   }
+
+  Future<void> updateOrderStatus(String orderId, String newStatus) async {
+    state = true;
+    try {
+      await _client.from('orders').update({'status': newStatus}).eq('id', orderId);
+    } catch (e) {
+      state = false;
+      rethrow;
+    }
+    state = false;
+  }
+
+  Future<void> completeDelivery(String orderId, String providerId, double price) async {
+    state = true;
+    try {
+      // Execute Wallet Credit
+      if (price > 0) {
+        await _client.rpc('process_wallet_transaction', params: {
+          'p_user_id': providerId,
+          'p_amount': price,
+          'p_type': 'credit',
+          'p_description': 'استلام أرباح طلب توصيل'
+        });
+      }
+      // Update status to completed
+      await _client.from('orders').update({'status': 'completed'}).eq('id', orderId);
+    } catch (e) {
+      state = false;
+      rethrow;
+    }
+    state = false;
+  }
 }
 
 final myOrdersStreamProvider = StreamProvider<List<OrderModel>>((ref) async* {

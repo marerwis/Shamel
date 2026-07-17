@@ -48,6 +48,16 @@ class RequestsNotifier extends StateNotifier<bool> {
         }
       } catch (_) {}
 
+      // Execute Wallet Deduction (Throws Exception if insufficient balance)
+      if (price > 0) {
+        await _client.rpc('process_wallet_transaction', params: {
+          'p_user_id': userId,
+          'p_amount': price,
+          'p_type': 'debit',
+          'p_description': 'دفع قيمة الطلب لخدمة التوصيل'
+        });
+      }
+
       await _client.from('requests').insert({
         'user_id': userId,
         'category_id': targetCategoryId,
