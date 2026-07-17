@@ -49,7 +49,7 @@ class OrderDetailsScreen extends ConsumerWidget {
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
                       onPressed: () async {
-                        final phone = isCustomer ? order.provider?['phone'] : order.customer?['phone'];
+                        final phone = isCustomer ? (order.provider != null ? order.provider!['phone'] : null) : (order.customer != null ? order.customer!['phone'] : null);
                         if (phone != null) {
                           final url = Uri.parse('whatsapp://send?phone=$phone');
                           if (await canLaunchUrl(url)) {
@@ -70,7 +70,7 @@ class OrderDetailsScreen extends ConsumerWidget {
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
                       onPressed: () async {
-                        final phone = isCustomer ? order.provider?['phone'] : order.customer?['phone'];
+                        final phone = isCustomer ? (order.provider != null ? order.provider!['phone'] : null) : (order.customer != null ? order.customer!['phone'] : null);
                         if (phone != null) {
                           final url = Uri.parse('tel:$phone');
                           if (await canLaunchUrl(url)) {
