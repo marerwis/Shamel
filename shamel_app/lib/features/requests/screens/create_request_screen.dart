@@ -6,6 +6,7 @@ import 'dart:io';
 
 import '../../categories/providers/categories_provider.dart';
 import '../providers/requests_provider.dart';
+import '../../wallet/providers/wallet_provider.dart';
 
 class CreateRequestScreen extends ConsumerStatefulWidget {
   const CreateRequestScreen({super.key});
@@ -48,6 +49,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
       
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إرسال طلبك بنجاح وسوف يصل للمزودين المتاحين!')));
+      ref.invalidate(walletProvider);
       context.pop(); // Go back
     } catch (e) {
       final msg = e.toString().replaceAll('Exception: ', '');

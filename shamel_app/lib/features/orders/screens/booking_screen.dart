@@ -7,6 +7,7 @@ import '../../auth/providers/auth_provider.dart';
 import '../providers/orders_provider.dart';
 import '../../requests/providers/requests_provider.dart';
 import '../../../core/providers/shared_prefs_provider.dart';
+import '../../wallet/providers/wallet_provider.dart';
 
 class BookingScreen extends ConsumerStatefulWidget {
   final ServiceModel? service;
@@ -105,6 +106,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             const SnackBar(content: Text('تم إنشاء طلب عام بنجاح! بانتظار عروض المزودين.'), backgroundColor: Colors.green),
           );
           ref.invalidate(myRequestsStreamProvider);
+          ref.invalidate(walletProvider);
           context.go('/orders'); // Go to orders or requests
         }
       } else {
@@ -123,6 +125,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             const SnackBar(content: Text('تم إرسال الطلب بنجاح!'), backgroundColor: Colors.green),
           );
           ref.invalidate(myOrdersStreamProvider);
+          ref.invalidate(walletProvider);
           context.go('/orders');
         }
       }

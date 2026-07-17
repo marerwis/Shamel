@@ -22,24 +22,29 @@ BEGIN
 
   -- 2. التحقق من الرصيد الحالي للمستخدم في حالة الخصم (debit)
   IF p_transaction_type = 'debit' THEN
-    SELECT wallet_balance INTO v_current_balance
-    FROM public.profiles
-    WHERE id = p_user_id;
+    SELECT balance INTO v_current_balance
+    FROM public.wallets
+    WHERE user_id = p_user_id;
 
     IF v_current_balance IS NULL OR v_current_balance < p_amount THEN
       RAISE EXCEPTION 'الرصيد غير كافٍ. رصيدك الحالي: %', COALESCE(v_current_balance, 0);
     END IF;
 
     -- خصم المبلغ
-    UPDATE public.profiles
-    SET wallet_balance = COALESCE(wallet_balance, 0) - p_amount
-    WHERE id = p_user_id;
+    UPDATE public.wallets
+    SET balance = COALESCE(balance, 0) - p_amount
+    WHERE user_id = p_user_id;
 
   ELSIF p_transaction_type = 'credit' THEN
-    -- إضافة المبلغ
-    UPDATE public.profiles
-    SET wallet_balance = COALESCE(wallet_balance, 0) + p_amount
-    WHERE id = p_user_id;
+    -- إضافة المبلغ (مع التأكد من وجود محفظة)
+    UPDATE public.wallets
+    SET balance = COALESCE(balance, 0) + p_amount
+    WHERE user_id = p_user_id;
+    
+    -- إذا لم يكن لديه محفظة بعد، يمكن إنشاؤها (اختياري)
+    IF NOT FOUND THEN
+      INSERT INTO public.wallets (user_id, balance) VALUES (p_user_id, p_amount);
+    END IF;
 
   ELSE
     RAISE EXCEPTION 'نوع المعاملة غير صالح. استخدم credit أو debit';

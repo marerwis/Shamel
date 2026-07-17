@@ -95,8 +95,8 @@ class WalletNotifier extends AsyncNotifier<WalletState> {
       return WalletState(balance: 0, transactions: []);
     }
 
-    final balanceResponse = await _client.from('profiles').select('wallet_balance').eq('id', user.id).single();
-    final balance = balanceResponse['wallet_balance'] ?? 0;
+    final balanceResponse = await _client.from('wallets').select('balance').eq('user_id', user.id).maybeSingle();
+    final balance = balanceResponse != null ? (balanceResponse['balance'] ?? 0) : 0;
 
     final txResponse = await _client
         .from('wallet_transactions')
