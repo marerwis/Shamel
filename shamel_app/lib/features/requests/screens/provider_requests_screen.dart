@@ -15,6 +15,8 @@ class ProviderRequestsScreen extends ConsumerStatefulWidget {
 }
 
 class _ProviderRequestsScreenState extends ConsumerState<ProviderRequestsScreen> {
+  String? _loadingRequestId;
+
   @override
   Widget build(BuildContext context) {
     final requestsStream = ref.watch(providerRequestsProvider(widget.categoryId));
@@ -67,40 +69,60 @@ class _ProviderRequestsScreenState extends ConsumerState<ProviderRequestsScreen>
                         SizedBox(
                           width: double.infinity,
                           child: Consumer(
-                            builder: (context, ref, _) {
-                              final isLoading = ref.watch(requestsProvider);
-                              return ElevatedButton.icon(
-                                onPressed: isLoading ? null : () async {
-                                  try {
-                                    await ref.read(requestsProvider.notifier).acceptRequestDirectly(req['id']);
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('تم قبول الطلب بنجاح!')),
-                                      );
-                                      context.go('/orders');
-                                    }
-                                  } catch (e) {
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text(e.toString().replaceAll('Exception:', '').trim()), backgroundColor: Colors.red),
-                                      );
-                                    }
+                          builder: (context, ref, _) {
+                            final isLoadingGlobal = ref.watch(requestsProvider);
+                            final isThisLoading = _loadingRequestId == req['id'];
+                            
+                            return ElevatedButton.icon(
+                              onPressed: isLoadingGlobal ? null : () async {
+                                setState(() {
+                                  _loadingRequestId = req['id'];
+                                });
+                                try {
+                                  await ref.read(requestsProvider.notifier).acceptRequestDirectly(req['id']);
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('تم قبول الطلب بنجاح!')),
+                                    );
+                                    context.go('/orders');
                                   }
-                                },
-                                icon: isLoading 
-                                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                                  : const Icon(Icons.check_circle, size: 28),
-                                label: const Text('قبول الطلب فوراً', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green.shade600,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  elevation: 4,
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(e.toString().replaceAll('Exception:', '').trim()), backgroundColor: Colors.red),
+                                    );
+                                  }
+                                } finally {
+                                  if (mounted) {
+                                    setState(() {
+                                      _loadingRequestId = null;
+                                    });
+                                  }
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                backgroundColor: Colors.green,
+                                foregroundColor: Colors.white,
+                                elevation: 4,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                              );
-                            }
-                          ),
+                              ),
+                              icon: isThisLoading
+                                  ? const SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                                    )
+                                  : const Icon(Icons.check_circle_outline, size: 28),
+                              label: const Text(
+                                'قبول الطلب فوراً',
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                            );
+                          },
+                        ),
                         )
                       ],
                     ),
