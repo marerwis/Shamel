@@ -184,17 +184,19 @@ final providerRequestsProvider = StreamProvider.family<List<Map<String, dynamic>
 
 // Removed bidding providers
 
-// Stream provider to fetch customer's own requests
-final myRequestsStreamProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
+// FutureProvider to fetch customer's own requests (avoids WebSocket Realtime errors)
+final myRequestsStreamProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final supabase = Supabase.instance.client;
   final userId = supabase.auth.currentUser?.id;
   
-  if (userId == null) return Stream.value([]);
+  if (userId == null) return [];
   
-  return supabase
+  final res = await supabase
       .from('requests')
-      .stream(primaryKey: ['id'])
+      .select()
       .eq('user_id', userId)
       .order('created_at', ascending: false);
+  
+  return List<Map<String, dynamic>>.from(res);
 });
 

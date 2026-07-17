@@ -183,27 +183,19 @@ class OrdersNotifier extends StateNotifier<bool> {
   }
 }
 
-final myOrdersStreamProvider = StreamProvider<List<OrderModel>>((ref) async* {
+// FutureProvider to fetch orders for current user (avoids WebSocket Realtime errors)
+final myOrdersStreamProvider = FutureProvider<List<OrderModel>>((ref) async {
   final supabase = Supabase.instance.client;
-  final userId = supabase.auth.currentUser!.id;
+  final userId = supabase.auth.currentUser?.id;
+  if (userId == null) return [];
 
-  final customerOrdersStream = supabase
+  final res = await supabase
       .from('orders')
-      .stream(primaryKey: ['id'])
-      .eq('user_id', userId);
-      
-  final providerOrdersStream = supabase
-      .from('orders')
-      .stream(primaryKey: ['id'])
-      .eq('provider_id', userId);
-
-  await for (final customerOrders in customerOrdersStream) {
-    // This is a naive merge if the user can be both, 
-    // but in Supabase flutter, stream builder with multiple eq is limited.
-    // For simplicity, we just fetch from DB directly if we want a realtime view of both,
-    final res = await supabase.from('orders').select('*, service:services(*), provider:profiles!orders_provider_id_fkey(*), customer:profiles!user_id(*)').or('user_id.eq.$userId,provider_id.eq.$userId').order('created_at', ascending: false);
-    yield res.map((e) => OrderModel.fromJson(e)).toList();
-  }
+      .select('*, service:services(*), provider:profiles!orders_provider_id_fkey(*), customer:profiles!user_id(*)')
+      .or('user_id.eq.$userId,provider_id.eq.$userId')
+      .order('created_at', ascending: false);
+  
+  return res.map((e) => OrderModel.fromJson(e)).toList();
 });
 
 // Fetch milestones for an order
