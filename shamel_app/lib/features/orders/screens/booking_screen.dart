@@ -20,20 +20,14 @@ class BookingScreen extends ConsumerStatefulWidget {
 }
 
 class _BookingScreenState extends ConsumerState<BookingScreen> {
-  int _selectedDateIndex = 0;
-  int _selectedTimeIndex = -1;
   bool _isLoading = false;
 
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
 
-  final List<String> _dates = ['اليوم', 'غداً', 'بعد غد'];
-  late List<String> _times;
-
   @override
   void initState() {
     super.initState();
-    _times = widget.service?.availableSlots ?? ['09:00 ص', '10:00 ص', '11:00 ص', '01:00 م', '03:00 م', '05:00 م'];
   }
 
   Future<void> _saveSelectedArea(String area) async {
@@ -58,35 +52,17 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     }
 
     final providerId = widget.provider?['id'];
-    
-    if (_selectedTimeIndex == -1) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('الرجاء اختيار وقت الخدمة')),
-      );
-      return;
-    }
 
     setState(() {
       _isLoading = true;
     });
 
     try {
-      // Calculate a dummy scheduledAt based on selection
-      DateTime now = DateTime.now();
-      DateTime scheduledDate = now.add(Duration(days: _selectedDateIndex));
-      // Parse hour from _times string
-      String timeStr = _times[_selectedTimeIndex];
-      int hour = int.parse(timeStr.split(':')[0]);
-      if (timeStr.contains('م') && hour != 12) hour += 12;
-      
-      DateTime finalScheduledAt = DateTime(scheduledDate.year, scheduledDate.month, scheduledDate.day, hour);
-
       if (providerId == null) {
         // Broadcast request logic
         final desc = '''
 خدمة: ${widget.service?.title ?? 'عام'}
 الموقع: ${_addressController.text}
-التاريخ المفضل: $finalScheduledAt
 السعر المتوقع: ${widget.service?.price ?? 50.0} د.ل
 ملاحظات: ${_notesController.text}
 ''';
@@ -97,7 +73,6 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
           imageFiles: [],
           price: widget.service?.price ?? 50.0,
           address: _addressController.text,
-          scheduledAt: finalScheduledAt,
           notes: _notesController.text,
         );
 
@@ -116,7 +91,6 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
           serviceId: widget.service?.id,
           price: widget.service?.price ?? 50.0,
           address: _addressController.text,
-          scheduledAt: finalScheduledAt,
           notes: _notesController.text,
         );
 
@@ -280,83 +254,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 ),
                 const SizedBox(height: 32),
 
-                // Date Selection
-                Text('تاريخ الخدمة', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 12),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: List.generate(_dates.length, (index) {
-                      final isSelected = _selectedDateIndex == index;
-                      return Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: ChoiceChip(
-                          label: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            child: Text(_dates[index]),
-                          ),
-                          selected: isSelected,
-                          onSelected: (selected) {
-                            setState(() {
-                              _selectedDateIndex = index;
-                              _selectedTimeIndex = -1; // Reset time
-                            });
-                          },
-                          selectedColor: AppColors.primary,
-                          backgroundColor: AppColors.surface,
-                          labelStyle: TextStyle(
-                            color: isSelected ? AppColors.onPrimary : AppColors.onSurfaceVariant,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          ),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-                const SizedBox(height: 24),
 
-                // Time Selection
-                Text('الوقت المتاح', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 12),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 2.5,
-                  ),
-                  itemCount: _times.length,
-                  itemBuilder: (context, index) {
-                    final isSelected = _selectedTimeIndex == index;
-                    return InkWell(
-                      onTap: () {
-                        setState(() {
-                          _selectedTimeIndex = index;
-                        });
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: isSelected ? AppColors.primaryContainer : AppColors.surface,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: isSelected ? AppColors.primary : AppColors.outlineVariant),
-                        ),
-                        child: Text(
-                          _times[index],
-                          style: TextStyle(
-                            color: isSelected ? AppColors.onPrimaryContainer : AppColors.onSurface,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 32),
 
                 // Problem Description
                 Text('وصف الطلب بدقة', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
@@ -407,7 +305,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         ),
         child: SafeArea(
           child: ElevatedButton(
-            onPressed: (_selectedTimeIndex != -1 && !_isLoading) ? _submitOrder : null,
+            onPressed: (!_isLoading) ? _submitOrder : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: AppColors.onPrimary,

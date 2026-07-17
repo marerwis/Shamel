@@ -230,10 +230,6 @@ class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
 
     final serviceName = order.service?['name'] ?? 'طلب عام مخصص';
     final categoryName = order.service?['category'] ?? 'حسب العرض';
-    // Format date properly in a real app, here simple slice
-    final dateStr = order.scheduledAt != null 
-        ? '${order.scheduledAt!.year}-${order.scheduledAt!.month.toString().padLeft(2, '0')}-${order.scheduledAt!.day.toString().padLeft(2, '0')}'
-        : '';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -312,9 +308,9 @@ class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.calendar_today, size: 16, color: AppColors.onSurfaceVariant),
+                  const Icon(Icons.access_time, size: 16, color: AppColors.onSurfaceVariant),
                   const SizedBox(width: 4),
-                  Text(dateStr, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.onSurfaceVariant)),
+                  Text('في أسرع وقت', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.onSurfaceVariant)),
                 ],
               ),
               TextButton(

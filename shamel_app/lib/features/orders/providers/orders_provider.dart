@@ -75,7 +75,7 @@ class OrdersNotifier extends StateNotifier<bool> {
         'status': 'Pending',
         'price': price,
         'service_id': serviceId,
-        'scheduled_at': scheduledAt?.toIso8601String(),
+        'scheduled_at': scheduledAt?.toIso8601String() ?? DateTime.now().toIso8601String(),
         'notes': notes,
         // if we had an address column, we'd add it here, or notes.
       }).select().single();

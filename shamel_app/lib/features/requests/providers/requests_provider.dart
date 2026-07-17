@@ -66,7 +66,7 @@ class RequestsNotifier extends StateNotifier<bool> {
         'price': price,
         'status': 'Pending_Broadcast',
         'address': address,
-        'scheduled_at': scheduledAt?.toIso8601String(),
+        'scheduled_at': scheduledAt?.toIso8601String() ?? DateTime.now().toIso8601String(),
         'notes': notes,
       });
 
