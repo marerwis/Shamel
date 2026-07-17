@@ -14,15 +14,27 @@ class MainLayoutScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(userProfileProvider);
     final isProvider = profileAsync.value?['role'] == 'provider';
-    final pDetails = profileAsync.value?['provider_details'] as List?;
-    final categoryId = isProvider && pDetails != null && pDetails.isNotEmpty ? pDetails[0]['category_id'] : null;
+    final pDetailsRaw = profileAsync.value?['provider_details'];
+    String? categoryId;
+    if (isProvider && pDetailsRaw != null) {
+      if (pDetailsRaw is List && pDetailsRaw.isNotEmpty) {
+        categoryId = pDetailsRaw[0]['category_id'];
+      } else if (pDetailsRaw is Map) {
+        categoryId = pDetailsRaw['category_id'];
+      }
+    }
 
     // Listen to provider category requests for local notifications
     ref.listen(userProfileProvider, (previous, next) {
       final pRole = next.value?['role'];
       if (pRole == 'provider') {
-        final details = next.value?['provider_details'] as List?;
-        final cId = (details != null && details.isNotEmpty) ? details[0]['category_id'] : null;
+        final detailsRaw = next.value?['provider_details'];
+        String? cId;
+        if (detailsRaw is List && detailsRaw.isNotEmpty) {
+          cId = detailsRaw[0]['category_id'];
+        } else if (detailsRaw is Map) {
+          cId = detailsRaw['category_id'];
+        }
         if (cId != null) {
           ref.read(notificationServiceProvider).init();
           ref.read(notificationServiceProvider).startListeningToRequests(cId);
