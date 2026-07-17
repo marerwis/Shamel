@@ -183,19 +183,26 @@ class OrdersNotifier extends StateNotifier<bool> {
   }
 }
 
-// FutureProvider to fetch orders for current user (avoids WebSocket Realtime errors)
-final myOrdersStreamProvider = FutureProvider<List<OrderModel>>((ref) async {
+// StreamProvider to fetch orders for current user
+final myOrdersStreamProvider = StreamProvider<List<OrderModel>>((ref) async* {
   final supabase = Supabase.instance.client;
   final userId = supabase.auth.currentUser?.id;
-  if (userId == null) return [];
+  if (userId == null) return;
 
-  final res = await supabase
+  // Use a simple stream on orders filtered by user_id, then do a full fetch
+  final stream = supabase
       .from('orders')
-      .select('*, service:services(*), provider:profiles!orders_provider_id_fkey(*), customer:profiles!user_id(*)')
-      .or('user_id.eq.$userId,provider_id.eq.$userId')
-      .order('created_at', ascending: false);
-  
-  return res.map((e) => OrderModel.fromJson(e)).toList();
+      .stream(primaryKey: ['id'])
+      .eq('user_id', userId);
+
+  await for (final _ in stream) {
+    final res = await supabase
+        .from('orders')
+        .select('*, service:services(*), provider:profiles!orders_provider_id_fkey(*), customer:profiles!user_id(*)')
+        .or('user_id.eq.$userId,provider_id.eq.$userId')
+        .order('created_at', ascending: false);
+    yield res.map((e) => OrderModel.fromJson(e)).toList();
+  }
 });
 
 // Fetch milestones for an order
