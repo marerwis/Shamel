@@ -63,43 +63,44 @@ class _ProviderRequestsScreenState extends ConsumerState<ProviderRequestsScreen>
                           style: const TextStyle(fontSize: 16),
                         ),
                         const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Consumer(
-                              builder: (context, ref, _) {
-                                final isLoading = ref.watch(requestsProvider);
-                                return ElevatedButton.icon(
-                                  onPressed: isLoading ? null : () async {
-                                    try {
-                                      await ref.read(requestsProvider.notifier).acceptRequestDirectly(req['id']);
-                                      if (context.mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('تم قبول الطلب بنجاح!')),
-                                        );
-                                        context.go('/orders');
-                                      }
-                                    } catch (e) {
-                                      if (context.mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text(e.toString().replaceAll('Exception:', '').trim()), backgroundColor: Colors.red),
-                                        );
-                                      }
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: Consumer(
+                            builder: (context, ref, _) {
+                              final isLoading = ref.watch(requestsProvider);
+                              return ElevatedButton.icon(
+                                onPressed: isLoading ? null : () async {
+                                  try {
+                                    await ref.read(requestsProvider.notifier).acceptRequestDirectly(req['id']);
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('تم قبول الطلب بنجاح!')),
+                                      );
+                                      context.go('/orders');
                                     }
-                                  },
-                                  icon: isLoading 
-                                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                                    : const Icon(Icons.check_circle),
-                                  label: const Text('قبول الطلب'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Theme.of(context).primaryColor,
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  ),
-                                );
-                              }
-                            ),
-                          ],
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text(e.toString().replaceAll('Exception:', '').trim()), backgroundColor: Colors.red),
+                                      );
+                                    }
+                                  }
+                                },
+                                icon: isLoading 
+                                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                                  : const Icon(Icons.check_circle, size: 28),
+                                label: const Text('قبول الطلب فوراً', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green.shade600,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  elevation: 4,
+                                ),
+                              );
+                            }
+                          ),
                         )
                       ],
                     ),
