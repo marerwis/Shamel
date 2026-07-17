@@ -27,6 +27,7 @@ dependencies:
   carousel_slider: ^5.1.2
   shared_preferences: ^2.5.5
   url_launcher: ^6.3.2
+  flutter_local_notifications: ^22.0.1
 
 dev_dependencies:
   flutter_test:
