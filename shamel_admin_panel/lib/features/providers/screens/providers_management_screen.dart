@@ -231,7 +231,7 @@ class _ProvidersManagementScreenState extends ConsumerState<ProvidersManagementS
                       IconButton(
                         icon: const Icon(Icons.check_circle, color: Colors.green),
                         tooltip: 'قبول وتفعيل',
-                        onPressed: () => _updateStatus(context, provider.id, 'active'),
+                        onPressed: () => _showCategorySelectionDialog(context, provider),
                       ),
                     
                     if (provider.status != 'suspended')
